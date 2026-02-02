@@ -1,0 +1,16 @@
+{{define "article-list.gohtml"}}
+{{if .Articles}}
+    <ul>
+    {{range .Articles}}
+        <li>
+            <a href="{{.URL}}" target="_blank">{{.Title}}</a>
+            {{if .PublishedDate}}
+                <span>- {{.PublishedDate.Format "2006-01-02"}}</span>
+            {{end}}
+        </li>
+    {{end}}
+    </ul>
+{{else}}
+    <p>Articles will appear here</p>
+{{end}}
+{{end}}

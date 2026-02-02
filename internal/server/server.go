@@ -21,9 +21,24 @@ type Server struct {
 // Parses all templates at startup and registers routes
 func NewServer(db *storage.Database) (http.Handler, error) {
 	// Parse all templates once at startup
-	tmpl, err := template.ParseGlob("templates/**/*.gohtml")
+	tmpl := template.New("")
+
+	// Parse base template
+	tmpl, err := tmpl.ParseGlob("templates/*.gohtml")
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse templates: %w", err)
+		return nil, fmt.Errorf("failed to parse base templates: %w", err)
+	}
+
+	// Parse page templates
+	tmpl, err = tmpl.ParseGlob("templates/pages/*.gohtml")
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse page templates: %w", err)
+	}
+
+	// Parse partial templates
+	tmpl, err = tmpl.ParseGlob("templates/partials/*.gohtml")
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse partial templates: %w", err)
 	}
 
 	// Create server with dependencies

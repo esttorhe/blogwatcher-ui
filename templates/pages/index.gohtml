@@ -1,0 +1,15 @@
+{{define "index.gohtml"}}
+{{template "base" .}}
+{{end}}
+
+{{define "title"}}BlogWatcher{{end}}
+
+{{define "content"}}
+<h1>BlogWatcher</h1>
+
+<div id="article-list"
+     hx-get="/articles"
+     hx-trigger="load">
+    <p>Loading articles...</p>
+</div>
+{{end}}
