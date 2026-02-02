@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-02-02
 **Current phase:** Phase 1 - Infrastructure Setup (Complete)
-**Overall progress:** 20%
+**Overall progress:** 20% (1/5 phases, 3/? plans)
 
 ## Project Reference
 
@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 1 complete - HTTP server with HTMX integration ready
+**Current focus:** Phase 1 complete - Full-stack integration verified, real database data flows to browser
 
 ## Phase Status
 
@@ -25,19 +25,19 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Phase
 
 **Phase:** 1 of 5 (Infrastructure Setup)
-**Plan:** 2 of 2 in current phase
+**Plan:** 3 of 3 in current phase
 **Status:** Phase 1 complete
-**Last activity:** 2026-02-02 - Completed 01-02-PLAN.md
+**Last activity:** 2026-02-02 - Completed 01-03-PLAN.md
 
 **Progress bar:** `[██--------] 20%` (1/5 phases complete)
 
 ## Performance Metrics
 
 **Phases completed:** 1/5
-**Plans executed:** 2
+**Plans executed:** 3
 **Requirements delivered:** 3/15 (INFRA-01, INFRA-02, INFRA-03)
 
-**Velocity:** ~4 min per plan (Phase 1 average: 2 plans in 8 min)
+**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min)
 
 ## Accumulated Context
 
@@ -55,11 +55,12 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | Go 1.22+ method routing | Cleaner route definitions with explicit HTTP methods |
 | 2026-02-02 | Template composition pattern | Base wraps content blocks for layout reuse |
 | 2026-02-02 | HTMX request detection | HX-Request header determines fragment vs full page |
+| 2026-02-02 | Index fetches all data | Avoids extra HTMX request on initial page load |
+| 2026-02-02 | Empty state guidance | Direct users to CLI for blog management |
 
 ### Active TODOs
 
 - Plan and execute Phase 2: UI Layout & Navigation
-- Wire up real database queries in handlers (future phases)
 
 ### Known Blockers
 
@@ -82,7 +83,8 @@ None currently
 | 2026-02-02 | Project initialized | Created PROJECT.md, REQUIREMENTS.md, ROADMAP.md with 5 phases |
 | 2026-02-02 | Completed 01-01 | Database layer and HTMX setup (2 min) |
 | 2026-02-02 | Completed 01-02 | HTTP server with HTMX integration (6 min) |
-| 2026-02-02 | Phase 1 complete | Infrastructure foundation ready |
+| 2026-02-02 | Completed 01-03 | Wire handlers to database, full integration (3 min) |
+| 2026-02-02 | Phase 1 complete | Infrastructure foundation ready, real data flowing |
 
 ---
 
