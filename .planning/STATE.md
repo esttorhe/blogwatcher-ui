@@ -1,8 +1,8 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-02
-**Current phase:** Phase 3 - Article Display (Complete)
-**Overall progress:** 60% (3/5 phases complete, 8 plans executed)
+**Current phase:** Phase 4 - Article Management (In Progress)
+**Overall progress:** 64% (3/5 phases complete, 9 plans executed)
 
 ## Project Reference
 
@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 3 complete - Article cards with rich metadata displaying. Ready for Phase 4 article management.
+**Current focus:** Phase 4 started - Scanner infrastructure complete. Ready for sync handler and mark read/unread.
 
 ## Phase Status
 
@@ -19,25 +19,25 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 1 | Infrastructure Setup | Complete | 100% |
 | 2 | UI Layout & Navigation | Complete | 100% |
 | 3 | Article Display | Complete | 100% |
-| 4 | Article Management | Pending | 0% |
+| 4 | Article Management | In Progress | 33% |
 | 5 | Theme Toggle | Pending | 0% |
 
 ## Current Phase
 
-**Phase:** 3 of 5 (Article Display) - COMPLETE
-**Plan:** 2 of 2 in current phase
-**Status:** Phase complete - Ready for Phase 4
-**Last activity:** 2026-02-02 - Completed 03-02-PLAN.md (article card templates)
+**Phase:** 4 of 5 (Article Management) - IN PROGRESS
+**Plan:** 1 of 3 in current phase (estimated)
+**Status:** Scanner infrastructure complete
+**Last activity:** 2026-02-02 - Completed 04-01-PLAN.md (scanner infrastructure)
 
-**Progress bar:** `[██████----] 60%` (8/14 plans complete estimate)
+**Progress bar:** `[██████░---] 64%` (9/14 plans complete estimate)
 
 ## Performance Metrics
 
 **Phases completed:** 3/5
-**Plans executed:** 8
+**Plans executed:** 9
 **Requirements delivered:** 10/15 (INFRA-01, INFRA-02, INFRA-03, UI-01, UI-02, UI-03, DISP-01, DISP-02, DISP-03, DISP-04)
 
-**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min, Phase 2: 2 plans in ~7 min, Phase 3: 2 plans in ~13 min)
+**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min, Phase 2: 2 plans in ~7 min, Phase 3: 2 plans in ~13 min, Phase 4 plan 1: ~3 min)
 
 ## Accumulated Context
 
@@ -67,10 +67,11 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | FuncMap before ParseGlob | Go templates require functions registered before parsing |
 | 2026-02-02 | Google S2 for favicons | faviconURL uses google.com/s2/favicons for reliable icons |
 | 2026-02-02 | ListArticlesWithBlog for display | JOIN query provides BlogName and BlogURL for card display |
+| 2026-02-02 | Copy scanner packages from reference | Faster than rewriting; update import paths |
 
 ### Active TODOs
 
-- Execute Phase 4: Article management (mark read/unread)
+- Complete Phase 4: Add sync handler (04-02) and mark read/unread (04-03)
 
 ### Known Blockers
 
@@ -84,7 +85,19 @@ None currently
 - `blogs` table: id, name, url, feed_url, scrape_selector, last_scanned
 - `articles` table: id, blog_id, title, url, published_date, discovered_date, is_read
 
-**Tech stack:** Go server, Go templates, HTMX, SQLite (modernc.org/sqlite), CSS custom properties
+**Tech stack:** Go server, Go templates, HTMX, SQLite (modernc.org/sqlite), CSS custom properties, gofeed, goquery
+
+**Scanner Packages (established in 04-01):**
+- `internal/rss/rss.go` - RSS/Atom feed parsing and autodiscovery
+- `internal/scraper/scraper.go` - HTML scraping fallback
+- `internal/scanner/scanner.go` - Orchestrates scanning with RSS first, scraper fallback
+
+**Scanner Database Methods (established in 04-01):**
+- `GetBlogByName(name)` - Lookup by name
+- `UpdateBlog(blog)` - Update all fields
+- `UpdateBlogLastScanned(id, time)` - Update scan timestamp
+- `AddArticlesBulk(articles)` - Bulk insert with transaction
+- `GetExistingArticleURLs(urls)` - URL deduplication with chunking
 
 **CSS Variables (established in 02-01):**
 - --bg-primary: #121212
@@ -126,13 +139,14 @@ None currently
 | 2026-02-02 | Completed 03-01 | Template functions + ArticleWithBlog database method (11 min) |
 | 2026-02-02 | Completed 03-02 | Article card templates with rich metadata (2 min) |
 | 2026-02-02 | Phase 3 complete | Article display with favicons, titles, blog names, timestamps |
+| 2026-02-02 | Completed 04-01 | Scanner infrastructure - RSS, scraper, scanner packages (3 min) |
 
 ## Session Continuity
 
 Last session: 2026-02-02
-Stopped at: Phase 3 complete, ready for Phase 4 planning
+Stopped at: Completed 04-01-PLAN.md (scanner infrastructure)
 Resume file: None
-Next action: /gsd:plan-phase 4 (Article Management)
+Next action: Execute 04-02-PLAN.md (sync handler)
 
 ---
 
