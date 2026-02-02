@@ -16,4 +16,12 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("GET /", s.handleIndex)
 	s.mux.HandleFunc("GET /articles", s.handleArticleList)
 	s.mux.HandleFunc("GET /blogs", s.handleBlogList)
+
+	// Article management actions
+	s.mux.HandleFunc("POST /articles/{id}/read", s.handleMarkRead)
+	s.mux.HandleFunc("POST /articles/{id}/unread", s.handleMarkUnread)
+	s.mux.HandleFunc("POST /articles/mark-all-read", s.handleMarkAllRead)
+
+	// Sync
+	s.mux.HandleFunc("POST /sync", s.handleSync)
 }

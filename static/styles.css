@@ -410,6 +410,98 @@ p {
 }
 
 /* ============================================
+   Toolbar Styling
+   ============================================ */
+.toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn-action {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.btn-action:hover {
+  background-color: var(--bg-elevated);
+}
+
+.btn-action.htmx-request {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ============================================
+   Action Button on Article Cards
+   ============================================ */
+.action-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color var(--transition-speed) ease,
+              opacity var(--transition-speed) ease;
+}
+
+.action-btn:hover {
+  background-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+.action-btn.htmx-request {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ============================================
+   HTMX Animation States
+   ============================================ */
+/* Fade out animation for removed cards */
+.article-card.htmx-swapping {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+/* Loading indicator */
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  display: inline;
+}
+
+.htmx-request .sync-text {
+  display: none;
+}
+
+/* ============================================
+   Empty State Styling
+   ============================================ */
+.empty-state-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-state-container .btn-action {
+  margin-top: 1rem;
+}
+
+/* ============================================
    Utility Classes
    ============================================ */
 .visually-hidden {
