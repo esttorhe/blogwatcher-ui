@@ -1,8 +1,8 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-02
-**Current phase:** 1 of 5 (Infrastructure Setup)
-**Overall progress:** 10%
+**Current phase:** Phase 1 - Infrastructure Setup (Complete)
+**Overall progress:** 20%
 
 ## Project Reference
 
@@ -10,13 +10,13 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Project initialized, ready to plan Phase 1
+**Current focus:** Phase 1 complete - HTTP server with HTMX integration ready
 
 ## Phase Status
 
 | Phase | Name | Status | Progress |
 |-------|------|--------|----------|
-| 1 | Infrastructure Setup | In Progress | 50% |
+| 1 | Infrastructure Setup | Complete | 100% |
 | 2 | UI Layout & Navigation | Pending | 0% |
 | 3 | Article Display | Pending | 0% |
 | 4 | Article Management | Pending | 0% |
@@ -25,19 +25,19 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Phase
 
 **Phase:** 1 of 5 (Infrastructure Setup)
-**Plan:** 1 of 2 in current phase
-**Status:** In progress
-**Last activity:** 2026-02-02 - Completed 01-01-PLAN.md
+**Plan:** 2 of 2 in current phase
+**Status:** Phase 1 complete
+**Last activity:** 2026-02-02 - Completed 01-02-PLAN.md
 
-**Progress bar:** `[█---------] 10%` (1/10 plans)
+**Progress bar:** `[██--------] 20%` (1/5 phases complete)
 
 ## Performance Metrics
 
-**Phases completed:** 0/5
-**Plans executed:** 1
-**Requirements delivered:** 3/15
+**Phases completed:** 1/5
+**Plans executed:** 2
+**Requirements delivered:** 3/15 (INFRA-01, INFRA-02, INFRA-03)
 
-**Velocity:** Not yet measured
+**Velocity:** ~4 min per plan (Phase 1 average: 2 plans in 8 min)
 
 ## Accumulated Context
 
@@ -51,11 +51,15 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | Manual sync only | Keeps it simple, user controls refresh |
 | 2026-02-02 | Use modernc.org/sqlite | Same pure-Go driver as CLI, no CGO dependency |
 | 2026-02-02 | Read-only database access | UI doesn't create schema - that's CLI's job |
-| 2026-02-02 | Self-host HTMX | Downloaded 2.0.8 for production reliability |
+| 2026-02-02 | Self-host HTMX | Downloaded 2.0.4 for production reliability |
+| 2026-02-02 | Go 1.22+ method routing | Cleaner route definitions with explicit HTTP methods |
+| 2026-02-02 | Template composition pattern | Base wraps content blocks for layout reuse |
+| 2026-02-02 | HTMX request detection | HX-Request header determines fragment vs full page |
 
 ### Active TODOs
 
-- Execute 01-02-PLAN.md (Server implementation)
+- Plan and execute Phase 2: UI Layout & Navigation
+- Wire up real database queries in handlers (future phases)
 
 ### Known Blockers
 
@@ -77,6 +81,8 @@ None currently
 |------|--------|-------|
 | 2026-02-02 | Project initialized | Created PROJECT.md, REQUIREMENTS.md, ROADMAP.md with 5 phases |
 | 2026-02-02 | Completed 01-01 | Database layer and HTMX setup (2 min) |
+| 2026-02-02 | Completed 01-02 | HTTP server with HTMX integration (6 min) |
+| 2026-02-02 | Phase 1 complete | Infrastructure foundation ready |
 
 ---
 
