@@ -1,8 +1,8 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-02
-**Current phase:** Phase 2 - UI Layout & Navigation (Complete)
-**Overall progress:** 35% (2/5 phases complete, 5 plans executed)
+**Current phase:** Phase 3 - Article Display (In Progress)
+**Overall progress:** 43% (2/5 phases complete, 6 plans executed)
 
 ## Project Reference
 
@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 2 complete - Dark theme, sidebar layout, and HTMX navigation implemented
+**Current focus:** Phase 3 in progress - Template functions and database infrastructure complete, article cards next
 
 ## Phase Status
 
@@ -18,26 +18,26 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 |-------|------|--------|----------|
 | 1 | Infrastructure Setup | Complete | 100% |
 | 2 | UI Layout & Navigation | Complete | 100% |
-| 3 | Article Display | Pending | 0% |
+| 3 | Article Display | In Progress | 50% |
 | 4 | Article Management | Pending | 0% |
 | 5 | Theme Toggle | Pending | 0% |
 
 ## Current Phase
 
 **Phase:** 3 of 5 (Article Display)
-**Plan:** 0 of ? in current phase (needs planning)
-**Status:** Phase 3 pending - Ready to add article card display with rich metadata
-**Last activity:** 2026-02-02 - Completed 02-02-PLAN.md (HTMX navigation)
+**Plan:** 1 of 2 in current phase
+**Status:** In progress - Template functions ready, article cards next
+**Last activity:** 2026-02-02 - Completed 03-01-PLAN.md (template functions + database)
 
-**Progress bar:** `[████------] 35%` (5/14 plans complete estimate)
+**Progress bar:** `[████░-----] 43%` (6/14 plans complete estimate)
 
 ## Performance Metrics
 
 **Phases completed:** 2/5
-**Plans executed:** 5
+**Plans executed:** 6
 **Requirements delivered:** 6/15 (INFRA-01, INFRA-02, INFRA-03, NAV-01, NAV-02, NAV-03)
 
-**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min, Phase 2: 2 plans in ~7 min)
+**Velocity:** ~5 min per plan (Phase 1: 3 plans in ~11 min, Phase 2: 2 plans in ~7 min, Phase 3: 1 plan in ~11 min)
 
 ## Accumulated Context
 
@@ -64,10 +64,11 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | ListArticlesByReadStatus for filtering | New method for explicit read status (vs ListArticles which has different semantics) |
 | 2026-02-02 | CurrentBlogID as int64 | 0 means no filter, simpler than pointer for template comparison |
 | 2026-02-02 | h1 in article-list partial | Ensures title updates on HTMX swaps |
+| 2026-02-02 | FuncMap before ParseGlob | Go templates require functions registered before parsing |
 
 ### Active TODOs
 
-- Execute Phase 3: Article Display (improved cards, metadata, date formatting)
+- Execute Phase 3 Plan 02: Article card templates with rich metadata
 
 ### Known Blockers
 
@@ -97,6 +98,11 @@ None currently
 - Active state: {{if eq .CurrentFilter "read"}} active{{end}}
 - Mobile close: hx-on::after-swap="document.getElementById('sidebar-toggle').checked = false"
 
+**Template Functions (established in 03-01):**
+- `{{ timeAgo .DiscoveredDate }}` - Relative timestamps ("7 hours ago")
+- `{{ faviconURL .BlogURL }}` - Google S2 favicon URL
+- ArticleWithBlog model has BlogName and BlogURL from JOIN
+
 ## Session History
 
 | Date | Action | Notes |
@@ -109,11 +115,12 @@ None currently
 | 2026-02-02 | Completed 02-01 | Dark theme CSS, grid layout, hamburger menu (3 min) |
 | 2026-02-02 | Completed 02-02 | HTMX navigation, filter/blog params, active states (4 min) |
 | 2026-02-02 | Phase 2 complete | Navigation fully functional, ready for article display |
+| 2026-02-02 | Completed 03-01 | Template functions + ArticleWithBlog database method (11 min) |
 
 ## Session Continuity
 
-Last session: 2026-02-02T22:06Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-02-02T23:35Z
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
 
 ---
