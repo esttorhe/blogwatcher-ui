@@ -1,8 +1,8 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-02
-**Current phase:** Phase 1 - Infrastructure Setup (Complete)
-**Overall progress:** 20% (1/5 phases, 3/? plans)
+**Current phase:** Phase 2 - UI Layout & Navigation (In Progress)
+**Overall progress:** 28% (1/5 phases complete, 4 plans executed)
 
 ## Project Reference
 
@@ -10,34 +10,34 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 1 complete - Full-stack integration verified, real database data flows to browser
+**Current focus:** Phase 2 plan 01 complete - Dark theme and sidebar layout implemented
 
 ## Phase Status
 
 | Phase | Name | Status | Progress |
 |-------|------|--------|----------|
 | 1 | Infrastructure Setup | Complete | 100% |
-| 2 | UI Layout & Navigation | Pending | 0% |
+| 2 | UI Layout & Navigation | In Progress | 50% |
 | 3 | Article Display | Pending | 0% |
 | 4 | Article Management | Pending | 0% |
 | 5 | Theme Toggle | Pending | 0% |
 
 ## Current Phase
 
-**Phase:** 1 of 5 (Infrastructure Setup)
-**Plan:** 3 of 3 in current phase
-**Status:** Phase 1 complete
-**Last activity:** 2026-02-02 - Completed 01-03-PLAN.md
+**Phase:** 2 of 5 (UI Layout & Navigation)
+**Plan:** 1 of 2 complete in current phase
+**Status:** Phase 2 in progress - Plan 02 (HTMX Navigation) next
+**Last activity:** 2026-02-02 - Completed 02-01-PLAN.md (dark theme and sidebar layout)
 
-**Progress bar:** `[██--------] 20%` (1/5 phases complete)
+**Progress bar:** `[███-------] 28%` (4/14 plans complete estimate)
 
 ## Performance Metrics
 
 **Phases completed:** 1/5
-**Plans executed:** 3
-**Requirements delivered:** 3/15 (INFRA-01, INFRA-02, INFRA-03)
+**Plans executed:** 4
+**Requirements delivered:** 4/15 (INFRA-01, INFRA-02, INFRA-03, NAV-01 partial)
 
-**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min)
+**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min, Phase 2 Plan 1: 3 min)
 
 ## Accumulated Context
 
@@ -57,10 +57,14 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | HTMX request detection | HX-Request header determines fragment vs full page |
 | 2026-02-02 | Index fetches all data | Avoids extra HTMX request on initial page load |
 | 2026-02-02 | Empty state guidance | Direct users to CLI for blog management |
+| 2026-02-02 | Dark theme as default | Applied class="dark" to html element for immediate dark rendering |
+| 2026-02-02 | Pure CSS hamburger toggle | Checkbox hack instead of JavaScript for mobile menu |
+| 2026-02-02 | 768px mobile breakpoint | Standard tablet/phone breakpoint for responsive layout |
+| 2026-02-02 | CSS custom properties | Established naming convention for future theme toggle |
 
 ### Active TODOs
 
-- Plan and execute Phase 2: UI Layout & Navigation
+- Execute Phase 2 Plan 02: HTMX navigation (filter by status, filter by blog)
 
 ### Known Blockers
 
@@ -74,7 +78,16 @@ None currently
 - `blogs` table: id, name, url, feed_url, scrape_selector, last_scanned
 - `articles` table: id, blog_id, title, url, published_date, discovered_date, is_read
 
-**Tech stack:** Go server, Go templates, HTMX, SQLite (modernc.org/sqlite)
+**Tech stack:** Go server, Go templates, HTMX, SQLite (modernc.org/sqlite), CSS custom properties
+
+**CSS Variables (established in 02-01):**
+- --bg-primary: #121212
+- --bg-surface: #1e1e1e
+- --bg-elevated: #2d2d2d
+- --text-primary: #e0e0e0
+- --text-secondary: #a0a0a0
+- --accent: #64b5f6
+- --border: #333333
 
 ## Session History
 
@@ -85,6 +98,13 @@ None currently
 | 2026-02-02 | Completed 01-02 | HTTP server with HTMX integration (6 min) |
 | 2026-02-02 | Completed 01-03 | Wire handlers to database, full integration (3 min) |
 | 2026-02-02 | Phase 1 complete | Infrastructure foundation ready, real data flowing |
+| 2026-02-02 | Completed 02-01 | Dark theme CSS, grid layout, hamburger menu (3 min) |
+
+## Session Continuity
+
+Last session: 2026-02-02T22:01Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: None
 
 ---
 
