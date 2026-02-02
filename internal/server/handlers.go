@@ -18,9 +18,24 @@ func (s *Server) renderTemplate(w http.ResponseWriter, name string, data interfa
 }
 
 // handleIndex serves the main index page
+// Fetches both blogs and articles for initial render
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
+	blogs, err := s.db.ListBlogs()
+	if err != nil {
+		log.Printf("Error fetching blogs: %v", err)
+		blogs = nil
+	}
+
+	articles, err := s.db.ListArticles(false, nil)
+	if err != nil {
+		log.Printf("Error fetching articles: %v", err)
+		articles = nil
+	}
+
 	data := map[string]interface{}{
-		"Title": "BlogWatcher",
+		"Title":    "BlogWatcher",
+		"Blogs":    blogs,
+		"Articles": articles,
 	}
 	s.renderTemplate(w, "index.gohtml", data)
 }
@@ -28,9 +43,15 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 // handleArticleList serves the article list
 // Returns partial fragment for HTMX requests, full page otherwise
 func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
-	// Placeholder data - will be replaced with real database queries
+	articles, err := s.db.ListArticles(false, nil)
+	if err != nil {
+		log.Printf("Error fetching articles: %v", err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
 	data := map[string]interface{}{
-		"Articles": []interface{}{},
+		"Articles": articles,
 	}
 
 	// Check if this is an HTMX request
@@ -39,6 +60,13 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 		s.renderTemplate(w, "article-list.gohtml", data)
 	} else {
 		// Return full page for direct navigation
+		data["Title"] = "BlogWatcher"
+		blogs, err := s.db.ListBlogs()
+		if err != nil {
+			log.Printf("Error fetching blogs: %v", err)
+		} else {
+			data["Blogs"] = blogs
+		}
 		s.renderTemplate(w, "index.gohtml", data)
 	}
 }
@@ -46,9 +74,15 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 // handleBlogList serves the blog list
 // Returns partial fragment for HTMX requests, full page otherwise
 func (s *Server) handleBlogList(w http.ResponseWriter, r *http.Request) {
-	// Placeholder data - will be replaced with real database queries
+	blogs, err := s.db.ListBlogs()
+	if err != nil {
+		log.Printf("Error fetching blogs: %v", err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
 	data := map[string]interface{}{
-		"Blogs": []interface{}{},
+		"Blogs": blogs,
 	}
 
 	// Check if this is an HTMX request
@@ -57,6 +91,13 @@ func (s *Server) handleBlogList(w http.ResponseWriter, r *http.Request) {
 		s.renderTemplate(w, "blog-list.gohtml", data)
 	} else {
 		// Return full page for direct navigation
+		data["Title"] = "BlogWatcher"
+		articles, err := s.db.ListArticles(false, nil)
+		if err != nil {
+			log.Printf("Error fetching articles: %v", err)
+		} else {
+			data["Articles"] = articles
+		}
 		s.renderTemplate(w, "index.gohtml", data)
 	}
 }
