@@ -22,6 +22,13 @@
 
 **Depends on:** None
 
+**Plans:** 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project setup, database layer, HTMX static file
+- [ ] 01-02-PLAN.md — HTTP server with NewServer pattern and templates
+- [ ] 01-03-PLAN.md — Wire handlers to database, full integration verification
+
 ---
 
 ### Phase 2: UI Layout & Navigation
@@ -129,7 +136,7 @@
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| 1 - Infrastructure Setup | Pending | 0% |
+| 1 - Infrastructure Setup | Planned | 0% |
 | 2 - UI Layout & Navigation | Pending | 0% |
 | 3 - Article Display | Pending | 0% |
 | 4 - Article Management | Pending | 0% |
@@ -140,4 +147,4 @@
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-02*
+*Last updated: 2026-02-02 (Phase 1 planned)*
