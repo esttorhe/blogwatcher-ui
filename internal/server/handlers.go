@@ -44,20 +44,20 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Fetch articles based on filter
-	var articles []model.Article
+	// Fetch articles based on filter (using ListArticlesWithBlog for rich metadata)
+	var articles []model.ArticleWithBlog
 	switch filter {
 	case "read":
-		articles, err = s.db.ListArticlesByReadStatus(true, blogID)
+		articles, err = s.db.ListArticlesWithBlog(true, blogID)
 	case "unread", "":
 		// Default to unread (inbox view)
-		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		articles, err = s.db.ListArticlesWithBlog(false, blogID)
 		if filter == "" {
 			filter = "unread" // Set default for template active state
 		}
 	default:
 		// Unknown filter, default to unread
-		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		articles, err = s.db.ListArticlesWithBlog(false, blogID)
 		filter = "unread"
 	}
 	if err != nil {
@@ -93,21 +93,21 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Fetch articles based on filter
-	var articles []model.Article
+	// Fetch articles based on filter (using ListArticlesWithBlog for rich metadata)
+	var articles []model.ArticleWithBlog
 	var err error
 	switch filter {
 	case "read":
-		articles, err = s.db.ListArticlesByReadStatus(true, blogID)
+		articles, err = s.db.ListArticlesWithBlog(true, blogID)
 	case "unread", "":
 		// Default to unread (inbox view)
-		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		articles, err = s.db.ListArticlesWithBlog(false, blogID)
 		if filter == "" {
 			filter = "unread" // Set default for template active state
 		}
 	default:
 		// Unknown filter, default to unread
-		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		articles, err = s.db.ListArticlesWithBlog(false, blogID)
 		filter = "unread"
 	}
 	if err != nil {
