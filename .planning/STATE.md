@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 ## Current Phase
 
-**Phase:** 2 of 5 (UI Layout & Navigation)
-**Plan:** 2 of 2 complete in current phase
-**Status:** Phase 2 complete - Ready for Phase 3 (Article Display)
+**Phase:** 3 of 5 (Article Display)
+**Plan:** 0 of ? in current phase (needs planning)
+**Status:** Phase 3 pending - Ready to add article card display with rich metadata
 **Last activity:** 2026-02-02 - Completed 02-02-PLAN.md (HTMX navigation)
 
 **Progress bar:** `[████------] 35%` (5/14 plans complete estimate)

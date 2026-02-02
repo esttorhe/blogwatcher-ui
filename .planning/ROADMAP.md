@@ -51,8 +51,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — CSS foundation with dark theme, responsive grid layout, collapsible sidebar structure
-- [ ] 02-02-PLAN.md — HTMX navigation wiring, filter query params, active state highlighting
+- [x] 02-01-PLAN.md — CSS foundation with dark theme, responsive grid layout, collapsible sidebar structure
+- [x] 02-02-PLAN.md — HTMX navigation wiring, filter query params, active state highlighting
 
 ---
 
@@ -143,14 +143,14 @@ Plans:
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 1 - Infrastructure Setup | Complete | 100% |
-| 2 - UI Layout & Navigation | Planned | 0% |
+| 2 - UI Layout & Navigation | Complete | 100% |
 | 3 - Article Display | Pending | 0% |
 | 4 - Article Management | Pending | 0% |
 | 5 - Theme Toggle | Pending | 0% |
 
-**Overall Progress:** 1/5 phases complete (20%)
+**Overall Progress:** 2/5 phases complete (40%)
 
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 2 planned)*
+*Last updated: 2026-02-02 (Phase 2 complete)*

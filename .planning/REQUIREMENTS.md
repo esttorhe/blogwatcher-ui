@@ -9,9 +9,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### UI/Layout
 
-- [ ] **UI-01**: Responsive layout with collapsible sidebar on mobile
-- [ ] **UI-02**: Filter views in sidebar (Inbox/unread, Archived/read)
-- [ ] **UI-03**: Subscriptions list in sidebar showing tracked blogs
+- [x] **UI-01**: Responsive layout with collapsible sidebar on mobile
+- [x] **UI-02**: Filter views in sidebar (Inbox/unread, Archived/read)
+- [x] **UI-03**: Subscriptions list in sidebar showing tracked blogs
 - [ ] **UI-04**: Dark/light theme toggle
 
 ### Article Display
@@ -30,9 +30,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Go HTTP server serving web UI
-- [ ] **INFRA-02**: Connect to existing blogwatcher SQLite database
-- [ ] **INFRA-03**: HTMX for dynamic updates without full page reloads
+- [x] **INFRA-01**: Go HTTP server serving web UI
+- [x] **INFRA-02**: Connect to existing blogwatcher SQLite database
+- [x] **INFRA-03**: HTMX for dynamic updates without full page reloads
 
 ## v2 Requirements
 
@@ -68,12 +68,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 | ----------- | ----- | ------ |
-| INFRA-01 | Phase 1 | Pending |
-| INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
-| UI-01 | Phase 2 | Pending |
-| UI-02 | Phase 2 | Pending |
-| UI-03 | Phase 2 | Pending |
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
+| UI-01 | Phase 2 | Complete |
+| UI-02 | Phase 2 | Complete |
+| UI-03 | Phase 2 | Complete |
 | DISP-01 | Phase 3 | Pending |
 | DISP-02 | Phase 3 | Pending |
 | DISP-03 | Phase 3 | Pending |
