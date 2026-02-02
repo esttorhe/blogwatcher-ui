@@ -20,8 +20,14 @@ type Server struct {
 // NewServer creates a new HTTP server with dependency injection
 // Parses all templates at startup and registers routes
 func NewServer(db *storage.Database) (http.Handler, error) {
+	// Register template functions BEFORE parsing templates
+	funcMap := template.FuncMap{
+		"timeAgo":    timeAgo,
+		"faviconURL": faviconURL,
+	}
+
 	// Parse all templates once at startup
-	tmpl := template.New("")
+	tmpl := template.New("").Funcs(funcMap)
 
 	// Parse base template
 	tmpl, err := tmpl.ParseGlob("templates/*.gohtml")
