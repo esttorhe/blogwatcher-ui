@@ -102,6 +102,12 @@ Plans:
 
 **Depends on:** Phase 3 (Article Display)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Scanner package setup (copy RSS, scraper, scanner from reference + database extensions)
+- [ ] 04-02-PLAN.md — Article management handlers, routes, templates with action buttons and toolbar
+
 ---
 
 ### Phase 5: Theme Toggle
@@ -151,7 +157,7 @@ Plans:
 | 1 - Infrastructure Setup | Complete | 100% |
 | 2 - UI Layout & Navigation | Complete | 100% |
 | 3 - Article Display | Complete | 100% |
-| 4 - Article Management | Pending | 0% |
+| 4 - Article Management | Planned | 0% |
 | 5 - Theme Toggle | Pending | 0% |
 
 **Overall Progress:** 3/5 phases complete (60%)
@@ -159,4 +165,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 3 complete)*
+*Last updated: 2026-02-02 (Phase 4 planned)*
