@@ -202,38 +202,68 @@ p {
 }
 
 /* ============================================
-   Article List Styling
+   Article Card Styling
    ============================================ */
-.article {
+.article-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
   padding: 1rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
   background-color: var(--bg-surface);
   border-radius: 8px;
   border: 1px solid var(--border);
   transition: background-color var(--transition-speed) ease;
 }
 
-.article:hover {
+.article-card:hover {
   background-color: var(--bg-elevated);
 }
 
+.article-favicon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background-color: var(--bg-elevated);
+}
+
+.article-content {
+  flex: 1;
+  min-width: 0;  /* Enables text truncation */
+}
+
 .article-title {
+  display: block;
   font-size: 1rem;
   font-weight: 500;
-  margin-bottom: 0.25rem;
-}
-
-.article-title a {
   color: var(--text-primary);
+  text-decoration: none;
+  margin-bottom: 0.25rem;
+  /* Truncate long titles */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.article-title a:hover {
+.article-title:hover {
   color: var(--accent);
 }
 
 .article-meta {
+  display: flex;
+  gap: 0.5rem;
   font-size: 0.875rem;
   color: var(--text-secondary);
+}
+
+.article-source {
+  font-weight: 500;
+}
+
+.article-time::before {
+  content: "\00B7";
+  margin-right: 0.5rem;
 }
 
 /* ============================================
