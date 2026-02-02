@@ -5,6 +5,9 @@ package server
 import (
 	"log"
 	"net/http"
+	"strconv"
+
+	"github.com/esttorhe/blogwatcher-ui/internal/model"
 )
 
 // renderTemplate executes a named template with the given data
@@ -19,6 +22,7 @@ func (s *Server) renderTemplate(w http.ResponseWriter, name string, data interfa
 
 // handleIndex serves the main index page
 // Fetches both blogs and articles for initial render
+// Supports filter and blog query params for direct URL access
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	blogs, err := s.db.ListBlogs()
 	if err != nil {
@@ -26,24 +30,82 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		blogs = nil
 	}
 
-	articles, err := s.db.ListArticles(false, nil)
+	// Parse query parameters for filter and blog
+	filter := r.URL.Query().Get("filter")
+	blogParam := r.URL.Query().Get("blog")
+
+	// Parse blogID if provided
+	var blogID *int64
+	if blogParam != "" {
+		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
+			blogID = &id
+		}
+	}
+
+	// Fetch articles based on filter
+	var articles []model.Article
+	switch filter {
+	case "read":
+		articles, err = s.db.ListArticlesByReadStatus(true, blogID)
+	case "unread", "":
+		// Default to unread (inbox view)
+		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		if filter == "" {
+			filter = "unread" // Set default for template active state
+		}
+	default:
+		// Unknown filter, default to unread
+		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		filter = "unread"
+	}
 	if err != nil {
 		log.Printf("Error fetching articles: %v", err)
 		articles = nil
 	}
 
 	data := map[string]interface{}{
-		"Title":    "BlogWatcher",
-		"Blogs":    blogs,
-		"Articles": articles,
+		"Title":         "BlogWatcher",
+		"Blogs":         blogs,
+		"Articles":      articles,
+		"CurrentFilter": filter,
+		"CurrentBlogID": blogID,
 	}
 	s.renderTemplate(w, "index.gohtml", data)
 }
 
 // handleArticleList serves the article list
 // Returns partial fragment for HTMX requests, full page otherwise
+// Supports filter (unread/read) and blog query parameters
 func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
-	articles, err := s.db.ListArticles(false, nil)
+	// Parse query parameters
+	filter := r.URL.Query().Get("filter")
+	blogParam := r.URL.Query().Get("blog")
+
+	// Parse blogID if provided
+	var blogID *int64
+	if blogParam != "" {
+		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
+			blogID = &id
+		}
+	}
+
+	// Fetch articles based on filter
+	var articles []model.Article
+	var err error
+	switch filter {
+	case "read":
+		articles, err = s.db.ListArticlesByReadStatus(true, blogID)
+	case "unread", "":
+		// Default to unread (inbox view)
+		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		if filter == "" {
+			filter = "unread" // Set default for template active state
+		}
+	default:
+		// Unknown filter, default to unread
+		articles, err = s.db.ListArticlesByReadStatus(false, blogID)
+		filter = "unread"
+	}
 	if err != nil {
 		log.Printf("Error fetching articles: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)
@@ -51,7 +113,9 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Articles": articles,
+		"Articles":      articles,
+		"CurrentFilter": filter,
+		"CurrentBlogID": blogID,
 	}
 
 	// Check if this is an HTMX request
