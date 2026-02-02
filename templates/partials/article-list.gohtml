@@ -1,4 +1,7 @@
 {{define "article-list.gohtml"}}
+{{/* ABOUTME: Renders the article list in the main content area.
+     ABOUTME: Includes h1 title for HTMX swaps, shows article links with dates. */}}
+<h1>{{if eq .CurrentFilter "read"}}Archived{{else}}Inbox{{end}}</h1>
 {{range .Articles}}
 <div class="article">
     <a href="{{.URL}}" target="_blank">{{.Title}}</a>

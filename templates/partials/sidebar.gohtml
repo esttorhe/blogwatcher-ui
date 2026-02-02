@@ -1,6 +1,6 @@
 {{define "sidebar.gohtml"}}
 {{/* ABOUTME: Sidebar component with navigation and blog list for BlogWatcher UI.
-     ABOUTME: Uses checkbox toggle for mobile hamburger menu, includes nav links and subscriptions. */}}
+     ABOUTME: Uses HTMX for navigation, checkbox toggle for mobile menu, includes nav links and subscriptions. */}}
 
 {{/* Hidden checkbox for mobile toggle */}}
 <input type="checkbox" id="sidebar-toggle" class="sidebar-toggle">
@@ -19,13 +19,23 @@
         <div class="sidebar-logo">BlogWatcher</div>
     </div>
 
-    {{/* Main navigation */}}
+    {{/* Main navigation with HTMX */}}
     <nav class="sidebar-nav">
         <div class="nav-section-title">Library</div>
-        <a href="/articles?filter=unread" class="nav-link">
+        <a href="/articles?filter=unread"
+           hx-get="/articles?filter=unread"
+           hx-target="#main-content"
+           hx-push-url="true"
+           hx-on::after-swap="document.getElementById('sidebar-toggle').checked = false"
+           class="nav-link{{if eq .CurrentFilter "unread"}} active{{end}}">
             Inbox
         </a>
-        <a href="/articles?filter=read" class="nav-link">
+        <a href="/articles?filter=read"
+           hx-get="/articles?filter=read"
+           hx-target="#main-content"
+           hx-push-url="true"
+           hx-on::after-swap="document.getElementById('sidebar-toggle').checked = false"
+           class="nav-link{{if eq .CurrentFilter "read"}} active{{end}}">
             Archived
         </a>
     </nav>

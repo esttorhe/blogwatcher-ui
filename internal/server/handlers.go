@@ -34,11 +34,13 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	filter := r.URL.Query().Get("filter")
 	blogParam := r.URL.Query().Get("blog")
 
-	// Parse blogID if provided
+	// Parse blogID if provided (0 means no filter, DB IDs start at 1)
 	var blogID *int64
+	var currentBlogID int64
 	if blogParam != "" {
 		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
 			blogID = &id
+			currentBlogID = id
 		}
 	}
 
@@ -68,7 +70,7 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		"Blogs":         blogs,
 		"Articles":      articles,
 		"CurrentFilter": filter,
-		"CurrentBlogID": blogID,
+		"CurrentBlogID": currentBlogID, // 0 means no blog filter active
 	}
 	s.renderTemplate(w, "index.gohtml", data)
 }
@@ -81,11 +83,13 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 	filter := r.URL.Query().Get("filter")
 	blogParam := r.URL.Query().Get("blog")
 
-	// Parse blogID if provided
+	// Parse blogID if provided (0 means no filter, DB IDs start at 1)
 	var blogID *int64
+	var currentBlogID int64
 	if blogParam != "" {
 		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
 			blogID = &id
+			currentBlogID = id
 		}
 	}
 
@@ -115,7 +119,7 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"Articles":      articles,
 		"CurrentFilter": filter,
-		"CurrentBlogID": blogID,
+		"CurrentBlogID": currentBlogID, // 0 means no blog filter active
 	}
 
 	// Check if this is an HTMX request
