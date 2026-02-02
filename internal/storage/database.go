@@ -126,6 +126,38 @@ func (db *Database) ListArticles(unreadOnly bool, blogID *int64) ([]model.Articl
 	return articles, rows.Err()
 }
 
+// ListArticlesByReadStatus returns articles filtered by explicit read status.
+// isRead=true returns read articles, isRead=false returns unread articles.
+// blogID filters to a specific blog if provided.
+func (db *Database) ListArticlesByReadStatus(isRead bool, blogID *int64) ([]model.Article, error) {
+	query := `SELECT id, blog_id, title, url, published_date, discovered_date, is_read FROM articles WHERE is_read = ?`
+	args := []interface{}{isRead}
+
+	if blogID != nil {
+		query += " AND blog_id = ?"
+		args = append(args, *blogID)
+	}
+	query += " ORDER BY discovered_date DESC"
+
+	rows, err := db.conn.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var articles []model.Article
+	for rows.Next() {
+		article, err := scanArticle(rows)
+		if err != nil {
+			return nil, err
+		}
+		if article != nil {
+			articles = append(articles, *article)
+		}
+	}
+	return articles, rows.Err()
+}
+
 func (db *Database) MarkArticleRead(id int64) (bool, error) {
 	result, err := db.conn.Exec(`UPDATE articles SET is_read = 1 WHERE id = ?`, id)
 	if err != nil {
