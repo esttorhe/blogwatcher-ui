@@ -1,8 +1,8 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-02
-**Current phase:** Phase 3 - Article Display (In Progress)
-**Overall progress:** 43% (2/5 phases complete, 6 plans executed)
+**Current phase:** Phase 3 - Article Display (Complete)
+**Overall progress:** 57% (3/5 phases complete, 8 plans executed)
 
 ## Project Reference
 
@@ -10,7 +10,7 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 3 in progress - Template functions and database infrastructure complete, article cards next
+**Current focus:** Phase 3 complete - Article cards with rich metadata displaying. Ready for Phase 4 article management.
 
 ## Phase Status
 
@@ -18,26 +18,26 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 |-------|------|--------|----------|
 | 1 | Infrastructure Setup | Complete | 100% |
 | 2 | UI Layout & Navigation | Complete | 100% |
-| 3 | Article Display | In Progress | 50% |
+| 3 | Article Display | Complete | 100% |
 | 4 | Article Management | Pending | 0% |
 | 5 | Theme Toggle | Pending | 0% |
 
 ## Current Phase
 
-**Phase:** 3 of 5 (Article Display)
-**Plan:** 1 of 2 in current phase
-**Status:** In progress - Template functions ready, article cards next
-**Last activity:** 2026-02-02 - Completed 03-01-PLAN.md (template functions + database)
+**Phase:** 3 of 5 (Article Display) - COMPLETE
+**Plan:** 2 of 2 in current phase
+**Status:** Phase complete - Ready for Phase 4
+**Last activity:** 2026-02-02 - Completed 03-02-PLAN.md (article card templates)
 
-**Progress bar:** `[████░-----] 43%` (6/14 plans complete estimate)
+**Progress bar:** `[██████░---] 57%` (8/14 plans complete estimate)
 
 ## Performance Metrics
 
-**Phases completed:** 2/5
-**Plans executed:** 6
-**Requirements delivered:** 6/15 (INFRA-01, INFRA-02, INFRA-03, NAV-01, NAV-02, NAV-03)
+**Phases completed:** 3/5
+**Plans executed:** 8
+**Requirements delivered:** 9/15 (INFRA-01, INFRA-02, INFRA-03, NAV-01, NAV-02, NAV-03, DISP-01, DISP-02, DISP-03)
 
-**Velocity:** ~5 min per plan (Phase 1: 3 plans in ~11 min, Phase 2: 2 plans in ~7 min, Phase 3: 1 plan in ~11 min)
+**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min, Phase 2: 2 plans in ~7 min, Phase 3: 2 plans in ~13 min)
 
 ## Accumulated Context
 
@@ -65,10 +65,12 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | CurrentBlogID as int64 | 0 means no filter, simpler than pointer for template comparison |
 | 2026-02-02 | h1 in article-list partial | Ensures title updates on HTMX swaps |
 | 2026-02-02 | FuncMap before ParseGlob | Go templates require functions registered before parsing |
+| 2026-02-02 | Google S2 for favicons | faviconURL uses google.com/s2/favicons for reliable icons |
+| 2026-02-02 | ListArticlesWithBlog for display | JOIN query provides BlogName and BlogURL for card display |
 
 ### Active TODOs
 
-- Execute Phase 3 Plan 02: Article card templates with rich metadata
+- Execute Phase 4: Article management (mark read/unread)
 
 ### Known Blockers
 
@@ -99,9 +101,15 @@ None currently
 - Mobile close: hx-on::after-swap="document.getElementById('sidebar-toggle').checked = false"
 
 **Template Functions (established in 03-01):**
-- `{{ timeAgo .DiscoveredDate }}` - Relative timestamps ("7 hours ago")
+- `{{ timeAgo .PublishedDate }}` - Relative timestamps ("7 hours ago")
 - `{{ faviconURL .BlogURL }}` - Google S2 favicon URL
 - ArticleWithBlog model has BlogName and BlogURL from JOIN
+
+**Article Card Pattern (established in 03-02):**
+- Flexbox layout: favicon (32px) + content area
+- Title truncated with ellipsis for long titles
+- Meta line: blog name + dot separator + relative time
+- External links: target="_blank" rel="noopener noreferrer"
 
 ## Session History
 
@@ -116,11 +124,13 @@ None currently
 | 2026-02-02 | Completed 02-02 | HTMX navigation, filter/blog params, active states (4 min) |
 | 2026-02-02 | Phase 2 complete | Navigation fully functional, ready for article display |
 | 2026-02-02 | Completed 03-01 | Template functions + ArticleWithBlog database method (11 min) |
+| 2026-02-02 | Completed 03-02 | Article card templates with rich metadata (2 min) |
+| 2026-02-02 | Phase 3 complete | Article display with favicons, titles, blog names, timestamps |
 
 ## Session Continuity
 
-Last session: 2026-02-02T23:35Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-02-02T22:38Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
 
 ---
