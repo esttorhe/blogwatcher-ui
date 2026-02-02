@@ -1,8 +1,8 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-02
-**Current phase:** Not started
-**Overall progress:** 0%
+**Current phase:** 1 of 5 (Infrastructure Setup)
+**Overall progress:** 10%
 
 ## Project Reference
 
@@ -16,7 +16,7 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 | Phase | Name | Status | Progress |
 |-------|------|--------|----------|
-| 1 | Infrastructure Setup | Pending | 0% |
+| 1 | Infrastructure Setup | In Progress | 50% |
 | 2 | UI Layout & Navigation | Pending | 0% |
 | 3 | Article Display | Pending | 0% |
 | 4 | Article Management | Pending | 0% |
@@ -24,17 +24,18 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 ## Current Phase
 
-**Phase:** None - Project initialized
-**Plan:** Not created yet
-**Status:** Ready to plan Phase 1
+**Phase:** 1 of 5 (Infrastructure Setup)
+**Plan:** 1 of 2 in current phase
+**Status:** In progress
+**Last activity:** 2026-02-02 - Completed 01-01-PLAN.md
 
-**Progress bar:** `[----------] 0%` (0/5 phases)
+**Progress bar:** `[█---------] 10%` (1/10 plans)
 
 ## Performance Metrics
 
 **Phases completed:** 0/5
-**Plans executed:** 0
-**Requirements delivered:** 0/15
+**Plans executed:** 1
+**Requirements delivered:** 3/15
 
 **Velocity:** Not yet measured
 
@@ -48,11 +49,13 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | Share CLI database | Single source of truth, CLI and UI coexist |
 | 2026-02-02 | No in-app reader | Simpler, just link to originals |
 | 2026-02-02 | Manual sync only | Keeps it simple, user controls refresh |
+| 2026-02-02 | Use modernc.org/sqlite | Same pure-Go driver as CLI, no CGO dependency |
+| 2026-02-02 | Read-only database access | UI doesn't create schema - that's CLI's job |
+| 2026-02-02 | Self-host HTMX | Downloaded 2.0.8 for production reliability |
 
 ### Active TODOs
 
-- Plan Phase 1: Infrastructure Setup
-- Review reference codebase at .reference/blogwatcher/ for database patterns
+- Execute 01-02-PLAN.md (Server implementation)
 
 ### Known Blockers
 
@@ -73,6 +76,7 @@ None currently
 | Date | Action | Notes |
 |------|--------|-------|
 | 2026-02-02 | Project initialized | Created PROJECT.md, REQUIREMENTS.md, ROADMAP.md with 5 phases |
+| 2026-02-02 | Completed 01-01 | Database layer and HTMX setup (2 min) |
 
 ---
 
