@@ -1,15 +1,32 @@
 {{define "article-list.gohtml"}}
-{{/* ABOUTME: Renders the article list in the main content area.
-     ABOUTME: Includes h1 title for HTMX swaps, shows article links with dates. */}}
+{{/* ABOUTME: Renders article cards in the main content area with rich metadata.
+     ABOUTME: Each card shows favicon, title (clickable), blog name, and relative time. */}}
 <h1>{{if eq .CurrentFilter "read"}}Archived{{else}}Inbox{{end}}</h1>
 {{range .Articles}}
-<div class="article">
-    <a href="{{.URL}}" target="_blank">{{.Title}}</a>
-    {{if .PublishedDate}}
-        <span class="date">- {{.PublishedDate.Format "2006-01-02"}}</span>
-    {{end}}
-</div>
+<article class="article-card">
+    <img class="article-favicon"
+         src="{{faviconURL .BlogURL}}"
+         alt=""
+         width="32"
+         height="32"
+         loading="lazy"
+         onerror="this.style.visibility='hidden'">
+    <div class="article-content">
+        <a href="{{.URL}}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="article-title">
+            {{.Title}}
+        </a>
+        <div class="article-meta">
+            <span class="article-source">{{.BlogName}}</span>
+            {{if .PublishedDate}}
+            <span class="article-time">{{timeAgo .PublishedDate}}</span>
+            {{end}}
+        </div>
+    </div>
+</article>
 {{else}}
-<p>No articles to display. Add some blogs using the blogwatcher CLI to get started.</p>
+<p class="empty-state">No articles to display. Add some blogs using the blogwatcher CLI to get started.</p>
 {{end}}
 {{end}}
