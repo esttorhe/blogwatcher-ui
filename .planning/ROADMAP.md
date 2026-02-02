@@ -78,8 +78,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Template functions (timeAgo, faviconURL), ArticleWithBlog model, database JOIN query
-- [ ] 03-02-PLAN.md — Article card template and CSS styling with rich metadata display
+- [x] 03-01-PLAN.md — Template functions (timeAgo, faviconURL), ArticleWithBlog model, database JOIN query
+- [x] 03-02-PLAN.md — Article card template and CSS styling with rich metadata display
 
 ---
 
@@ -150,13 +150,13 @@ Plans:
 |-------|--------|----------|
 | 1 - Infrastructure Setup | Complete | 100% |
 | 2 - UI Layout & Navigation | Complete | 100% |
-| 3 - Article Display | Planned | 0% |
+| 3 - Article Display | Complete | 100% |
 | 4 - Article Management | Pending | 0% |
 | 5 - Theme Toggle | Pending | 0% |
 
-**Overall Progress:** 2/5 phases complete (40%)
+**Overall Progress:** 3/5 phases complete (60%)
 
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 3 planned)*
+*Last updated: 2026-02-02 (Phase 3 complete)*

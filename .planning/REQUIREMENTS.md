@@ -16,10 +16,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Article Display
 
-- [ ] **DISP-01**: Article cards show thumbnail or site favicon
-- [ ] **DISP-02**: Article cards show time ago ("7 hours ago")
-- [ ] **DISP-03**: Article cards show title and source blog name
-- [ ] **DISP-04**: Clicking article opens original URL in new tab
+- [x] **DISP-01**: Article cards show thumbnail or site favicon
+- [x] **DISP-02**: Article cards show time ago ("7 hours ago")
+- [x] **DISP-03**: Article cards show title and source blog name
+- [x] **DISP-04**: Clicking article opens original URL in new tab
 
 ### Article Management
 
@@ -74,10 +74,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-01 | Phase 2 | Complete |
 | UI-02 | Phase 2 | Complete |
 | UI-03 | Phase 2 | Complete |
-| DISP-01 | Phase 3 | Pending |
-| DISP-02 | Phase 3 | Pending |
-| DISP-03 | Phase 3 | Pending |
-| DISP-04 | Phase 3 | Pending |
+| DISP-01 | Phase 3 | Complete |
+| DISP-02 | Phase 3 | Complete |
+| DISP-03 | Phase 3 | Complete |
+| DISP-04 | Phase 3 | Complete |
 | MGMT-01 | Phase 4 | Pending |
 | MGMT-02 | Phase 4 | Pending |
 | MGMT-03 | Phase 4 | Pending |
