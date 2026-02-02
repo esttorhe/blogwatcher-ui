@@ -5,20 +5,11 @@
 {{define "title"}}BlogWatcher{{end}}
 
 {{define "content"}}
-<h1>BlogWatcher</h1>
+<div class="app-layout">
+    {{template "sidebar.gohtml" .}}
 
-<div class="layout">
-    <aside id="blog-list"
-           hx-get="/blogs"
-           hx-trigger="load">
-        <h2>Blogs</h2>
-        {{template "blog-list.gohtml" .}}
-    </aside>
-
-    <main id="article-list"
-          hx-get="/articles"
-          hx-trigger="load">
-        <h2>Articles</h2>
+    <main id="main-content" class="main-content">
+        <h1>Inbox</h1>
         {{template "article-list.gohtml" .}}
     </main>
 </div>

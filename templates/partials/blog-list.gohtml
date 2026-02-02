@@ -1,7 +1,9 @@
 {{define "blog-list.gohtml"}}
+{{/* ABOUTME: Renders the list of blogs in the sidebar.
+     ABOUTME: Displays blog names with proper styling classes for the dark theme. */}}
 {{range .Blogs}}
-<div class="blog">{{.Name}}</div>
+<div class="blog-item">{{.Name}}</div>
 {{else}}
-<p>No blogs tracked yet. Use the blogwatcher CLI to add blogs.</p>
+<p class="empty-state">No blogs tracked yet. Use the blogwatcher CLI to add blogs.</p>
 {{end}}
 {{end}}

@@ -1,0 +1,39 @@
+{{define "sidebar.gohtml"}}
+{{/* ABOUTME: Sidebar component with navigation and blog list for BlogWatcher UI.
+     ABOUTME: Uses checkbox toggle for mobile hamburger menu, includes nav links and subscriptions. */}}
+
+{{/* Hidden checkbox for mobile toggle */}}
+<input type="checkbox" id="sidebar-toggle" class="sidebar-toggle">
+
+{{/* Hamburger button - visible only on mobile */}}
+<label for="sidebar-toggle" class="hamburger" aria-label="Toggle menu">
+    <span class="hamburger-line"></span>
+</label>
+
+{{/* Overlay to close sidebar on mobile */}}
+<label for="sidebar-toggle" class="sidebar-overlay" aria-hidden="true"></label>
+
+{{/* Sidebar content */}}
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">BlogWatcher</div>
+    </div>
+
+    {{/* Main navigation */}}
+    <nav class="sidebar-nav">
+        <div class="nav-section-title">Library</div>
+        <a href="/articles?filter=unread" class="nav-link">
+            Inbox
+        </a>
+        <a href="/articles?filter=read" class="nav-link">
+            Archived
+        </a>
+    </nav>
+
+    {{/* Subscriptions / Blog list */}}
+    <div class="subscriptions-section">
+        <div class="nav-section-title">Subscriptions</div>
+        {{template "blog-list.gohtml" .}}
+    </div>
+</aside>
+{{end}}
