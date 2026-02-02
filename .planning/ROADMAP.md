@@ -75,6 +75,12 @@ Plans:
 
 **Depends on:** Phase 2 (UI Layout & Navigation)
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Template functions (timeAgo, faviconURL), ArticleWithBlog model, database JOIN query
+- [ ] 03-02-PLAN.md — Article card template and CSS styling with rich metadata display
+
 ---
 
 ### Phase 4: Article Management
@@ -144,7 +150,7 @@ Plans:
 |-------|--------|----------|
 | 1 - Infrastructure Setup | Complete | 100% |
 | 2 - UI Layout & Navigation | Complete | 100% |
-| 3 - Article Display | Pending | 0% |
+| 3 - Article Display | Planned | 0% |
 | 4 - Article Management | Pending | 0% |
 | 5 - Theme Toggle | Pending | 0% |
 
@@ -153,4 +159,4 @@ Plans:
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 2 complete)*
+*Last updated: 2026-02-02 (Phase 3 planned)*
