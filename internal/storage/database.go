@@ -1,5 +1,5 @@
 // ABOUTME: Provides database connection and query methods for reading blog and article data.
-// ABOUTME: Read-only access to existing blogwatcher database - blog management happens via CLI.
+// ABOUTME: Supports both reading and writing for scanner operations (sync) and UI interactions.
 package storage
 
 import (
@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	_ "modernc.org/sqlite"
@@ -217,6 +218,107 @@ func (db *Database) MarkArticleUnread(id int64) (bool, error) {
 	return rows > 0, nil
 }
 
+// GetBlogByName returns a blog by its name, or nil if not found.
+func (db *Database) GetBlogByName(name string) (*model.Blog, error) {
+	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE name = ?`, name)
+	return scanBlog(row)
+}
+
+// UpdateBlog updates all fields of a blog by ID.
+func (db *Database) UpdateBlog(blog model.Blog) error {
+	_, err := db.conn.Exec(
+		`UPDATE blogs SET name = ?, url = ?, feed_url = ?, scrape_selector = ?, last_scanned = ? WHERE id = ?`,
+		blog.Name,
+		blog.URL,
+		nullIfEmpty(blog.FeedURL),
+		nullIfEmpty(blog.ScrapeSelector),
+		formatTimePtr(blog.LastScanned),
+		blog.ID,
+	)
+	return err
+}
+
+// UpdateBlogLastScanned updates just the last_scanned timestamp for a blog.
+func (db *Database) UpdateBlogLastScanned(id int64, lastScanned time.Time) error {
+	_, err := db.conn.Exec(`UPDATE blogs SET last_scanned = ? WHERE id = ?`, lastScanned.Format(sqliteTimeLayout), id)
+	return err
+}
+
+// AddArticlesBulk inserts multiple articles in a single transaction.
+// Returns the count of inserted articles.
+func (db *Database) AddArticlesBulk(articles []model.Article) (int, error) {
+	if len(articles) == 0 {
+		return 0, nil
+	}
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return 0, err
+	}
+	stmt, err := tx.Prepare(`INSERT INTO articles (blog_id, title, url, published_date, discovered_date, is_read) VALUES (?, ?, ?, ?, ?, ?)`)
+	if err != nil {
+		_ = tx.Rollback()
+		return 0, err
+	}
+	defer stmt.Close()
+
+	for _, article := range articles {
+		_, err := stmt.Exec(
+			article.BlogID,
+			article.Title,
+			article.URL,
+			formatTimePtr(article.PublishedDate),
+			formatTimePtr(article.DiscoveredDate),
+			article.IsRead,
+		)
+		if err != nil {
+			_ = tx.Rollback()
+			return 0, err
+		}
+	}
+	if err := tx.Commit(); err != nil {
+		return 0, err
+	}
+	return len(articles), nil
+}
+
+// GetExistingArticleURLs returns a set of article URLs that already exist in the database.
+// Used for deduplication during scanning. Handles chunking for large URL lists.
+func (db *Database) GetExistingArticleURLs(urls []string) (map[string]struct{}, error) {
+	result := make(map[string]struct{})
+	if len(urls) == 0 {
+		return result, nil
+	}
+
+	chunkSize := 900
+	for start := 0; start < len(urls); start += chunkSize {
+		end := start + chunkSize
+		if end > len(urls) {
+			end = len(urls)
+		}
+		chunk := urls[start:end]
+		placeholders := strings.TrimRight(strings.Repeat("?,", len(chunk)), ",")
+		query := fmt.Sprintf("SELECT url FROM articles WHERE url IN (%s)", placeholders)
+		rows, err := db.conn.Query(query, interfaceSlice(chunk)...)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var url string
+			if err := rows.Scan(&url); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			result[url] = struct{}{}
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		rows.Close()
+	}
+	return result, nil
+}
+
 func scanBlog(scanner interface{ Scan(dest ...any) error }) (*model.Blog, error) {
 	var (
 		id             int64
@@ -337,4 +439,27 @@ func parseTime(value string) (time.Time, error) {
 		return parsed, nil
 	}
 	return time.Parse("2006-01-02 15:04:05", value)
+}
+
+func nullIfEmpty(value string) *string {
+	if value == "" {
+		return nil
+	}
+	return &value
+}
+
+func formatTimePtr(value *time.Time) *string {
+	if value == nil {
+		return nil
+	}
+	formatted := value.Format(sqliteTimeLayout)
+	return &formatted
+}
+
+func interfaceSlice(values []string) []interface{} {
+	result := make([]interface{}, len(values))
+	for i, value := range values {
+		result[i] = value
+	}
+	return result
 }
