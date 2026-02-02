@@ -218,6 +218,21 @@ func (db *Database) MarkArticleUnread(id int64) (bool, error) {
 	return rows > 0, nil
 }
 
+// MarkAllUnreadArticlesRead marks all unread articles as read.
+// If blogID is provided, only marks articles from that blog.
+func (db *Database) MarkAllUnreadArticlesRead(blogID *int64) error {
+	query := `UPDATE articles SET is_read = 1 WHERE is_read = 0`
+	var args []interface{}
+
+	if blogID != nil {
+		query += " AND blog_id = ?"
+		args = append(args, *blogID)
+	}
+
+	_, err := db.conn.Exec(query, args...)
+	return err
+}
+
 // GetBlogByName returns a blog by its name, or nil if not found.
 func (db *Database) GetBlogByName(name string) (*model.Blog, error) {
 	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE name = ?`, name)
