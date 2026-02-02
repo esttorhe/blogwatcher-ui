@@ -1,8 +1,8 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-02
-**Current phase:** Phase 2 - UI Layout & Navigation (In Progress)
-**Overall progress:** 28% (1/5 phases complete, 4 plans executed)
+**Current phase:** Phase 2 - UI Layout & Navigation (Complete)
+**Overall progress:** 35% (2/5 phases complete, 5 plans executed)
 
 ## Project Reference
 
@@ -10,14 +10,14 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 2 plan 01 complete - Dark theme and sidebar layout implemented
+**Current focus:** Phase 2 complete - Dark theme, sidebar layout, and HTMX navigation implemented
 
 ## Phase Status
 
 | Phase | Name | Status | Progress |
 |-------|------|--------|----------|
 | 1 | Infrastructure Setup | Complete | 100% |
-| 2 | UI Layout & Navigation | In Progress | 50% |
+| 2 | UI Layout & Navigation | Complete | 100% |
 | 3 | Article Display | Pending | 0% |
 | 4 | Article Management | Pending | 0% |
 | 5 | Theme Toggle | Pending | 0% |
@@ -25,19 +25,19 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 ## Current Phase
 
 **Phase:** 2 of 5 (UI Layout & Navigation)
-**Plan:** 1 of 2 complete in current phase
-**Status:** Phase 2 in progress - Plan 02 (HTMX Navigation) next
-**Last activity:** 2026-02-02 - Completed 02-01-PLAN.md (dark theme and sidebar layout)
+**Plan:** 2 of 2 complete in current phase
+**Status:** Phase 2 complete - Ready for Phase 3 (Article Display)
+**Last activity:** 2026-02-02 - Completed 02-02-PLAN.md (HTMX navigation)
 
-**Progress bar:** `[███-------] 28%` (4/14 plans complete estimate)
+**Progress bar:** `[████------] 35%` (5/14 plans complete estimate)
 
 ## Performance Metrics
 
-**Phases completed:** 1/5
-**Plans executed:** 4
-**Requirements delivered:** 4/15 (INFRA-01, INFRA-02, INFRA-03, NAV-01 partial)
+**Phases completed:** 2/5
+**Plans executed:** 5
+**Requirements delivered:** 6/15 (INFRA-01, INFRA-02, INFRA-03, NAV-01, NAV-02, NAV-03)
 
-**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min, Phase 2 Plan 1: 3 min)
+**Velocity:** ~4 min per plan (Phase 1: 3 plans in ~11 min, Phase 2: 2 plans in ~7 min)
 
 ## Accumulated Context
 
@@ -61,10 +61,13 @@ See: .planning/PROJECT.md (updated 2026-02-02)
 | 2026-02-02 | Pure CSS hamburger toggle | Checkbox hack instead of JavaScript for mobile menu |
 | 2026-02-02 | 768px mobile breakpoint | Standard tablet/phone breakpoint for responsive layout |
 | 2026-02-02 | CSS custom properties | Established naming convention for future theme toggle |
+| 2026-02-02 | ListArticlesByReadStatus for filtering | New method for explicit read status (vs ListArticles which has different semantics) |
+| 2026-02-02 | CurrentBlogID as int64 | 0 means no filter, simpler than pointer for template comparison |
+| 2026-02-02 | h1 in article-list partial | Ensures title updates on HTMX swaps |
 
 ### Active TODOs
 
-- Execute Phase 2 Plan 02: HTMX navigation (filter by status, filter by blog)
+- Execute Phase 3: Article Display (improved cards, metadata, date formatting)
 
 ### Known Blockers
 
@@ -89,6 +92,11 @@ None currently
 - --accent: #64b5f6
 - --border: #333333
 
+**HTMX Navigation Patterns (established in 02-02):**
+- Filter params: r.URL.Query().Get("filter") and r.URL.Query().Get("blog")
+- Active state: {{if eq .CurrentFilter "read"}} active{{end}}
+- Mobile close: hx-on::after-swap="document.getElementById('sidebar-toggle').checked = false"
+
 ## Session History
 
 | Date | Action | Notes |
@@ -99,11 +107,13 @@ None currently
 | 2026-02-02 | Completed 01-03 | Wire handlers to database, full integration (3 min) |
 | 2026-02-02 | Phase 1 complete | Infrastructure foundation ready, real data flowing |
 | 2026-02-02 | Completed 02-01 | Dark theme CSS, grid layout, hamburger menu (3 min) |
+| 2026-02-02 | Completed 02-02 | HTMX navigation, filter/blog params, active states (4 min) |
+| 2026-02-02 | Phase 2 complete | Navigation fully functional, ready for article display |
 
 ## Session Continuity
 
-Last session: 2026-02-02T22:01Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-02-02T22:06Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None
 
 ---
