@@ -25,9 +25,9 @@
 **Plans:** 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Project setup, database layer, HTMX static file
-- [ ] 01-02-PLAN.md — HTTP server with NewServer pattern and templates
-- [ ] 01-03-PLAN.md — Wire handlers to database, full integration verification
+- [x] 01-01-PLAN.md — Project setup, database layer, HTMX static file
+- [x] 01-02-PLAN.md — HTTP server with NewServer pattern and templates
+- [x] 01-03-PLAN.md — Wire handlers to database, full integration verification
 
 ---
 
@@ -47,6 +47,12 @@ Plans:
 4. Clicking a filter or blog in sidebar changes the main content area (even if just showing placeholder)
 
 **Depends on:** Phase 1 (Infrastructure Setup)
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — CSS foundation with dark theme, responsive grid layout, collapsible sidebar structure
+- [ ] 02-02-PLAN.md — HTMX navigation wiring, filter query params, active state highlighting
 
 ---
 
@@ -136,15 +142,15 @@ Plans:
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| 1 - Infrastructure Setup | Planned | 0% |
-| 2 - UI Layout & Navigation | Pending | 0% |
+| 1 - Infrastructure Setup | Complete | 100% |
+| 2 - UI Layout & Navigation | Planned | 0% |
 | 3 - Article Display | Pending | 0% |
 | 4 - Article Management | Pending | 0% |
 | 5 - Theme Toggle | Pending | 0% |
 
-**Overall Progress:** 0/5 phases complete (0%)
+**Overall Progress:** 1/5 phases complete (20%)
 
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 1 planned)*
+*Last updated: 2026-02-02 (Phase 2 planned)*
