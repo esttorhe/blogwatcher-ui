@@ -158,6 +158,41 @@ func (db *Database) ListArticlesByReadStatus(isRead bool, blogID *int64) ([]mode
 	return articles, rows.Err()
 }
 
+// ListArticlesWithBlog returns articles with blog metadata (name, URL) for display.
+// Uses INNER JOIN to fetch blog info alongside article data.
+// isRead filters by read status, blogID optionally filters to a specific blog.
+func (db *Database) ListArticlesWithBlog(isRead bool, blogID *int64) ([]model.ArticleWithBlog, error) {
+	query := `SELECT a.id, a.blog_id, a.title, a.url, a.published_date, a.discovered_date, a.is_read, b.name, b.url
+		FROM articles a
+		INNER JOIN blogs b ON a.blog_id = b.id
+		WHERE a.is_read = ?`
+	args := []interface{}{isRead}
+
+	if blogID != nil {
+		query += " AND a.blog_id = ?"
+		args = append(args, *blogID)
+	}
+	query += " ORDER BY a.discovered_date DESC"
+
+	rows, err := db.conn.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var articles []model.ArticleWithBlog
+	for rows.Next() {
+		article, err := scanArticleWithBlog(rows)
+		if err != nil {
+			return nil, err
+		}
+		if article != nil {
+			articles = append(articles, *article)
+		}
+	}
+	return articles, rows.Err()
+}
+
 func (db *Database) MarkArticleRead(id int64) (bool, error) {
 	result, err := db.conn.Exec(`UPDATE articles SET is_read = 1 WHERE id = ?`, id)
 	if err != nil {
@@ -236,6 +271,48 @@ func scanArticle(scanner interface{ Scan(dest ...any) error }) (*model.Article, 
 		Title:  title,
 		URL:    url,
 		IsRead: isRead,
+	}
+	if publishedDate.Valid {
+		if parsed, err := parseTime(publishedDate.String); err == nil {
+			article.PublishedDate = &parsed
+		}
+	}
+	if discovered.Valid {
+		if parsed, err := parseTime(discovered.String); err == nil {
+			article.DiscoveredDate = &parsed
+		}
+	}
+
+	return article, nil
+}
+
+func scanArticleWithBlog(scanner interface{ Scan(dest ...any) error }) (*model.ArticleWithBlog, error) {
+	var (
+		id            int64
+		blogID        int64
+		title         string
+		url           string
+		publishedDate sql.NullString
+		discovered    sql.NullString
+		isRead        bool
+		blogName      string
+		blogURL       string
+	)
+	if err := scanner.Scan(&id, &blogID, &title, &url, &publishedDate, &discovered, &isRead, &blogName, &blogURL); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	article := &model.ArticleWithBlog{
+		ID:       id,
+		BlogID:   blogID,
+		Title:    title,
+		URL:      url,
+		IsRead:   isRead,
+		BlogName: blogName,
+		BlogURL:  blogURL,
 	}
 	if publishedDate.Valid {
 		if parsed, err := parseTime(publishedDate.String); err == nil {

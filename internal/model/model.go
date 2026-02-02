@@ -22,3 +22,17 @@ type Article struct {
 	DiscoveredDate *time.Time
 	IsRead         bool
 }
+
+// ArticleWithBlog extends Article with blog metadata for display in article cards.
+// Used when rendering article lists where blog name and favicon are needed.
+type ArticleWithBlog struct {
+	ID             int64
+	BlogID         int64
+	Title          string
+	URL            string
+	PublishedDate  *time.Time
+	DiscoveredDate *time.Time
+	IsRead         bool
+	BlogName       string
+	BlogURL        string
+}
