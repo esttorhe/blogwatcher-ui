@@ -3,7 +3,7 @@
 **Last updated:** 2026-02-03
 **Current milestone:** v1.1 UI Polish & Search
 **Current phase:** Phase 6 - Enhanced Card Interaction
-**Overall progress:** 62.5% (5/8 phases complete)
+**Overall progress:** 65% (Plan 06-01 complete)
 
 ## Project Reference
 
@@ -18,17 +18,17 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 | Milestone | Status | Requirements | Phases |
 |-----------|--------|--------------|--------|
 | v1.0 | Complete | 15/15 | 5/5 |
-| v1.1 | Active | 15/15 | 0/3 |
+| v1.1 | Active | 15/15 | 1/3 plans in Phase 6 |
 
 ## Current Position
 
 **Milestone:** v1.1 (UI Polish & Search)
 **Phase:** 6 of 8 (Enhanced Card Interaction)
-**Plan:** Not started (0 of TBD)
-**Status:** Ready to plan
-**Last activity:** 2026-02-03 — v1.1 roadmap created with 3 phases
+**Plan:** 1 of 3 complete
+**Status:** In progress
+**Last activity:** 2026-02-03 — Completed 06-01-PLAN.md (thumbnail infrastructure)
 
-Progress: [█████░░░░░] 62.5%
+Progress: [██████░░░░] 65%
 
 ## Performance Metrics
 
@@ -46,14 +46,14 @@ Progress: [█████░░░░░] 62.5%
 | 3 - Article Display | 2 | Complete |
 | 4 - Article Management | 2 | Complete |
 | 5 - Theme Toggle | 1 | Complete |
-| 6 - Enhanced Card Interaction | TBD | Not started |
+| 6 - Enhanced Card Interaction | 3 | 1/3 complete |
 | 7 - Search & Date Filtering | TBD | Not started |
 | 8 - Masonry Layout | TBD | Not started |
 
 **Recent Trend:**
 - v1.0 milestone complete (Phases 1-5, 10 plans)
 - v1.1 milestone roadmap complete
-- Ready to plan Phase 6
+- Plan 06-01 complete: thumbnail infrastructure (3 min)
 
 *Updated after each plan completion*
 
@@ -69,6 +69,8 @@ Recent decisions affecting current work:
 - v1.1 research: CSS-only masonry (Grid auto-fit) over JavaScript libraries
 - v1.1 research: SQLite FTS5 for search (built into modernc.org/sqlite)
 - v1.1 research: Thumbnail extraction during sync pipeline, not render time
+- Phase 6-01: Idempotent migrations via ensureMigrations() on database open
+- Phase 6-01: sql.NullString to empty string conversion for template simplicity
 
 Full decision log in PROJECT.md Key Decisions table.
 
@@ -79,9 +81,9 @@ None.
 ### Known Blockers/Concerns
 
 **Phase 6 readiness:**
-- Thumbnail extraction must happen during scanner sync pipeline to avoid N+1 query problems
-- Add `thumbnail_url` column to articles table
-- Integrate opengraph/v2 library for Open Graph fallback
+- [DONE] thumbnail_url column added to articles table
+- [DONE] opengraph/v2 library integrated in internal/thumbnail
+- [NEXT] Scanner integration to extract thumbnails during sync (Plan 06-02)
 
 **Phase 7 readiness:**
 - FTS5 virtual table setup must be added to CLI's migration capability (shared database)
@@ -98,9 +100,9 @@ None.
 - `blogs` table: id, name, url, feed_url, scrape_selector, last_scanned
 - `articles` table: id, blog_id, title, url, published_date, discovered_date, is_read
 
-**Schema changes needed (v1.1):**
-- `articles` table: add `thumbnail_url` column (nullable TEXT)
-- Create FTS5 virtual table `articles_fts` for title search
+**Schema changes (v1.1):**
+- [DONE] `articles` table: thumbnail_url column (nullable TEXT)
+- [TODO] Create FTS5 virtual table `articles_fts` for title search (Phase 7)
 
 **Tech stack:** Go server, Go templates, HTMX 2.0.4, SQLite (modernc.org/sqlite), CSS custom properties, gofeed, goquery
 
@@ -121,13 +123,14 @@ None.
 | 2026-02-03 | v1.1 started | Requirements defined (15 new requirements) |
 | 2026-02-03 | v1.1 research | SUMMARY.md created (stack, features, architecture, pitfalls) |
 | 2026-02-03 | v1.1 roadmap | ROADMAP.md updated with Phases 6-8 |
+| 2026-02-03 | Plan 06-01 complete | Thumbnail infrastructure (schema, models, extraction package) |
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: v1.1 roadmap created, ready to plan Phase 6
+Stopped at: Completed 06-01-PLAN.md (thumbnail infrastructure)
 Resume file: None
-Next action: /gsd:plan-phase 6
+Next action: Execute 06-02-PLAN.md (scanner integration)
 
 ---
 
