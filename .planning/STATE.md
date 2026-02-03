@@ -3,7 +3,7 @@
 **Last updated:** 2026-02-03
 **Current milestone:** v1.1 UI Polish & Search
 **Current phase:** Phase 6 - Enhanced Card Interaction
-**Overall progress:** 65% (Plan 06-01 complete)
+**Overall progress:** 70% (Plan 06-02 complete)
 
 ## Project Reference
 
@@ -18,17 +18,17 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 | Milestone | Status | Requirements | Phases |
 |-----------|--------|--------------|--------|
 | v1.0 | Complete | 15/15 | 5/5 |
-| v1.1 | Active | 15/15 | 1/3 plans in Phase 6 |
+| v1.1 | Active | 15/15 | 2/3 plans in Phase 6 |
 
 ## Current Position
 
 **Milestone:** v1.1 (UI Polish & Search)
 **Phase:** 6 of 8 (Enhanced Card Interaction)
-**Plan:** 1 of 3 complete
+**Plan:** 2 of 3 complete
 **Status:** In progress
-**Last activity:** 2026-02-03 — Completed 06-01-PLAN.md (thumbnail infrastructure)
+**Last activity:** 2026-02-03 — Completed 06-02-PLAN.md (scanner integration)
 
-Progress: [██████░░░░] 65%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
@@ -46,7 +46,7 @@ Progress: [██████░░░░] 65%
 | 3 - Article Display | 2 | Complete |
 | 4 - Article Management | 2 | Complete |
 | 5 - Theme Toggle | 1 | Complete |
-| 6 - Enhanced Card Interaction | 3 | 1/3 complete |
+| 6 - Enhanced Card Interaction | 3 | 2/3 complete |
 | 7 - Search & Date Filtering | TBD | Not started |
 | 8 - Masonry Layout | TBD | Not started |
 
@@ -54,6 +54,7 @@ Progress: [██████░░░░] 65%
 - v1.0 milestone complete (Phases 1-5, 10 plans)
 - v1.1 milestone roadmap complete
 - Plan 06-01 complete: thumbnail infrastructure (3 min)
+- Plan 06-02 complete: scanner integration + clickable cards (3 min)
 
 *Updated after each plan completion*
 
@@ -71,6 +72,8 @@ Recent decisions affecting current work:
 - v1.1 research: Thumbnail extraction during sync pipeline, not render time
 - Phase 6-01: Idempotent migrations via ensureMigrations() on database open
 - Phase 6-01: sql.NullString to empty string conversion for template simplicity
+- Phase 6-02: 10 second timeout for Open Graph fetches (sync is background operation)
+- Phase 6-02: Stretched-link CSS pattern for full-card clickability
 
 Full decision log in PROJECT.md Key Decisions table.
 
@@ -83,7 +86,9 @@ None.
 **Phase 6 readiness:**
 - [DONE] thumbnail_url column added to articles table
 - [DONE] opengraph/v2 library integrated in internal/thumbnail
-- [NEXT] Scanner integration to extract thumbnails during sync (Plan 06-02)
+- [DONE] Scanner integration to extract thumbnails during sync (Plan 06-02)
+- [DONE] Clickable cards with stretched-link pattern (Plan 06-02)
+- [NEXT] Performance optimization: lazy loading, responsive images (Plan 06-03)
 
 **Phase 7 readiness:**
 - FTS5 virtual table setup must be added to CLI's migration capability (shared database)
@@ -124,13 +129,14 @@ None.
 | 2026-02-03 | v1.1 research | SUMMARY.md created (stack, features, architecture, pitfalls) |
 | 2026-02-03 | v1.1 roadmap | ROADMAP.md updated with Phases 6-8 |
 | 2026-02-03 | Plan 06-01 complete | Thumbnail infrastructure (schema, models, extraction package) |
+| 2026-02-03 | Plan 06-02 complete | Scanner integration + clickable cards (3 min) |
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 06-01-PLAN.md (thumbnail infrastructure)
+Stopped at: Completed 06-02-PLAN.md (scanner integration)
 Resume file: None
-Next action: Execute 06-02-PLAN.md (scanner integration)
+Next action: Execute 06-03-PLAN.md (performance optimization)
 
 ---
 
