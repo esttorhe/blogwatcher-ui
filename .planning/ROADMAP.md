@@ -6,13 +6,13 @@
 
 ## Milestones
 
-- ✅ **v1.0 MVP** - Phases 1-5 (shipped 2026-02-03)
-- 🚧 **v1.1 UI Polish & Search** - Phases 6-8 (in progress)
+- **v1.0 MVP** - Phases 1-5 (shipped 2026-02-03)
+- **v1.1 UI Polish & Search** - Phases 6-8 (in progress)
 
 ## Phases
 
 <details>
-<summary>✅ v1.0 MVP (Phases 1-5) - SHIPPED 2026-02-03</summary>
+<summary>v1.0 MVP (Phases 1-5) - SHIPPED 2026-02-03</summary>
 
 ### Phase 1: Infrastructure Setup
 
@@ -141,7 +141,7 @@ Plans:
 
 ---
 
-## 🚧 v1.1 UI Polish & Search (In Progress)
+## v1.1 UI Polish & Search (In Progress)
 
 **Milestone Goal:** Improve visual presentation with masonry layout and thumbnails, add search and filtering capabilities.
 
@@ -165,11 +165,11 @@ Plans:
 
 **Depends on:** Phase 5 (Theme Toggle)
 
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md — Schema migration, models, thumbnail extraction package
+- [ ] 06-02-PLAN.md — Sync pipeline integration, template updates, CSS for clickable cards
 
 ---
 
@@ -236,21 +236,21 @@ Plans:
 
 | Requirement | Phase | Covered |
 |-------------|-------|---------|
-| INFRA-01 | 1 | ✓ |
-| INFRA-02 | 1 | ✓ |
-| INFRA-03 | 1 | ✓ |
-| UI-01 | 2 | ✓ |
-| UI-02 | 2 | ✓ |
-| UI-03 | 2 | ✓ |
-| DISP-01 | 3 | ✓ |
-| DISP-02 | 3 | ✓ |
-| DISP-03 | 3 | ✓ |
-| DISP-04 | 3 | ✓ |
-| MGMT-01 | 4 | ✓ |
-| MGMT-02 | 4 | ✓ |
-| MGMT-03 | 4 | ✓ |
-| MGMT-04 | 4 | ✓ |
-| UI-04 | 5 | ✓ |
+| INFRA-01 | 1 | Done |
+| INFRA-02 | 1 | Done |
+| INFRA-03 | 1 | Done |
+| UI-01 | 2 | Done |
+| UI-02 | 2 | Done |
+| UI-03 | 2 | Done |
+| DISP-01 | 3 | Done |
+| DISP-02 | 3 | Done |
+| DISP-03 | 3 | Done |
+| DISP-04 | 3 | Done |
+| MGMT-01 | 4 | Done |
+| MGMT-02 | 4 | Done |
+| MGMT-03 | 4 | Done |
+| MGMT-04 | 4 | Done |
+| UI-04 | 5 | Done |
 
 **v1.0 Coverage:** 15/15 requirements mapped (100%)
 
@@ -258,21 +258,21 @@ Plans:
 
 | Requirement | Phase | Covered |
 |-------------|-------|---------|
-| POLISH-01 | 6 | ✓ |
-| POLISH-02 | 8 | ✓ |
-| POLISH-03 | 8 | ✓ |
-| POLISH-04 | 8 | ✓ |
-| THUMB-01 | 6 | ✓ |
-| THUMB-02 | 6 | ✓ |
-| THUMB-03 | 6 | ✓ |
-| THUMB-04 | 6 | ✓ |
-| SRCH-01 | 7 | ✓ |
-| SRCH-02 | 7 | ✓ |
-| SRCH-03 | 7 | ✓ |
-| SRCH-04 | 7 | ✓ |
-| SRCH-05 | 7 | ✓ |
-| SRCH-06 | 7 | ✓ |
-| SRCH-07 | 7 | ✓ |
+| POLISH-01 | 6 | Planned |
+| POLISH-02 | 8 | Planned |
+| POLISH-03 | 8 | Planned |
+| POLISH-04 | 8 | Planned |
+| THUMB-01 | 6 | Planned |
+| THUMB-02 | 6 | Planned |
+| THUMB-03 | 6 | Planned |
+| THUMB-04 | 6 | Planned |
+| SRCH-01 | 7 | Planned |
+| SRCH-02 | 7 | Planned |
+| SRCH-03 | 7 | Planned |
+| SRCH-04 | 7 | Planned |
+| SRCH-05 | 7 | Planned |
+| SRCH-06 | 7 | Planned |
+| SRCH-07 | 7 | Planned |
 
 **v1.1 Coverage:** 15/15 requirements mapped (100%)
 
@@ -294,7 +294,7 @@ Plans:
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| 6 - Enhanced Card Interaction | Not started | 0% |
+| 6 - Enhanced Card Interaction | Planned | 0% |
 | 7 - Search & Date Filtering | Not started | 0% |
 | 8 - Masonry Layout | Not started | 0% |
 
@@ -306,4 +306,5 @@ Plans:
 
 *Roadmap created: 2026-02-02*
 *v1.1 roadmap added: 2026-02-03*
+*Phase 6 planned: 2026-02-03*
 *Last updated: 2026-02-03*
