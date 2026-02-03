@@ -856,8 +856,11 @@ p {
 .articles-grid .article-thumbnail {
   width: 100%;
   height: auto;
+  min-height: 0; /* Override any implicit height */
   aspect-ratio: 16 / 9;
   border-radius: 6px 6px 0 0;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 /* Grid view: content area grows to fill */
@@ -878,19 +881,24 @@ p {
   -webkit-box-orient: vertical;
 }
 
-/* Grid view: favicon positioning */
+/* Grid view: favicon as placeholder when no thumbnail */
 .articles-grid .article-favicon {
-  display: none; /* Hide favicon in grid, thumbnail is primary */
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px 6px 0 0;
+  object-fit: none; /* Don't stretch the small favicon */
+  background-color: var(--bg-elevated);
 }
 
+/* Grid view: thumbnail fallback (when thumbnail fails to load) */
 .articles-grid .article-thumbnail-fallback {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
   border-radius: 6px 6px 0 0;
   display: flex !important;
-  align-items: center;
-  justify-content: center;
+  object-fit: none;
   background-color: var(--bg-elevated);
 }
 
