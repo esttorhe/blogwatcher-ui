@@ -16,6 +16,14 @@
       }
     })();
     </script>
+    <script>
+    (function() {
+      var view = localStorage.getItem('view') || 'list';
+      if (view === 'grid') {
+        document.documentElement.dataset.view = 'grid';
+      }
+    })();
+    </script>
     <title>{{template "title" .}}</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script src="/static/htmx.min.js"></script>
@@ -49,6 +57,54 @@
         var current = localStorage.getItem('theme') || 'system';
         if (current === 'system') {
           updateTheme('system');
+        }
+      });
+    })();
+    </script>
+    <script>
+    (function() {
+      var viewRadios = document.querySelectorAll('input[name="view"]');
+      var stored = localStorage.getItem('view') || 'list';
+
+      function applyView(value) {
+        var container = document.getElementById('articles-container');
+        if (container) {
+          container.classList.toggle('articles-grid', value === 'grid');
+        }
+      }
+
+      // Set initial checked state
+      var initial = document.getElementById('view-' + stored);
+      if (initial) initial.checked = true;
+
+      // Apply initial view
+      applyView(stored);
+
+      function updateView(value) {
+        localStorage.setItem('view', value);
+        applyView(value);
+      }
+
+      viewRadios.forEach(function(r) {
+        r.addEventListener('change', function(e) {
+          updateView(e.target.value);
+        });
+      });
+
+      // Reapply view after HTMX swaps content (articles container gets replaced)
+      document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'main-content') {
+          var current = localStorage.getItem('view') || 'list';
+          applyView(current);
+          // Re-bind view toggle radios in new content
+          var newRadios = document.querySelectorAll('input[name="view"]');
+          var currentRadio = document.getElementById('view-' + current);
+          if (currentRadio) currentRadio.checked = true;
+          newRadios.forEach(function(r) {
+            r.addEventListener('change', function(e) {
+              updateView(e.target.value);
+            });
+          });
         }
       });
     })();
