@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-02-03
 **Current milestone:** v1.1 UI Polish & Search
-**Current phase:** Phase 7 - Search & Date Filtering (IN PROGRESS)
-**Overall progress:** 79% (Plan 07-01 complete)
+**Current phase:** Phase 7 - Search & Date Filtering (COMPLETE)
+**Overall progress:** 86% (Phase 7 complete)
 
 ## Project Reference
 
@@ -11,29 +11,29 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 7 Plan 1 complete (FTS5 infrastructure). Next: Plan 07-02 (Search UI) or Plan 07-03 (Date Filtering UI)
+**Current focus:** Phase 7 complete (Search & Date Filtering). Next: Phase 8 (Masonry Layout)
 
 ## Milestone Status
 
 | Milestone | Status | Requirements | Phases |
 |-----------|--------|--------------|--------|
 | v1.0 | Complete | 15/15 | 5/5 |
-| v1.1 | Active | 5/15 done | 1.3/3 phases |
+| v1.1 | Active | 12/15 done | 2/3 phases |
 
 ## Current Position
 
 **Milestone:** v1.1 (UI Polish & Search)
-**Phase:** 7 of 8 (Search & Date Filtering) - IN PROGRESS
-**Plan:** 1/TBD complete
-**Status:** Plan 07-01 complete (FTS5 infrastructure)
-**Last activity:** 2026-02-03 — Completed 07-01-PLAN.md (FTS5 + SearchArticles)
+**Phase:** 7 of 8 (Search & Date Filtering) - COMPLETE
+**Plan:** 2/2 complete
+**Status:** Phase 7 complete (Search UI + Date Filtering)
+**Last activity:** 2026-02-03 - Completed 07-02-PLAN.md (Search & Date Filtering UI)
 
-Progress: [████████░░] 79%
+Progress: [████████▓░] 86%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 13 (10 from v1.0 + 3 from v1.1)
+- Total plans completed: 14 (10 from v1.0 + 4 from v1.1)
 - Average duration: ~3-5 min per plan
 - Total execution time: (tracked during execution)
 
@@ -47,7 +47,7 @@ Progress: [████████░░] 79%
 | 4 - Article Management | 2 | Complete |
 | 5 - Theme Toggle | 1 | Complete |
 | 6 - Enhanced Card Interaction | 2 | Complete |
-| 7 - Search & Date Filtering | 1/TBD | In progress |
+| 7 - Search & Date Filtering | 2 | Complete |
 | 8 - Masonry Layout | TBD | Not started |
 
 **Recent Trend:**
@@ -57,6 +57,8 @@ Progress: [████████░░] 79%
 - Plan 06-02 complete: scanner integration + clickable cards (3 min)
 - Phase 6 VERIFIED: All 5 requirements satisfied (POLISH-01, THUMB-01-04)
 - Plan 07-01 complete: FTS5 infrastructure + SearchArticles (3 min)
+- Plan 07-02 complete: Search UI + Date Filtering (5 min)
+- Phase 7 COMPLETE: All 7 search requirements satisfied (SRCH-01 through SRCH-07)
 
 *Updated after each plan completion*
 
@@ -79,6 +81,9 @@ Recent decisions affecting current work:
 - Phase 7-01: FTS5 external content pattern (content='articles', content_rowid='id')
 - Phase 7-01: Conditional FTS5 JOIN only when search query non-empty
 - Phase 7-01: COALESCE(published_date, discovered_date) for date filtering
+- Phase 7-02: parseSearchOptions helper for centralized filter extraction
+- Phase 7-02: 300ms debounce on search input to reduce server load
+- Phase 7-02: hx-include with ID selectors for reliable filter combination
 
 Full decision log in PROJECT.md Key Decisions table.
 
@@ -95,14 +100,19 @@ None.
 - [DONE] Clickable cards with stretched-link pattern
 - [VERIFIED] All 5 requirements satisfied
 
-**Phase 7 status:** IN PROGRESS
+**Phase 7 status:** COMPLETE
 - [DONE] FTS5 virtual table articles_fts created with triggers
 - [DONE] SearchOptions struct and SearchArticles method implemented
-- [TODO] Search UI integration (Plan 07-02)
-- [TODO] Date filtering UI (Plan 07-03)
+- [DONE] Search input with 300ms debounce
+- [DONE] Date filter buttons (Last Week, Last Month, All Time)
+- [DONE] Custom date range picker
+- [DONE] Results count display
+- [DONE] Combined filter support (blog + status + search + date)
+- [VERIFIED] All 7 requirements satisfied (SRCH-01 through SRCH-07)
 
 **Phase 8 readiness:**
 - Depends on Phase 6 completion (thumbnails create varied card heights for masonry)
+- Phase 6 complete - ready for Phase 8
 
 ### Technical Notes
 
@@ -140,13 +150,15 @@ None.
 | 2026-02-03 | Plan 06-02 complete | Scanner integration + clickable cards |
 | 2026-02-03 | Phase 6 COMPLETE | All 5 requirements verified (POLISH-01, THUMB-01-04) |
 | 2026-02-03 | Plan 07-01 complete | FTS5 infrastructure + SearchArticles method (3 min) |
+| 2026-02-03 | Plan 07-02 complete | Search UI + Date Filtering (5 min) |
+| 2026-02-03 | Phase 7 COMPLETE | All 7 search requirements verified (SRCH-01-07) |
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Completed 07-01-PLAN.md (FTS5 infrastructure)
+Stopped at: Completed 07-02-PLAN.md (Search & Date Filtering UI)
 Resume file: None
-Next action: Execute Plan 07-02 (Search UI) or Plan 07-03 (Date Filtering UI)
+Next action: Execute Phase 8 (Masonry Layout)
 
 ---
 
