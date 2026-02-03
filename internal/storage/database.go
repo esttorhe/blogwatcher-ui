@@ -62,7 +62,28 @@ func OpenDatabase(path string) (*Database, error) {
 		return nil, err
 	}
 
+	// Run migrations for new columns (idempotent)
+	if err := db.ensureMigrations(); err != nil {
+		_ = conn.Close()
+		return nil, fmt.Errorf("migration failed: %w", err)
+	}
+
 	return db, nil
+}
+
+// ensureMigrations runs idempotent schema migrations for new columns.
+// Uses ADD COLUMN IF NOT EXISTS (SQLite 3.33+) to be safe for repeated runs.
+func (db *Database) ensureMigrations() error {
+	migrations := []string{
+		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;`,
+	}
+
+	for _, migration := range migrations {
+		if _, err := db.conn.Exec(migration); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (db *Database) Path() string {
@@ -97,7 +118,7 @@ func (db *Database) ListBlogs() ([]model.Blog, error) {
 }
 
 func (db *Database) ListArticles(unreadOnly bool, blogID *int64) ([]model.Article, error) {
-	query := `SELECT id, blog_id, title, url, published_date, discovered_date, is_read FROM articles WHERE 1=1`
+	query := `SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read FROM articles WHERE 1=1`
 	var args []interface{}
 	if unreadOnly {
 		query += " AND is_read = 0"
@@ -131,7 +152,7 @@ func (db *Database) ListArticles(unreadOnly bool, blogID *int64) ([]model.Articl
 // isRead=true returns read articles, isRead=false returns unread articles.
 // blogID filters to a specific blog if provided.
 func (db *Database) ListArticlesByReadStatus(isRead bool, blogID *int64) ([]model.Article, error) {
-	query := `SELECT id, blog_id, title, url, published_date, discovered_date, is_read FROM articles WHERE is_read = ?`
+	query := `SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read FROM articles WHERE is_read = ?`
 	args := []interface{}{isRead}
 
 	if blogID != nil {
@@ -163,7 +184,7 @@ func (db *Database) ListArticlesByReadStatus(isRead bool, blogID *int64) ([]mode
 // Uses INNER JOIN to fetch blog info alongside article data.
 // isRead filters by read status, blogID optionally filters to a specific blog.
 func (db *Database) ListArticlesWithBlog(isRead bool, blogID *int64) ([]model.ArticleWithBlog, error) {
-	query := `SELECT a.id, a.blog_id, a.title, a.url, a.published_date, a.discovered_date, a.is_read, b.name, b.url
+	query := `SELECT a.id, a.blog_id, a.title, a.url, a.thumbnail_url, a.published_date, a.discovered_date, a.is_read, b.name, b.url
 		FROM articles a
 		INNER JOIN blogs b ON a.blog_id = b.id
 		WHERE a.is_read = ?`
@@ -269,7 +290,7 @@ func (db *Database) AddArticlesBulk(articles []model.Article) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	stmt, err := tx.Prepare(`INSERT INTO articles (blog_id, title, url, published_date, discovered_date, is_read) VALUES (?, ?, ?, ?, ?, ?)`)
+	stmt, err := tx.Prepare(`INSERT INTO articles (blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read) VALUES (?, ?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		_ = tx.Rollback()
 		return 0, err
@@ -281,6 +302,7 @@ func (db *Database) AddArticlesBulk(articles []model.Article) (int, error) {
 			article.BlogID,
 			article.Title,
 			article.URL,
+			nullIfEmpty(article.ThumbnailURL),
 			formatTimePtr(article.PublishedDate),
 			formatTimePtr(article.DiscoveredDate),
 			article.IsRead,
@@ -371,11 +393,12 @@ func scanArticle(scanner interface{ Scan(dest ...any) error }) (*model.Article, 
 		blogID        int64
 		title         string
 		url           string
+		thumbnailURL  sql.NullString
 		publishedDate sql.NullString
 		discovered    sql.NullString
 		isRead        bool
 	)
-	if err := scanner.Scan(&id, &blogID, &title, &url, &publishedDate, &discovered, &isRead); err != nil {
+	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -383,11 +406,12 @@ func scanArticle(scanner interface{ Scan(dest ...any) error }) (*model.Article, 
 	}
 
 	article := &model.Article{
-		ID:     id,
-		BlogID: blogID,
-		Title:  title,
-		URL:    url,
-		IsRead: isRead,
+		ID:           id,
+		BlogID:       blogID,
+		Title:        title,
+		URL:          url,
+		ThumbnailURL: thumbnailURL.String,
+		IsRead:       isRead,
 	}
 	if publishedDate.Valid {
 		if parsed, err := parseTime(publishedDate.String); err == nil {
@@ -409,13 +433,14 @@ func scanArticleWithBlog(scanner interface{ Scan(dest ...any) error }) (*model.A
 		blogID        int64
 		title         string
 		url           string
+		thumbnailURL  sql.NullString
 		publishedDate sql.NullString
 		discovered    sql.NullString
 		isRead        bool
 		blogName      string
 		blogURL       string
 	)
-	if err := scanner.Scan(&id, &blogID, &title, &url, &publishedDate, &discovered, &isRead, &blogName, &blogURL); err != nil {
+	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead, &blogName, &blogURL); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -423,13 +448,14 @@ func scanArticleWithBlog(scanner interface{ Scan(dest ...any) error }) (*model.A
 	}
 
 	article := &model.ArticleWithBlog{
-		ID:       id,
-		BlogID:   blogID,
-		Title:    title,
-		URL:      url,
-		IsRead:   isRead,
-		BlogName: blogName,
-		BlogURL:  blogURL,
+		ID:           id,
+		BlogID:       blogID,
+		Title:        title,
+		URL:          url,
+		ThumbnailURL: thumbnailURL.String,
+		IsRead:       isRead,
+		BlogName:     blogName,
+		BlogURL:      blogURL,
 	}
 	if publishedDate.Valid {
 		if parsed, err := parseTime(publishedDate.String); err == nil {

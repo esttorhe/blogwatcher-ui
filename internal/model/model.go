@@ -18,6 +18,7 @@ type Article struct {
 	BlogID         int64
 	Title          string
 	URL            string
+	ThumbnailURL   string
 	PublishedDate  *time.Time
 	DiscoveredDate *time.Time
 	IsRead         bool
@@ -30,6 +31,7 @@ type ArticleWithBlog struct {
 	BlogID         int64
 	Title          string
 	URL            string
+	ThumbnailURL   string
 	PublishedDate  *time.Time
 	DiscoveredDate *time.Time
 	IsRead         bool
