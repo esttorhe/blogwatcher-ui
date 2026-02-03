@@ -3,12 +3,17 @@
 package server
 
 import (
+	"embed"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"net/http"
 
 	"github.com/esttorhe/blogwatcher-ui/internal/storage"
 )
+
+//go:embed templates/*.gohtml templates/pages/*.gohtml templates/partials/*.gohtml
+var templateFS embed.FS
 
 // Server represents the HTTP server with all dependencies
 type Server struct {
@@ -26,25 +31,29 @@ func NewServer(db *storage.Database) (http.Handler, error) {
 		"faviconURL": faviconURL,
 	}
 
-	// Parse all templates once at startup
+	// Parse all templates once at startup from embedded filesystem
 	tmpl := template.New("").Funcs(funcMap)
 
-	// Parse base template
-	tmpl, err := tmpl.ParseGlob("templates/*.gohtml")
+	// Walk the embedded template filesystem and parse all templates
+	err := fs.WalkDir(templateFS, "templates", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		data, err := templateFS.ReadFile(path)
+		if err != nil {
+			return fmt.Errorf("failed to read template %s: %w", path, err)
+		}
+		_, err = tmpl.Parse(string(data))
+		if err != nil {
+			return fmt.Errorf("failed to parse template %s: %w", path, err)
+		}
+		return nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse base templates: %w", err)
-	}
-
-	// Parse page templates
-	tmpl, err = tmpl.ParseGlob("templates/pages/*.gohtml")
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse page templates: %w", err)
-	}
-
-	// Parse partial templates
-	tmpl, err = tmpl.ParseGlob("templates/partials/*.gohtml")
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse partial templates: %w", err)
+		return nil, fmt.Errorf("failed to parse templates: %w", err)
 	}
 
 	// Create server with dependencies

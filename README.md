@@ -23,6 +23,21 @@ A modern web UI for [BlogWatcher](https://github.com/Hyaxia/blogwatcher), a Go C
 
 ## Installation
 
+### Install with go install
+
+```bash
+# Install the latest version
+go install github.com/esttorhe/blogwatcher-ui/cmd/server@latest
+
+# Or install a specific version
+go install github.com/esttorhe/blogwatcher-ui/cmd/server@v0.0.1
+
+# Run the installed binary
+server
+```
+
+The binary will be installed to `$GOPATH/bin` (or `$GOBIN` if set). Make sure this directory is in your `PATH`.
+
 ### Build from Source
 
 ```bash
