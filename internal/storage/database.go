@@ -296,8 +296,8 @@ func (db *Database) SearchArticles(opts model.SearchOptions) ([]model.ArticleWit
 
 	// Add FTS5 JOIN only if search query provided
 	if opts.SearchQuery != "" {
-		query.WriteString(` JOIN articles_fts fts ON a.id = fts.rowid`)
-		conditions = append(conditions, "fts MATCH ?")
+		query.WriteString(` JOIN articles_fts ON a.id = articles_fts.rowid`)
+		conditions = append(conditions, "articles_fts MATCH ?")
 		args = append(args, opts.SearchQuery)
 	}
 
