@@ -71,8 +71,8 @@ func OpenDatabase(path string) (*Database, error) {
 	return db, nil
 }
 
-// ensureMigrations runs idempotent schema migrations for new columns.
-// Checks column existence via PRAGMA table_info before adding.
+// ensureMigrations runs idempotent schema migrations for new columns and tables.
+// Checks column/table existence before adding.
 func (db *Database) ensureMigrations() error {
 	// Add thumbnail_url column if it doesn't exist
 	if !db.columnExists("articles", "thumbnail_url") {
@@ -80,6 +80,46 @@ func (db *Database) ensureMigrations() error {
 			return err
 		}
 	}
+
+	// Add FTS5 virtual table and sync triggers for title search
+	if !db.tableExists("articles_fts") {
+		// Create FTS5 virtual table with external content pattern
+		if _, err := db.conn.Exec(`CREATE VIRTUAL TABLE articles_fts USING fts5(
+			title,
+			content='articles',
+			content_rowid='id'
+		)`); err != nil {
+			return fmt.Errorf("failed to create articles_fts: %w", err)
+		}
+
+		// Create INSERT trigger
+		if _, err := db.conn.Exec(`CREATE TRIGGER articles_ai AFTER INSERT ON articles BEGIN
+			INSERT INTO articles_fts(rowid, title) VALUES (new.id, new.title);
+		END`); err != nil {
+			return fmt.Errorf("failed to create articles_ai trigger: %w", err)
+		}
+
+		// Create UPDATE trigger (delete old entry first, then insert new)
+		if _, err := db.conn.Exec(`CREATE TRIGGER articles_au AFTER UPDATE ON articles BEGIN
+			INSERT INTO articles_fts(articles_fts, rowid, title) VALUES('delete', old.id, old.title);
+			INSERT INTO articles_fts(rowid, title) VALUES (new.id, new.title);
+		END`); err != nil {
+			return fmt.Errorf("failed to create articles_au trigger: %w", err)
+		}
+
+		// Create DELETE trigger
+		if _, err := db.conn.Exec(`CREATE TRIGGER articles_ad AFTER DELETE ON articles BEGIN
+			INSERT INTO articles_fts(articles_fts, rowid, title) VALUES('delete', old.id, old.title);
+		END`); err != nil {
+			return fmt.Errorf("failed to create articles_ad trigger: %w", err)
+		}
+
+		// Populate FTS5 from existing articles
+		if _, err := db.conn.Exec(`INSERT INTO articles_fts(rowid, title) SELECT id, title FROM articles`); err != nil {
+			return fmt.Errorf("failed to populate articles_fts: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -104,6 +144,13 @@ func (db *Database) columnExists(table, column string) bool {
 		}
 	}
 	return false
+}
+
+// tableExists checks if a table exists using sqlite_master.
+func (db *Database) tableExists(tableName string) bool {
+	var name string
+	err := db.conn.QueryRow("SELECT name FROM sqlite_master WHERE type='table' AND name=?", tableName).Scan(&name)
+	return err == nil && name == tableName
 }
 
 func (db *Database) Path() string {
