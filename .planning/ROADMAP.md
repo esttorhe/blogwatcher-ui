@@ -105,8 +105,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Scanner package setup (copy RSS, scraper, scanner from reference + database extensions)
-- [ ] 04-02-PLAN.md — Article management handlers, routes, templates with action buttons and toolbar
+- [x] 04-01-PLAN.md — Scanner package setup (copy RSS, scraper, scanner from reference + database extensions)
+- [x] 04-02-PLAN.md — Article management handlers, routes, templates with action buttons and toolbar
 
 ---
 
@@ -157,12 +157,12 @@ Plans:
 | 1 - Infrastructure Setup | Complete | 100% |
 | 2 - UI Layout & Navigation | Complete | 100% |
 | 3 - Article Display | Complete | 100% |
-| 4 - Article Management | Planned | 0% |
+| 4 - Article Management | Complete | 100% |
 | 5 - Theme Toggle | Pending | 0% |
 
-**Overall Progress:** 3/5 phases complete (60%)
+**Overall Progress:** 4/5 phases complete (80%)
 
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-02 (Phase 4 planned)*
+*Last updated: 2026-02-03 (Phase 4 complete)*

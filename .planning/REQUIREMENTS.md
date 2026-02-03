@@ -23,10 +23,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Article Management
 
-- [ ] **MGMT-01**: Button to mark individual article as read
-- [ ] **MGMT-02**: Button to mark article as unread
-- [ ] **MGMT-03**: "Mark all read" button for bulk action
-- [ ] **MGMT-04**: Manual sync button to scan blogs for new articles
+- [x] **MGMT-01**: Button to mark individual article as read
+- [x] **MGMT-02**: Button to mark article as unread
+- [x] **MGMT-03**: "Mark all read" button for bulk action
+- [x] **MGMT-04**: Manual sync button to scan blogs for new articles
 
 ### Infrastructure
 
@@ -78,10 +78,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DISP-02 | Phase 3 | Complete |
 | DISP-03 | Phase 3 | Complete |
 | DISP-04 | Phase 3 | Complete |
-| MGMT-01 | Phase 4 | Pending |
-| MGMT-02 | Phase 4 | Pending |
-| MGMT-03 | Phase 4 | Pending |
-| MGMT-04 | Phase 4 | Pending |
+| MGMT-01 | Phase 4 | Complete |
+| MGMT-02 | Phase 4 | Complete |
+| MGMT-03 | Phase 4 | Complete |
+| MGMT-04 | Phase 4 | Complete |
 | UI-04 | Phase 5 | Pending |
 
 **Coverage:**
@@ -93,4 +93,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 ---
 
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-02 after roadmap creation*
+*Last updated: 2026-02-03 (Phase 4 complete)*
