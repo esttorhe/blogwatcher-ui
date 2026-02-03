@@ -120,11 +120,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| POLISH-01 | Phase 6 | Pending |
-| THUMB-01 | Phase 6 | Pending |
-| THUMB-02 | Phase 6 | Pending |
-| THUMB-03 | Phase 6 | Pending |
-| THUMB-04 | Phase 6 | Pending |
+| POLISH-01 | Phase 6 | Complete |
+| THUMB-01 | Phase 6 | Complete |
+| THUMB-02 | Phase 6 | Complete |
+| THUMB-03 | Phase 6 | Complete |
+| THUMB-04 | Phase 6 | Complete |
 | SRCH-01 | Phase 7 | Pending |
 | SRCH-02 | Phase 7 | Pending |
 | SRCH-03 | Phase 7 | Pending |

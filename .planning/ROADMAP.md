@@ -168,8 +168,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 06-01-PLAN.md — Schema migration, models, thumbnail extraction package
-- [ ] 06-02-PLAN.md — Sync pipeline integration, template updates, CSS for clickable cards
+- [x] 06-01-PLAN.md — Schema migration, models, thumbnail extraction package
+- [x] 06-02-PLAN.md — Sync pipeline integration, template updates, CSS for clickable cards
 
 ---
 
@@ -258,14 +258,14 @@ Plans:
 
 | Requirement | Phase | Covered |
 |-------------|-------|---------|
-| POLISH-01 | 6 | Planned |
+| POLISH-01 | 6 | Done |
 | POLISH-02 | 8 | Planned |
 | POLISH-03 | 8 | Planned |
 | POLISH-04 | 8 | Planned |
-| THUMB-01 | 6 | Planned |
-| THUMB-02 | 6 | Planned |
-| THUMB-03 | 6 | Planned |
-| THUMB-04 | 6 | Planned |
+| THUMB-01 | 6 | Done |
+| THUMB-02 | 6 | Done |
+| THUMB-03 | 6 | Done |
+| THUMB-04 | 6 | Done |
 | SRCH-01 | 7 | Planned |
 | SRCH-02 | 7 | Planned |
 | SRCH-03 | 7 | Planned |
@@ -294,17 +294,18 @@ Plans:
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| 6 - Enhanced Card Interaction | Planned | 0% |
+| 6 - Enhanced Card Interaction | Complete | 100% |
 | 7 - Search & Date Filtering | Not started | 0% |
 | 8 - Masonry Layout | Not started | 0% |
 
 **v1.0 Progress:** 5/5 phases complete (100%)
-**v1.1 Progress:** 0/3 phases complete (0%)
-**Overall Progress:** 5/8 phases complete (62.5%)
+**v1.1 Progress:** 1/3 phases complete (33%)
+**Overall Progress:** 6/8 phases complete (75%)
 
 ---
 
 *Roadmap created: 2026-02-02*
 *v1.1 roadmap added: 2026-02-03*
 *Phase 6 planned: 2026-02-03*
+*Phase 6 complete: 2026-02-03*
 *Last updated: 2026-02-03*
