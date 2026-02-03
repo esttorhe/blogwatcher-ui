@@ -1,16 +1,58 @@
 {{define "base"}}
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#121212">
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)">
+    <script>
+    (function() {
+      var theme = localStorage.getItem('theme') || 'system';
+      var isDark = theme === 'dark' ||
+        (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+    </script>
     <title>{{template "title" .}}</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script src="/static/htmx.min.js"></script>
 </head>
 <body>
     {{template "content" .}}
+    <script>
+    (function() {
+      var radios = document.querySelectorAll('input[name="theme"]');
+      var stored = localStorage.getItem('theme') || 'system';
+
+      // Set initial checked state
+      var initial = document.getElementById('theme-' + stored);
+      if (initial) initial.checked = true;
+
+      function updateTheme(value) {
+        localStorage.setItem('theme', value);
+        var isDark = value === 'dark' ||
+          (value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', isDark);
+      }
+
+      radios.forEach(function(r) {
+        r.addEventListener('change', function(e) {
+          updateTheme(e.target.value);
+        });
+      });
+
+      // Listen for system preference changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function() {
+        var current = localStorage.getItem('theme') || 'system';
+        if (current === 'system') {
+          updateTheme('system');
+        }
+      });
+    })();
+    </script>
 </body>
 </html>
 {{end}}
