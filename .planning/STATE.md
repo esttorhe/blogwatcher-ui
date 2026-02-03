@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-02-03
 **Current milestone:** v1.1 UI Polish & Search
-**Current phase:** Phase 6 - Enhanced Card Interaction (COMPLETE)
-**Overall progress:** 75% (6/8 phases complete)
+**Current phase:** Phase 7 - Search & Date Filtering (IN PROGRESS)
+**Overall progress:** 79% (Plan 07-01 complete)
 
 ## Project Reference
 
@@ -11,30 +11,30 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 6 COMPLETE. Next: Phase 7 (Search & Date Filtering) or Phase 8 (Masonry Layout)
+**Current focus:** Phase 7 Plan 1 complete (FTS5 infrastructure). Next: Plan 07-02 (Search UI) or Plan 07-03 (Date Filtering UI)
 
 ## Milestone Status
 
 | Milestone | Status | Requirements | Phases |
 |-----------|--------|--------------|--------|
 | v1.0 | Complete | 15/15 | 5/5 |
-| v1.1 | Active | 5/15 done | 1/3 phases |
+| v1.1 | Active | 5/15 done | 1.3/3 phases |
 
 ## Current Position
 
 **Milestone:** v1.1 (UI Polish & Search)
-**Phase:** 6 of 8 (Enhanced Card Interaction) - COMPLETE
-**Plan:** 2/2 complete
-**Status:** Phase 6 verified and complete
-**Last activity:** 2026-02-03 — Phase 6 verified (all requirements satisfied)
+**Phase:** 7 of 8 (Search & Date Filtering) - IN PROGRESS
+**Plan:** 1/TBD complete
+**Status:** Plan 07-01 complete (FTS5 infrastructure)
+**Last activity:** 2026-02-03 — Completed 07-01-PLAN.md (FTS5 + SearchArticles)
 
-Progress: [███████▓░░] 75%
+Progress: [████████░░] 79%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 10 (from v1.0)
-- Average duration: (tracked during execution)
+- Total plans completed: 13 (10 from v1.0 + 3 from v1.1)
+- Average duration: ~3-5 min per plan
 - Total execution time: (tracked during execution)
 
 **By Phase:**
@@ -47,7 +47,7 @@ Progress: [███████▓░░] 75%
 | 4 - Article Management | 2 | Complete |
 | 5 - Theme Toggle | 1 | Complete |
 | 6 - Enhanced Card Interaction | 2 | Complete |
-| 7 - Search & Date Filtering | TBD | Not started |
+| 7 - Search & Date Filtering | 1/TBD | In progress |
 | 8 - Masonry Layout | TBD | Not started |
 
 **Recent Trend:**
@@ -56,6 +56,7 @@ Progress: [███████▓░░] 75%
 - Plan 06-01 complete: thumbnail infrastructure (3 min)
 - Plan 06-02 complete: scanner integration + clickable cards (3 min)
 - Phase 6 VERIFIED: All 5 requirements satisfied (POLISH-01, THUMB-01-04)
+- Plan 07-01 complete: FTS5 infrastructure + SearchArticles (3 min)
 
 *Updated after each plan completion*
 
@@ -75,6 +76,9 @@ Recent decisions affecting current work:
 - Phase 6-01: sql.NullString to empty string conversion for template simplicity
 - Phase 6-02: 10 second timeout for Open Graph fetches (sync is background operation)
 - Phase 6-02: Stretched-link CSS pattern for full-card clickability
+- Phase 7-01: FTS5 external content pattern (content='articles', content_rowid='id')
+- Phase 7-01: Conditional FTS5 JOIN only when search query non-empty
+- Phase 7-01: COALESCE(published_date, discovered_date) for date filtering
 
 Full decision log in PROJECT.md Key Decisions table.
 
@@ -91,9 +95,11 @@ None.
 - [DONE] Clickable cards with stretched-link pattern
 - [VERIFIED] All 5 requirements satisfied
 
-**Phase 7 readiness:**
-- FTS5 virtual table setup must be added to CLI's migration capability (shared database)
-- Validate CLI has migration support before Phase 7 begins
+**Phase 7 status:** IN PROGRESS
+- [DONE] FTS5 virtual table articles_fts created with triggers
+- [DONE] SearchOptions struct and SearchArticles method implemented
+- [TODO] Search UI integration (Plan 07-02)
+- [TODO] Date filtering UI (Plan 07-03)
 
 **Phase 8 readiness:**
 - Depends on Phase 6 completion (thumbnails create varied card heights for masonry)
@@ -108,7 +114,8 @@ None.
 
 **Schema changes (v1.1):**
 - [DONE] `articles` table: thumbnail_url column (nullable TEXT)
-- [TODO] Create FTS5 virtual table `articles_fts` for title search (Phase 7)
+- [DONE] FTS5 virtual table `articles_fts` for title search
+- [DONE] Sync triggers: articles_ai, articles_au, articles_ad
 
 **Tech stack:** Go server, Go templates, HTMX 2.0.4, SQLite (modernc.org/sqlite), CSS custom properties, gofeed, goquery
 
@@ -132,13 +139,14 @@ None.
 | 2026-02-03 | Plan 06-01 complete | Thumbnail infrastructure (schema, models, extraction package) |
 | 2026-02-03 | Plan 06-02 complete | Scanner integration + clickable cards |
 | 2026-02-03 | Phase 6 COMPLETE | All 5 requirements verified (POLISH-01, THUMB-01-04) |
+| 2026-02-03 | Plan 07-01 complete | FTS5 infrastructure + SearchArticles method (3 min) |
 
 ## Session Continuity
 
 Last session: 2026-02-03
-Stopped at: Phase 6 verified complete
+Stopped at: Completed 07-01-PLAN.md (FTS5 infrastructure)
 Resume file: None
-Next action: Plan and execute Phase 7 (Search) or Phase 8 (Masonry)
+Next action: Execute Plan 07-02 (Search UI) or Plan 07-03 (Date Filtering UI)
 
 ---
 
