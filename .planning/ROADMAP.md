@@ -124,6 +124,11 @@ Plans:
 
 **Depends on:** Phase 2 (UI Layout & Navigation)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 05-01-PLAN.md — CSS light theme variables, toggle component, FOUC prevention, localStorage persistence
+
 ---
 
 ## Coverage Validation
@@ -158,11 +163,11 @@ Plans:
 | 2 - UI Layout & Navigation | Complete | 100% |
 | 3 - Article Display | Complete | 100% |
 | 4 - Article Management | Complete | 100% |
-| 5 - Theme Toggle | Pending | 0% |
+| 5 - Theme Toggle | Planned | 0% |
 
 **Overall Progress:** 4/5 phases complete (80%)
 
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-03 (Phase 4 complete)*
+*Last updated: 2026-02-03 (Phase 5 planned)*
