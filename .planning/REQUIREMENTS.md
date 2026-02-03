@@ -96,12 +96,31 @@ Explicitly excluded. Documented to prevent scope creep.
 
 Which phases cover which requirements. Updated during roadmap creation.
 
+### v1.0 Requirements (Complete)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| INFRA-01 | Phase 1 | Complete |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
+| UI-01 | Phase 2 | Complete |
+| UI-02 | Phase 2 | Complete |
+| UI-03 | Phase 2 | Complete |
+| DISP-01 | Phase 3 | Complete |
+| DISP-02 | Phase 3 | Complete |
+| DISP-03 | Phase 3 | Complete |
+| DISP-04 | Phase 3 | Complete |
+| MGMT-01 | Phase 4 | Complete |
+| MGMT-02 | Phase 4 | Complete |
+| MGMT-03 | Phase 4 | Complete |
+| MGMT-04 | Phase 4 | Complete |
+| UI-04 | Phase 5 | Complete |
+
+### v1.1 Requirements (In Progress)
+
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | POLISH-01 | Phase 6 | Pending |
-| POLISH-02 | Phase 8 | Pending |
-| POLISH-03 | Phase 8 | Pending |
-| POLISH-04 | Phase 8 | Pending |
 | THUMB-01 | Phase 6 | Pending |
 | THUMB-02 | Phase 6 | Pending |
 | THUMB-03 | Phase 6 | Pending |
@@ -113,12 +132,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRCH-05 | Phase 7 | Pending |
 | SRCH-06 | Phase 7 | Pending |
 | SRCH-07 | Phase 7 | Pending |
+| POLISH-02 | Phase 8 | Pending |
+| POLISH-03 | Phase 8 | Pending |
+| POLISH-04 | Phase 8 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 15 total
-- Mapped to phases: 15
-- Unmapped: 0 ✓
+- v1.0 requirements: 15 mapped (100%)
+- v1.1 requirements: 15 mapped (100%)
+- Total: 30/30 requirements mapped
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-02*
-*Last updated: 2026-02-03 after v1.1 scope definition*
+*v1.1 roadmap added: 2026-02-03*
+*Last updated: 2026-02-03*

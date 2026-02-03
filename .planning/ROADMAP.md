@@ -2,9 +2,17 @@
 
 **Created:** 2026-02-02
 **Depth:** standard
-**Total Phases:** 5
+**Total Phases:** 8
 
-## Milestone: v1.0
+## Milestones
+
+- ✅ **v1.0 MVP** - Phases 1-5 (shipped 2026-02-03)
+- 🚧 **v1.1 UI Polish & Search** - Phases 6-8 (in progress)
+
+## Phases
+
+<details>
+<summary>✅ v1.0 MVP (Phases 1-5) - SHIPPED 2026-02-03</summary>
 
 ### Phase 1: Infrastructure Setup
 
@@ -127,11 +135,104 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — CSS light theme variables, toggle component, FOUC prevention, localStorage persistence
+- [x] 05-01-PLAN.md — CSS light theme variables, toggle component, FOUC prevention, localStorage persistence
+
+</details>
+
+---
+
+## 🚧 v1.1 UI Polish & Search (In Progress)
+
+**Milestone Goal:** Improve visual presentation with masonry layout and thumbnails, add search and filtering capabilities.
+
+### Phase 6: Enhanced Card Interaction
+
+**Goal:** User can click entire article card to open article, and cards display rich thumbnails with fallback chain.
+
+**Requirements:**
+- POLISH-01: Entire article card is clickable (opens URL in new tab)
+- THUMB-01: Extract thumbnail URL from RSS media/enclosures during sync
+- THUMB-02: Extract thumbnail from Open Graph meta tags as fallback
+- THUMB-03: Fall back to favicon when no thumbnail available
+- THUMB-04: Display thumbnail in article card (both list and grid views)
+
+**Success Criteria:**
+1. User can click anywhere on article card and original article opens in new tab
+2. Article cards display thumbnails extracted from RSS media/enclosures when available
+3. When RSS has no thumbnail, article cards display Open Graph image from article URL
+4. When neither RSS nor Open Graph provide thumbnail, article cards display blog favicon
+5. Thumbnail images render with proper aspect ratio and no cumulative layout shift
+
+**Depends on:** Phase 5 (Theme Toggle)
+
+**Plans:** TBD
+
+Plans:
+- [ ] 06-01: TBD
+- [ ] 06-02: TBD
+
+---
+
+### Phase 7: Search & Date Filtering
+
+**Goal:** User can find articles by title search and filter by date ranges.
+
+**Requirements:**
+- SRCH-01: Search articles by title text
+- SRCH-02: Search input with 300ms debounce (HTMX active search)
+- SRCH-03: Date filter: Last Week shortcut
+- SRCH-04: Date filter: Last Month shortcut
+- SRCH-05: Date filter: Custom date range picker
+- SRCH-06: Combined filters (blog + status + search + date together)
+- SRCH-07: Display results count showing how many articles match
+
+**Success Criteria:**
+1. User can type in search box and see results filter to articles matching title text
+2. Search input debounces at 300ms and does not trigger on every keystroke
+3. User can click "Last Week" filter and see only articles from past 7 days
+4. User can click "Last Month" filter and see only articles from past 30 days
+5. User can select custom date range and see articles within that range
+6. User can combine multiple filters (blog + status + search + date) and see articles matching all conditions
+7. Results count displays "Showing X articles" or "No articles found" based on active filters
+
+**Depends on:** Phase 5 (Theme Toggle)
+
+**Plans:** TBD
+
+Plans:
+- [ ] 07-01: TBD
+- [ ] 07-02: TBD
+
+---
+
+### Phase 8: Masonry Layout
+
+**Goal:** User can toggle between list and masonry grid layouts with preference persisted.
+
+**Requirements:**
+- POLISH-02: Masonry grid layout as alternative to list view
+- POLISH-03: View toggle to switch between list and grid layouts
+- POLISH-04: View preference persists across sessions
+
+**Success Criteria:**
+1. User sees view toggle button to switch between list and grid layouts
+2. User can click grid view and see articles arranged in masonry layout with varied card heights
+3. Masonry layout responds to viewport width (1 col mobile, 2 col tablet, 3-4 col desktop)
+4. User can switch back to list view and see traditional vertical layout
+5. View preference persists across browser sessions (remembered on next visit)
+
+**Depends on:** Phase 6 (Enhanced Card Interaction)
+
+**Plans:** TBD
+
+Plans:
+- [ ] 08-01: TBD
 
 ---
 
 ## Coverage Validation
+
+### v1.0 Requirements
 
 | Requirement | Phase | Covered |
 |-------------|-------|---------|
@@ -151,11 +252,35 @@ Plans:
 | MGMT-04 | 4 | ✓ |
 | UI-04 | 5 | ✓ |
 
-**Coverage:** 15/15 requirements mapped (100%)
+**v1.0 Coverage:** 15/15 requirements mapped (100%)
+
+### v1.1 Requirements
+
+| Requirement | Phase | Covered |
+|-------------|-------|---------|
+| POLISH-01 | 6 | ✓ |
+| POLISH-02 | 8 | ✓ |
+| POLISH-03 | 8 | ✓ |
+| POLISH-04 | 8 | ✓ |
+| THUMB-01 | 6 | ✓ |
+| THUMB-02 | 6 | ✓ |
+| THUMB-03 | 6 | ✓ |
+| THUMB-04 | 6 | ✓ |
+| SRCH-01 | 7 | ✓ |
+| SRCH-02 | 7 | ✓ |
+| SRCH-03 | 7 | ✓ |
+| SRCH-04 | 7 | ✓ |
+| SRCH-05 | 7 | ✓ |
+| SRCH-06 | 7 | ✓ |
+| SRCH-07 | 7 | ✓ |
+
+**v1.1 Coverage:** 15/15 requirements mapped (100%)
 
 ---
 
 ## Phase Progress
+
+### v1.0 (Complete)
 
 | Phase | Status | Progress |
 |-------|--------|----------|
@@ -163,11 +288,22 @@ Plans:
 | 2 - UI Layout & Navigation | Complete | 100% |
 | 3 - Article Display | Complete | 100% |
 | 4 - Article Management | Complete | 100% |
-| 5 - Theme Toggle | Planned | 0% |
+| 5 - Theme Toggle | Complete | 100% |
 
-**Overall Progress:** 4/5 phases complete (80%)
+### v1.1 (In Progress)
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| 6 - Enhanced Card Interaction | Not started | 0% |
+| 7 - Search & Date Filtering | Not started | 0% |
+| 8 - Masonry Layout | Not started | 0% |
+
+**v1.0 Progress:** 5/5 phases complete (100%)
+**v1.1 Progress:** 0/3 phases complete (0%)
+**Overall Progress:** 5/8 phases complete (62.5%)
 
 ---
 
 *Roadmap created: 2026-02-02*
-*Last updated: 2026-02-03 (Phase 5 planned)*
+*v1.1 roadmap added: 2026-02-03*
+*Last updated: 2026-02-03*
