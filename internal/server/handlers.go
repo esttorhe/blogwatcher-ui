@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/esttorhe/blogwatcher-ui/internal/model"
 	"github.com/esttorhe/blogwatcher-ui/internal/scanner"
@@ -23,7 +24,7 @@ func (s *Server) renderTemplate(w http.ResponseWriter, name string, data interfa
 
 // handleIndex serves the main index page
 // Fetches both blogs and articles for initial render
-// Supports filter and blog query params for direct URL access
+// Supports filter, blog, search, and date query params for direct URL access
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	blogs, err := s.db.ListBlogs()
 	if err != nil {
@@ -31,86 +32,40 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		blogs = nil
 	}
 
-	// Parse query parameters for filter and blog
-	filter := r.URL.Query().Get("filter")
-	blogParam := r.URL.Query().Get("blog")
+	// Build search options from query parameters
+	opts, filter, currentBlogID := parseSearchOptions(r)
 
-	// Parse blogID if provided (0 means no filter, DB IDs start at 1)
-	var blogID *int64
-	var currentBlogID int64
-	if blogParam != "" {
-		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
-			blogID = &id
-			currentBlogID = id
-		}
-	}
-
-	// Fetch articles based on filter (using ListArticlesWithBlog for rich metadata)
-	var articles []model.ArticleWithBlog
-	switch filter {
-	case "read":
-		articles, err = s.db.ListArticlesWithBlog(true, blogID)
-	case "unread", "":
-		// Default to unread (inbox view)
-		articles, err = s.db.ListArticlesWithBlog(false, blogID)
-		if filter == "" {
-			filter = "unread" // Set default for template active state
-		}
-	default:
-		// Unknown filter, default to unread
-		articles, err = s.db.ListArticlesWithBlog(false, blogID)
-		filter = "unread"
-	}
+	// Fetch articles using SearchArticles for all filter combinations
+	articles, articleCount, err := s.db.SearchArticles(opts)
 	if err != nil {
 		log.Printf("Error fetching articles: %v", err)
 		articles = nil
+		articleCount = 0
 	}
 
 	data := map[string]interface{}{
 		"Title":         "BlogWatcher",
 		"Blogs":         blogs,
 		"Articles":      articles,
+		"ArticleCount":  articleCount,
 		"CurrentFilter": filter,
 		"CurrentBlogID": currentBlogID, // 0 means no blog filter active
+		"SearchQuery":   opts.SearchQuery,
+		"DateFrom":      r.URL.Query().Get("date_from"),
+		"DateTo":        r.URL.Query().Get("date_to"),
 	}
 	s.renderTemplate(w, "index.gohtml", data)
 }
 
 // handleArticleList serves the article list
 // Returns partial fragment for HTMX requests, full page otherwise
-// Supports filter (unread/read) and blog query parameters
+// Supports filter, blog, search, and date query parameters
 func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
-	// Parse query parameters
-	filter := r.URL.Query().Get("filter")
-	blogParam := r.URL.Query().Get("blog")
+	// Build search options from query parameters
+	opts, filter, currentBlogID := parseSearchOptions(r)
 
-	// Parse blogID if provided (0 means no filter, DB IDs start at 1)
-	var blogID *int64
-	var currentBlogID int64
-	if blogParam != "" {
-		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
-			blogID = &id
-			currentBlogID = id
-		}
-	}
-
-	// Fetch articles based on filter (using ListArticlesWithBlog for rich metadata)
-	var articles []model.ArticleWithBlog
-	var err error
-	switch filter {
-	case "read":
-		articles, err = s.db.ListArticlesWithBlog(true, blogID)
-	case "unread", "":
-		// Default to unread (inbox view)
-		articles, err = s.db.ListArticlesWithBlog(false, blogID)
-		if filter == "" {
-			filter = "unread" // Set default for template active state
-		}
-	default:
-		// Unknown filter, default to unread
-		articles, err = s.db.ListArticlesWithBlog(false, blogID)
-		filter = "unread"
-	}
+	// Fetch articles using SearchArticles for all filter combinations
+	articles, articleCount, err := s.db.SearchArticles(opts)
 	if err != nil {
 		log.Printf("Error fetching articles: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)
@@ -119,8 +74,12 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]interface{}{
 		"Articles":      articles,
+		"ArticleCount":  articleCount,
 		"CurrentFilter": filter,
 		"CurrentBlogID": currentBlogID, // 0 means no blog filter active
+		"SearchQuery":   opts.SearchQuery,
+		"DateFrom":      r.URL.Query().Get("date_from"),
+		"DateTo":        r.URL.Query().Get("date_to"),
 	}
 
 	// Check if this is an HTMX request
@@ -224,11 +183,9 @@ func (s *Server) handleMarkAllRead(w http.ResponseWriter, r *http.Request) {
 	// Parse optional blog filter from query params
 	blogParam := r.URL.Query().Get("blog")
 	var blogID *int64
-	var currentBlogID int64
 	if blogParam != "" && blogParam != "0" {
 		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
 			blogID = &id
-			currentBlogID = id
 		}
 	}
 
@@ -239,8 +196,11 @@ func (s *Server) handleMarkAllRead(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return refreshed article list (will be empty for inbox view)
-	articles, err := s.db.ListArticlesWithBlog(false, blogID) // unread = false is inbox
+	// Build search options from query parameters (preserves search/date filters)
+	opts, filter, currentBlogID := parseSearchOptions(r)
+
+	// Return refreshed article list with current filters
+	articles, articleCount, err := s.db.SearchArticles(opts)
 	if err != nil {
 		log.Printf("Error fetching articles: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)
@@ -249,8 +209,12 @@ func (s *Server) handleMarkAllRead(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]interface{}{
 		"Articles":      articles,
-		"CurrentFilter": "unread",
+		"ArticleCount":  articleCount,
+		"CurrentFilter": filter,
 		"CurrentBlogID": currentBlogID,
+		"SearchQuery":   opts.SearchQuery,
+		"DateFrom":      r.URL.Query().Get("date_from"),
+		"DateTo":        r.URL.Query().Get("date_to"),
 	}
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
@@ -277,28 +241,11 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Sync complete: %d blogs scanned, %d new articles total", len(results), totalNew)
 
-	// Parse current filter from query params to return appropriate view
-	filter := r.URL.Query().Get("filter")
-	blogParam := r.URL.Query().Get("blog")
-	var blogID *int64
-	var currentBlogID int64
-	if blogParam != "" && blogParam != "0" {
-		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
-			blogID = &id
-			currentBlogID = id
-		}
-	}
+	// Build search options from query parameters (preserves all filters)
+	opts, filter, currentBlogID := parseSearchOptions(r)
 
-	// Determine read status based on filter
-	isRead := false
-	if filter == "read" {
-		isRead = true
-	} else {
-		filter = "unread"
-	}
-
-	// Return refreshed article list
-	articles, err := s.db.ListArticlesWithBlog(isRead, blogID)
+	// Return refreshed article list with current filters
+	articles, articleCount, err := s.db.SearchArticles(opts)
 	if err != nil {
 		log.Printf("Error fetching articles: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)
@@ -307,8 +254,59 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]interface{}{
 		"Articles":      articles,
+		"ArticleCount":  articleCount,
 		"CurrentFilter": filter,
 		"CurrentBlogID": currentBlogID,
+		"SearchQuery":   opts.SearchQuery,
+		"DateFrom":      r.URL.Query().Get("date_from"),
+		"DateTo":        r.URL.Query().Get("date_to"),
 	}
 	s.renderTemplate(w, "article-list.gohtml", data)
+}
+
+// parseSearchOptions extracts all search and filter parameters from the request.
+// Returns SearchOptions, the filter string (for template), and currentBlogID.
+func parseSearchOptions(r *http.Request) (model.SearchOptions, string, int64) {
+	opts := model.SearchOptions{
+		SearchQuery: r.URL.Query().Get("search"),
+	}
+
+	// Parse status filter
+	filter := r.URL.Query().Get("filter")
+	switch filter {
+	case "read":
+		isRead := true
+		opts.IsRead = &isRead
+	case "unread", "":
+		isRead := false
+		opts.IsRead = &isRead
+		filter = "unread" // Default
+	default:
+		isRead := false
+		opts.IsRead = &isRead
+		filter = "unread"
+	}
+
+	// Parse blog filter
+	var currentBlogID int64
+	if blogParam := r.URL.Query().Get("blog"); blogParam != "" && blogParam != "0" {
+		if id, err := strconv.ParseInt(blogParam, 10, 64); err == nil {
+			opts.BlogID = &id
+			currentBlogID = id
+		}
+	}
+
+	// Parse date filters (format: 2006-01-02)
+	if dateFrom := r.URL.Query().Get("date_from"); dateFrom != "" {
+		if t, err := time.Parse("2006-01-02", dateFrom); err == nil {
+			opts.DateFrom = &t
+		}
+	}
+	if dateTo := r.URL.Query().Get("date_to"); dateTo != "" {
+		if t, err := time.Parse("2006-01-02", dateTo); err == nil {
+			opts.DateTo = &t
+		}
+	}
+
+	return opts, filter, currentBlogID
 }
