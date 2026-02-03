@@ -11,12 +11,14 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/esttorhe/blogwatcher-ui/internal/thumbnail"
 	"github.com/mmcdole/gofeed"
 )
 
 type FeedArticle struct {
 	Title         string
 	URL           string
+	ThumbnailURL  string
 	PublishedDate *time.Time
 }
 
@@ -52,9 +54,11 @@ func ParseFeed(feedURL string, timeout time.Duration) ([]FeedArticle, error) {
 		if title == "" || link == "" {
 			continue
 		}
+		thumbnailURL := thumbnail.ExtractFromRSS(item)
 		articles = append(articles, FeedArticle{
 			Title:         title,
 			URL:           link,
+			ThumbnailURL:  thumbnailURL,
 			PublishedDate: pickPublishedDate(item),
 		})
 	}

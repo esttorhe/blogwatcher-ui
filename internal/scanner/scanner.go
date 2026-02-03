@@ -10,6 +10,7 @@ import (
 	"github.com/esttorhe/blogwatcher-ui/internal/rss"
 	"github.com/esttorhe/blogwatcher-ui/internal/scraper"
 	"github.com/esttorhe/blogwatcher-ui/internal/storage"
+	"github.com/esttorhe/blogwatcher-ui/internal/thumbnail"
 )
 
 type ScanResult struct {
@@ -177,10 +178,16 @@ func ScanBlogByName(db *storage.Database, name string) (*ScanResult, error) {
 func convertFeedArticles(blogID int64, articles []rss.FeedArticle) []model.Article {
 	result := make([]model.Article, 0, len(articles))
 	for _, article := range articles {
+		thumbnailURL := article.ThumbnailURL
+		// Open Graph fallback if RSS didn't provide thumbnail
+		if thumbnailURL == "" {
+			thumbnailURL = thumbnail.ExtractFromOpenGraph(article.URL, 10*time.Second)
+		}
 		result = append(result, model.Article{
 			BlogID:        blogID,
 			Title:         article.Title,
 			URL:           article.URL,
+			ThumbnailURL:  thumbnailURL,
 			PublishedDate: article.PublishedDate,
 			IsRead:        false,
 		})
@@ -191,10 +198,13 @@ func convertFeedArticles(blogID int64, articles []rss.FeedArticle) []model.Artic
 func convertScrapedArticles(blogID int64, articles []scraper.ScrapedArticle) []model.Article {
 	result := make([]model.Article, 0, len(articles))
 	for _, article := range articles {
+		// Scraped articles don't have thumbnails, try Open Graph
+		thumbnailURL := thumbnail.ExtractFromOpenGraph(article.URL, 10*time.Second)
 		result = append(result, model.Article{
 			BlogID:        blogID,
 			Title:         article.Title,
 			URL:           article.URL,
+			ThumbnailURL:  thumbnailURL,
 			PublishedDate: article.PublishedDate,
 			IsRead:        false,
 		})
