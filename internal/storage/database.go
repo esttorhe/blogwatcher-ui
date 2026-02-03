@@ -282,6 +282,85 @@ func (db *Database) ListArticlesWithBlog(isRead bool, blogID *int64) ([]model.Ar
 	return articles, rows.Err()
 }
 
+// SearchArticles returns articles matching the given search options with total count.
+// Uses FTS5 for title search when SearchQuery is non-empty.
+// Returns (articles, totalCount, error).
+func (db *Database) SearchArticles(opts model.SearchOptions) ([]model.ArticleWithBlog, int, error) {
+	// Build base query - conditionally add FTS5 JOIN only when searching
+	var query strings.Builder
+	query.WriteString(`SELECT a.id, a.blog_id, a.title, a.url, a.thumbnail_url, a.published_date, a.discovered_date, a.is_read, b.name, b.url, COUNT(*) OVER() as total_count
+		FROM articles a`)
+
+	var conditions []string
+	var args []interface{}
+
+	// Add FTS5 JOIN only if search query provided
+	if opts.SearchQuery != "" {
+		query.WriteString(` JOIN articles_fts fts ON a.id = fts.rowid`)
+		conditions = append(conditions, "fts MATCH ?")
+		args = append(args, opts.SearchQuery)
+	}
+
+	query.WriteString(` INNER JOIN blogs b ON a.blog_id = b.id`)
+
+	// Add status condition only if IsRead is not nil
+	if opts.IsRead != nil {
+		conditions = append(conditions, "a.is_read = ?")
+		args = append(args, *opts.IsRead)
+	}
+
+	// Add blog filter if provided
+	if opts.BlogID != nil {
+		conditions = append(conditions, "a.blog_id = ?")
+		args = append(args, *opts.BlogID)
+	}
+
+	// Add date range using COALESCE for published_date fallback to discovered_date
+	if opts.DateFrom != nil {
+		conditions = append(conditions, "COALESCE(a.published_date, a.discovered_date) >= ?")
+		args = append(args, opts.DateFrom.Format("2006-01-02"))
+	}
+	if opts.DateTo != nil {
+		// Include entire end date by comparing to next day
+		endDate := opts.DateTo.AddDate(0, 0, 1)
+		conditions = append(conditions, "COALESCE(a.published_date, a.discovered_date) < ?")
+		args = append(args, endDate.Format("2006-01-02"))
+	}
+
+	// Build WHERE clause
+	if len(conditions) > 0 {
+		query.WriteString(" WHERE ")
+		query.WriteString(strings.Join(conditions, " AND "))
+	}
+
+	query.WriteString(" ORDER BY a.discovered_date DESC")
+
+	rows, err := db.conn.Query(query.String(), args...)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var articles []model.ArticleWithBlog
+	var totalCount int
+	for rows.Next() {
+		article, count, err := scanArticleWithBlogAndCount(rows)
+		if err != nil {
+			return nil, 0, err
+		}
+		if article != nil {
+			articles = append(articles, *article)
+			totalCount = count
+		}
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return articles, totalCount, nil
+}
+
 func (db *Database) MarkArticleRead(id int64) (bool, error) {
 	result, err := db.conn.Exec(`UPDATE articles SET is_read = 1 WHERE id = ?`, id)
 	if err != nil {
@@ -536,6 +615,51 @@ func scanArticleWithBlog(scanner interface{ Scan(dest ...any) error }) (*model.A
 	}
 
 	return article, nil
+}
+
+func scanArticleWithBlogAndCount(scanner interface{ Scan(dest ...any) error }) (*model.ArticleWithBlog, int, error) {
+	var (
+		id            int64
+		blogID        int64
+		title         string
+		url           string
+		thumbnailURL  sql.NullString
+		publishedDate sql.NullString
+		discovered    sql.NullString
+		isRead        bool
+		blogName      string
+		blogURL       string
+		totalCount    int
+	)
+	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead, &blogName, &blogURL, &totalCount); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, 0, nil
+		}
+		return nil, 0, err
+	}
+
+	article := &model.ArticleWithBlog{
+		ID:           id,
+		BlogID:       blogID,
+		Title:        title,
+		URL:          url,
+		ThumbnailURL: thumbnailURL.String,
+		IsRead:       isRead,
+		BlogName:     blogName,
+		BlogURL:      blogURL,
+	}
+	if publishedDate.Valid {
+		if parsed, err := parseTime(publishedDate.String); err == nil {
+			article.PublishedDate = &parsed
+		}
+	}
+	if discovered.Valid {
+		if parsed, err := parseTime(discovered.String); err == nil {
+			article.DiscoveredDate = &parsed
+		}
+	}
+
+	return article, totalCount, nil
 }
 
 func parseTime(value string) (time.Time, error) {

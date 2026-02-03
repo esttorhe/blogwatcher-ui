@@ -38,3 +38,13 @@ type ArticleWithBlog struct {
 	BlogName       string
 	BlogURL        string
 }
+
+// SearchOptions contains all filter parameters for article search.
+// All fields are optional - nil/empty means no filter for that field.
+type SearchOptions struct {
+	SearchQuery string     // FTS5 search query (empty = skip FTS5)
+	IsRead      *bool      // nil = all, true = read only, false = unread only
+	BlogID      *int64     // nil = all blogs
+	DateFrom    *time.Time // nil = no lower bound
+	DateTo      *time.Time // nil = no upper bound
+}
