@@ -200,8 +200,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md — FTS5 infrastructure and SearchArticles method
-- [ ] 07-02-PLAN.md — Search UI, date filters, results count display
+- [x] 07-01-PLAN.md — FTS5 infrastructure and SearchArticles method
+- [x] 07-02-PLAN.md — Search UI, date filters, results count display
 
 ---
 
@@ -266,13 +266,13 @@ Plans:
 | THUMB-02 | 6 | Done |
 | THUMB-03 | 6 | Done |
 | THUMB-04 | 6 | Done |
-| SRCH-01 | 7 | Planned |
-| SRCH-02 | 7 | Planned |
-| SRCH-03 | 7 | Planned |
-| SRCH-04 | 7 | Planned |
-| SRCH-05 | 7 | Planned |
-| SRCH-06 | 7 | Planned |
-| SRCH-07 | 7 | Planned |
+| SRCH-01 | 7 | Done |
+| SRCH-02 | 7 | Done |
+| SRCH-03 | 7 | Done |
+| SRCH-04 | 7 | Done |
+| SRCH-05 | 7 | Done |
+| SRCH-06 | 7 | Done |
+| SRCH-07 | 7 | Done |
 
 **v1.1 Coverage:** 15/15 requirements mapped (100%)
 
@@ -295,12 +295,12 @@ Plans:
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 6 - Enhanced Card Interaction | Complete | 100% |
-| 7 - Search & Date Filtering | Planned | 0% |
+| 7 - Search & Date Filtering | Complete | 100% |
 | 8 - Masonry Layout | Not started | 0% |
 
 **v1.0 Progress:** 5/5 phases complete (100%)
-**v1.1 Progress:** 1/3 phases complete (33%)
-**Overall Progress:** 6/8 phases complete (75%)
+**v1.1 Progress:** 2/3 phases complete (67%)
+**Overall Progress:** 7/8 phases complete (87.5%)
 
 ---
 
@@ -309,4 +309,5 @@ Plans:
 *Phase 6 planned: 2026-02-03*
 *Phase 6 complete: 2026-02-03*
 *Phase 7 planned: 2026-02-03*
+*Phase 7 complete: 2026-02-03*
 *Last updated: 2026-02-03*
