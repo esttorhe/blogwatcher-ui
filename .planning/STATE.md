@@ -1,9 +1,9 @@
 # Project State: BlogWatcher UI
 
 **Last updated:** 2026-02-03
-**Current milestone:** v1.1 UI Polish & Search
-**Current phase:** Phase 7 - Search & Date Filtering (COMPLETE)
-**Overall progress:** 86% (Phase 7 complete)
+**Current milestone:** v1.1 UI Polish & Search (COMPLETE)
+**Current phase:** Phase 8 - Masonry Layout (COMPLETE)
+**Overall progress:** 100% (v1.1 complete)
 
 ## Project Reference
 
@@ -11,29 +11,29 @@ See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** Phase 7 complete (Search & Date Filtering). Next: Phase 8 (Masonry Layout)
+**Current focus:** v1.1 milestone complete. All 30 requirements delivered across 8 phases.
 
 ## Milestone Status
 
 | Milestone | Status | Requirements | Phases |
 |-----------|--------|--------------|--------|
 | v1.0 | Complete | 15/15 | 5/5 |
-| v1.1 | Active | 12/15 done | 2/3 phases |
+| v1.1 | Complete | 15/15 | 3/3 |
 
 ## Current Position
 
-**Milestone:** v1.1 (UI Polish & Search)
-**Phase:** 7 of 8 (Search & Date Filtering) - COMPLETE
-**Plan:** 2/2 complete
-**Status:** Phase 7 complete (Search UI + Date Filtering)
-**Last activity:** 2026-02-03 - Completed 07-02-PLAN.md (Search & Date Filtering UI)
+**Milestone:** v1.1 (UI Polish & Search) - COMPLETE
+**Phase:** 8 of 8 (Masonry Layout) - COMPLETE
+**Plan:** 1/1 complete
+**Status:** v1.1 milestone complete!
+**Last activity:** 2026-02-03 - Completed 08-01-PLAN.md (Masonry Layout)
 
-Progress: [████████▓░] 86%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 14 (10 from v1.0 + 4 from v1.1)
+- Total plans completed: 15 (10 from v1.0 + 5 from v1.1)
 - Average duration: ~3-5 min per plan
 - Total execution time: (tracked during execution)
 
@@ -48,7 +48,7 @@ Progress: [████████▓░] 86%
 | 5 - Theme Toggle | 1 | Complete |
 | 6 - Enhanced Card Interaction | 2 | Complete |
 | 7 - Search & Date Filtering | 2 | Complete |
-| 8 - Masonry Layout | TBD | Not started |
+| 8 - Masonry Layout | 1 | Complete |
 
 **Recent Trend:**
 - v1.0 milestone complete (Phases 1-5, 10 plans)
@@ -59,6 +59,9 @@ Progress: [████████▓░] 86%
 - Plan 07-01 complete: FTS5 infrastructure + SearchArticles (3 min)
 - Plan 07-02 complete: Search UI + Date Filtering (5 min)
 - Phase 7 COMPLETE: All 7 search requirements satisfied (SRCH-01 through SRCH-07)
+- Plan 08-01 complete: Masonry layout + view toggle (5 min)
+- Phase 8 COMPLETE: All 3 polish requirements satisfied (POLISH-02, POLISH-03, POLISH-04)
+- **v1.1 MILESTONE COMPLETE: All 15 requirements delivered!**
 
 *Updated after each plan completion*
 

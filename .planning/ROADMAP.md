@@ -7,7 +7,7 @@
 ## Milestones
 
 - **v1.0 MVP** - Phases 1-5 (shipped 2026-02-03)
-- **v1.1 UI Polish & Search** - Phases 6-8 (in progress)
+- **v1.1 UI Polish & Search** - Phases 6-8 (shipped 2026-02-03)
 
 ## Phases
 
@@ -141,9 +141,10 @@ Plans:
 
 ---
 
-## v1.1 UI Polish & Search (In Progress)
+## v1.1 UI Polish & Search (COMPLETE)
 
 **Milestone Goal:** Improve visual presentation with masonry layout and thumbnails, add search and filtering capabilities.
+**Shipped:** 2026-02-03
 
 ### Phase 6: Enhanced Card Interaction
 
@@ -226,7 +227,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 08-01-PLAN.md — CSS Grid layout, view toggle component, localStorage persistence
+- [x] 08-01-PLAN.md — CSS Grid layout, view toggle component, localStorage persistence
 
 ---
 
@@ -259,9 +260,9 @@ Plans:
 | Requirement | Phase | Covered |
 |-------------|-------|---------|
 | POLISH-01 | 6 | Done |
-| POLISH-02 | 8 | Planned |
-| POLISH-03 | 8 | Planned |
-| POLISH-04 | 8 | Planned |
+| POLISH-02 | 8 | Done |
+| POLISH-03 | 8 | Done |
+| POLISH-04 | 8 | Done |
 | THUMB-01 | 6 | Done |
 | THUMB-02 | 6 | Done |
 | THUMB-03 | 6 | Done |
@@ -290,17 +291,17 @@ Plans:
 | 4 - Article Management | Complete | 100% |
 | 5 - Theme Toggle | Complete | 100% |
 
-### v1.1 (In Progress)
+### v1.1 (Complete)
 
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 6 - Enhanced Card Interaction | Complete | 100% |
 | 7 - Search & Date Filtering | Complete | 100% |
-| 8 - Masonry Layout | Not started | 0% |
+| 8 - Masonry Layout | Complete | 100% |
 
 **v1.0 Progress:** 5/5 phases complete (100%)
-**v1.1 Progress:** 2/3 phases complete (67%)
-**Overall Progress:** 7/8 phases complete (87.5%)
+**v1.1 Progress:** 3/3 phases complete (100%)
+**Overall Progress:** 8/8 phases complete (100%)
 
 ---
 
@@ -311,4 +312,6 @@ Plans:
 *Phase 7 planned: 2026-02-03*
 *Phase 7 complete: 2026-02-03*
 *Phase 8 planned: 2026-02-03*
+*Phase 8 complete: 2026-02-03*
+*v1.1 COMPLETE: 2026-02-03*
 *Last updated: 2026-02-03*
