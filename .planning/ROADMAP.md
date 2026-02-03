@@ -197,11 +197,11 @@ Plans:
 
 **Depends on:** Phase 5 (Theme Toggle)
 
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md — FTS5 infrastructure and SearchArticles method
+- [ ] 07-02-PLAN.md — Search UI, date filters, results count display
 
 ---
 
@@ -295,7 +295,7 @@ Plans:
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 6 - Enhanced Card Interaction | Complete | 100% |
-| 7 - Search & Date Filtering | Not started | 0% |
+| 7 - Search & Date Filtering | Planned | 0% |
 | 8 - Masonry Layout | Not started | 0% |
 
 **v1.0 Progress:** 5/5 phases complete (100%)
@@ -308,4 +308,5 @@ Plans:
 *v1.1 roadmap added: 2026-02-03*
 *Phase 6 planned: 2026-02-03*
 *Phase 6 complete: 2026-02-03*
+*Phase 7 planned: 2026-02-03*
 *Last updated: 2026-02-03*
