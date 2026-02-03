@@ -72,18 +72,38 @@ func OpenDatabase(path string) (*Database, error) {
 }
 
 // ensureMigrations runs idempotent schema migrations for new columns.
-// Uses ADD COLUMN IF NOT EXISTS (SQLite 3.33+) to be safe for repeated runs.
+// Checks column existence via PRAGMA table_info before adding.
 func (db *Database) ensureMigrations() error {
-	migrations := []string{
-		`ALTER TABLE articles ADD COLUMN IF NOT EXISTS thumbnail_url TEXT;`,
-	}
-
-	for _, migration := range migrations {
-		if _, err := db.conn.Exec(migration); err != nil {
+	// Add thumbnail_url column if it doesn't exist
+	if !db.columnExists("articles", "thumbnail_url") {
+		if _, err := db.conn.Exec(`ALTER TABLE articles ADD COLUMN thumbnail_url TEXT`); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// columnExists checks if a column exists in a table using PRAGMA table_info.
+func (db *Database) columnExists(table, column string) bool {
+	rows, err := db.conn.Query("PRAGMA table_info(" + table + ")")
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cid int
+		var name, ctype string
+		var notnull, pk int
+		var dfltValue any
+		if err := rows.Scan(&cid, &name, &ctype, &notnull, &dfltValue, &pk); err != nil {
+			continue
+		}
+		if name == column {
+			return true
+		}
+	}
+	return false
 }
 
 func (db *Database) Path() string {
