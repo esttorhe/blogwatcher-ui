@@ -223,10 +223,10 @@ Plans:
 
 **Depends on:** Phase 6 (Enhanced Card Interaction)
 
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 08-01: TBD
+- [ ] 08-01-PLAN.md — CSS Grid layout, view toggle component, localStorage persistence
 
 ---
 
@@ -310,4 +310,5 @@ Plans:
 *Phase 6 complete: 2026-02-03*
 *Phase 7 planned: 2026-02-03*
 *Phase 7 complete: 2026-02-03*
+*Phase 8 planned: 2026-02-03*
 *Last updated: 2026-02-03*
