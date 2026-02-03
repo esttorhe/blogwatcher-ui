@@ -1,0 +1,16 @@
+{{define "blog-list.gohtml"}}
+{{/* ABOUTME: Renders the list of blogs in the sidebar with HTMX navigation.
+     ABOUTME: Clicking a blog filters articles to that blog using HTMX requests. */}}
+{{range .Blogs}}
+<a href="/articles?blog={{.ID}}"
+   hx-get="/articles?blog={{.ID}}"
+   hx-target="#main-content"
+   hx-push-url="true"
+   hx-on::after-swap="document.getElementById('sidebar-toggle').checked = false"
+   class="blog-item{{if eq $.CurrentBlogID .ID}} active{{end}}">
+    {{.Name}}
+</a>
+{{else}}
+<p class="empty-state">No blogs tracked yet. Use the blogwatcher CLI to add blogs.</p>
+{{end}}
+{{end}}

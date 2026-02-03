@@ -26,14 +26,25 @@ A modern web UI for [BlogWatcher](https://github.com/Hyaxia/blogwatcher), a Go C
 ### Install with go install
 
 ```bash
-# Install the latest version
+# Install the latest version (recommended)
+go install github.com/esttorhe/blogwatcher-ui/cmd/server@v1.0.1
+
+# Or install from latest tag
 go install github.com/esttorhe/blogwatcher-ui/cmd/server@latest
 
-# Or install a specific version
-go install github.com/esttorhe/blogwatcher-ui/cmd/server@v0.0.1
+# If you get module cache issues, clear it first:
+go clean -modcache
+go install github.com/esttorhe/blogwatcher-ui/cmd/server@v1.0.1
 
 # Run the installed binary
 server
+```
+
+**Note:** If you encounter checksum verification errors (404 from sum.golang.org), the repository may be private. Set these environment variables:
+```bash
+export GOPRIVATE=github.com/esttorhe/blogwatcher-ui
+export GONOPROXY=github.com/esttorhe/blogwatcher-ui
+export GONOSUMDB=github.com/esttorhe/blogwatcher-ui
 ```
 
 The binary will be installed to `$GOPATH/bin` (or `$GOBIN` if set). Make sure this directory is in your `PATH`.

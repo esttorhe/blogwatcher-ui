@@ -1,0 +1,214 @@
+{{define "article-list.gohtml"}}
+{{/* ABOUTME: Renders article cards in the main content area with rich metadata.
+     ABOUTME: Each card shows favicon, title (clickable), blog name, relative time, and action button. */}}
+<header class="main-header">
+  <h1>{{if eq .CurrentFilter "read"}}Archived{{else}}Inbox{{end}}</h1>
+  <div class="header-toggles">
+    <div class="view-toggle" role="radiogroup" aria-label="View mode">
+      <input type="radio" name="view" id="view-list" value="list">
+      <label for="view-list" title="List view">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6" x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/>
+          <line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+        <span class="visually-hidden">List</span>
+      </label>
+      <input type="radio" name="view" id="view-grid" value="grid">
+      <label for="view-grid" title="Grid view">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+        </svg>
+        <span class="visually-hidden">Grid</span>
+      </label>
+    </div>
+    <div class="theme-toggle" role="radiogroup" aria-label="Color theme">
+      <input type="radio" name="theme" id="theme-light" value="light">
+      <label for="theme-light" title="Light theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <span class="visually-hidden">Light</span>
+      </label>
+      <input type="radio" name="theme" id="theme-system" value="system">
+      <label for="theme-system" title="System theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        <span class="visually-hidden">System</span>
+      </label>
+      <input type="radio" name="theme" id="theme-dark" value="dark">
+      <label for="theme-dark" title="Dark theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <span class="visually-hidden">Dark</span>
+      </label>
+    </div>
+  </div>
+</header>
+<div class="filter-bar">
+    <div class="search-container">
+        <input type="search"
+               name="search"
+               id="search-input"
+               placeholder="Search articles..."
+               value="{{.SearchQuery}}"
+               hx-get="/articles"
+               hx-trigger="keyup changed delay:300ms, search"
+               hx-target="#main-content"
+               hx-include="#filter-hidden, #blog-hidden, #date_from, #date_to"
+               hx-push-url="true">
+    </div>
+    <div class="date-filters">
+        <button type="button" class="btn-filter" onclick="setDateRange('week')">Last Week</button>
+        <button type="button" class="btn-filter" onclick="setDateRange('month')">Last Month</button>
+        <button type="button" class="btn-filter" onclick="clearDateRange()">All Time</button>
+        <input type="date"
+               name="date_from"
+               id="date_from"
+               value="{{.DateFrom}}"
+               hx-get="/articles"
+               hx-trigger="change"
+               hx-target="#main-content"
+               hx-include="#filter-hidden, #blog-hidden, #search-input, #date_to"
+               hx-push-url="true">
+        <span class="date-separator">to</span>
+        <input type="date"
+               name="date_to"
+               id="date_to"
+               value="{{.DateTo}}"
+               hx-get="/articles"
+               hx-trigger="change"
+               hx-target="#main-content"
+               hx-include="#filter-hidden, #blog-hidden, #search-input, #date_from"
+               hx-push-url="true">
+    </div>
+    <input type="hidden" name="filter" id="filter-hidden" value="{{.CurrentFilter}}">
+    {{if .CurrentBlogID}}<input type="hidden" name="blog" id="blog-hidden" value="{{.CurrentBlogID}}">{{end}}
+</div>
+<div class="results-info">
+    {{if .Articles}}
+        Showing {{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}
+    {{else}}
+        No articles found
+    {{end}}
+</div>
+{{if .Articles}}
+<div class="toolbar">
+    <button class="btn-action"
+            hx-post="/articles/mark-all-read{{if .CurrentBlogID}}?blog={{.CurrentBlogID}}{{end}}"
+            hx-target="#main-content"
+            hx-swap="innerHTML"
+            hx-confirm="Mark all articles as read?">
+        Mark All Read
+    </button>
+    <button class="btn-action sync-btn"
+            hx-post="/sync?filter={{.CurrentFilter}}{{if .CurrentBlogID}}&amp;blog={{.CurrentBlogID}}{{end}}"
+            hx-target="#main-content"
+            hx-swap="innerHTML"
+            hx-indicator=".sync-btn">
+        <span class="sync-text">Sync</span>
+        <span class="htmx-indicator">Syncing...</span>
+    </button>
+</div>
+{{end}}
+<div id="articles-container">
+{{range .Articles}}
+<article class="article-card" id="article-{{.ID}}">
+    {{if .ThumbnailURL}}
+    <img class="article-thumbnail"
+         src="{{.ThumbnailURL}}"
+         alt=""
+         width="120"
+         height="80"
+         loading="lazy"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'; this.onerror=null;">
+    <img class="article-favicon article-thumbnail-fallback"
+         src="{{faviconURL .BlogURL}}"
+         alt=""
+         width="32"
+         height="32"
+         loading="lazy"
+         style="display: none;"
+         onerror="this.style.visibility='hidden'">
+    {{else}}
+    <img class="article-favicon"
+         src="{{faviconURL .BlogURL}}"
+         alt=""
+         width="32"
+         height="32"
+         loading="lazy"
+         onerror="this.style.visibility='hidden'">
+    {{end}}
+    <div class="article-content">
+        <a href="{{.URL}}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="article-title stretched-link">
+            {{.Title}}
+        </a>
+        <div class="article-meta">
+            <span class="article-source">{{.BlogName}}</span>
+            {{if .PublishedDate}}
+            <span class="article-time">{{timeAgo .PublishedDate}}</span>
+            {{end}}
+        </div>
+    </div>
+    {{if .IsRead}}
+    <button class="action-btn"
+            hx-post="/articles/{{.ID}}/unread"
+            hx-target="#article-{{.ID}}"
+            hx-swap="outerHTML swap:300ms"
+            title="Mark as unread">
+        Unread
+    </button>
+    {{else}}
+    <button class="action-btn"
+            hx-post="/articles/{{.ID}}/read"
+            hx-target="#article-{{.ID}}"
+            hx-swap="outerHTML swap:300ms"
+            title="Mark as read">
+        Read
+    </button>
+    {{end}}
+</article>
+{{else}}
+<div class="empty-state-container">
+    <p class="empty-state">No articles to display.</p>
+    <button class="btn-action sync-btn"
+            hx-post="/sync?filter={{.CurrentFilter}}{{if .CurrentBlogID}}&amp;blog={{.CurrentBlogID}}{{end}}"
+            hx-target="#main-content"
+            hx-swap="innerHTML"
+            hx-indicator=".sync-btn">
+        <span class="sync-text">Sync Now</span>
+        <span class="htmx-indicator">Syncing...</span>
+    </button>
+</div>
+{{end}}
+</div>
+<script>
+function setDateRange(range) {
+    var to = new Date();
+    var from = new Date();
+
+    if (range === 'week') {
+        from.setDate(to.getDate() - 7);
+    } else if (range === 'month') {
+        from.setMonth(to.getMonth() - 1);
+    }
+
+    document.getElementById('date_from').value = from.toISOString().split('T')[0];
+    document.getElementById('date_to').value = to.toISOString().split('T')[0];
+
+    // Trigger HTMX update via change event
+    document.getElementById('date_from').dispatchEvent(new Event('change', {bubbles: true}));
+}
+
+function clearDateRange() {
+    document.getElementById('date_from').value = '';
+    document.getElementById('date_to').value = '';
+    document.getElementById('date_from').dispatchEvent(new Event('change', {bubbles: true}));
+}
+</script>
+{{end}}

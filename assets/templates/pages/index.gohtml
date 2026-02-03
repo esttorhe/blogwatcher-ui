@@ -1,0 +1,15 @@
+{{define "index.gohtml"}}
+{{template "base" .}}
+{{end}}
+
+{{define "title"}}BlogWatcher{{end}}
+
+{{define "content"}}
+<div class="app-layout">
+    {{template "sidebar.gohtml" .}}
+
+    <main id="main-content" class="main-content">
+        {{template "article-list.gohtml" .}}
+    </main>
+</div>
+{{end}}

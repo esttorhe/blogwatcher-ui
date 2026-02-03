@@ -1,0 +1,924 @@
+/* ABOUTME: Main stylesheet for BlogWatcher UI with light/dark theming, responsive grid layout, and hamburger menu.
+   ABOUTME: Implements CSS custom properties for theming, CSS Grid for page structure, and checkbox-based mobile toggle. */
+
+/* ============================================
+   CSS Custom Properties - Light Theme (Default)
+   ============================================ */
+:root {
+  color-scheme: light dark;
+
+  /* Light theme - warm cream colors */
+  --bg-primary: #FAF8F5;
+  --bg-surface: #FFFFFF;
+  --bg-elevated: #F5F3F0;
+  --text-primary: #37352F;
+  --text-secondary: #6B6B6B;
+  --accent: #2563EB;
+  --border: #E5E3E0;
+
+  /* Spacing */
+  --sidebar-width: 250px;
+
+  /* Transitions */
+  --transition-speed: 0.3s;
+}
+
+/* ============================================
+   CSS Custom Properties - Dark Theme
+   ============================================ */
+html.dark {
+  --bg-primary: #121212;
+  --bg-surface: #1e1e1e;
+  --bg-elevated: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent: #64b5f6;
+  --border: #333333;
+}
+
+/* Dark mode when explicitly selected via toggle */
+html:has(#theme-dark:checked) {
+  --bg-primary: #121212;
+  --bg-surface: #1e1e1e;
+  --bg-elevated: #2d2d2d;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --accent: #64b5f6;
+  --border: #333333;
+}
+
+/* Dark mode when system preference is dark and system mode selected */
+@media (prefers-color-scheme: dark) {
+  html:has(#theme-system:checked) {
+    --bg-primary: #121212;
+    --bg-surface: #1e1e1e;
+    --bg-elevated: #2d2d2d;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent: #64b5f6;
+    --border: #333333;
+  }
+}
+
+/* ============================================
+   Base Reset and Typography
+   ============================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    transition: none;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+h1 {
+  font-size: 1.75rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+/* ============================================
+   CSS Grid Layout - App Structure
+   ============================================ */
+.app-layout {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-areas: "sidebar main";
+}
+
+/* ============================================
+   Sidebar Styles
+   ============================================ */
+.sidebar {
+  grid-area: sidebar;
+  background-color: var(--bg-surface);
+  border-right: 1px solid var(--border);
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ============================================
+   Navigation Links
+   ============================================ */
+.sidebar-nav {
+  margin-bottom: 1.5rem;
+}
+
+.nav-section-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  padding: 0 0.75rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 0.75rem;
+  border-radius: 6px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.nav-link:hover {
+  background-color: var(--bg-elevated);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  background-color: var(--bg-elevated);
+  color: var(--accent);
+}
+
+/* ============================================
+   Blog List in Sidebar
+   ============================================ */
+.subscriptions-section {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.blog-item {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color var(--transition-speed) ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blog-item:hover {
+  background-color: var(--bg-elevated);
+  text-decoration: none;
+}
+
+.blog-item.active {
+  background-color: var(--bg-elevated);
+  color: var(--accent);
+}
+
+.empty-state {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ============================================
+   Main Content Area
+   ============================================ */
+.main-content {
+  grid-area: main;
+  background-color: var(--bg-primary);
+  padding: 1.5rem;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.main-content h1 {
+  margin-bottom: 1.5rem;
+}
+
+/* ============================================
+   Article Card Styling
+   ============================================ */
+.article-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  background-color: var(--bg-surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  transition: background-color var(--transition-speed) ease;
+  position: relative; /* Required for stretched-link ::after positioning */
+  cursor: pointer; /* Indicate card is clickable */
+  user-select: none; /* Prevent text selection when clicking card */
+}
+
+.article-card:hover {
+  background-color: var(--bg-elevated);
+}
+
+.article-favicon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background-color: var(--bg-elevated);
+}
+
+.article-content {
+  flex: 1;
+  min-width: 0;  /* Enables text truncation */
+}
+
+.article-title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-decoration: none;
+  margin-bottom: 0.25rem;
+  /* Truncate long titles */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.article-title:hover {
+  color: var(--accent);
+}
+
+.article-meta {
+  display: flex;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.article-source {
+  font-weight: 500;
+}
+
+.article-time::before {
+  content: "\00B7";
+  margin-right: 0.5rem;
+}
+
+/* ============================================
+   Hamburger Menu - Mobile Toggle
+   ============================================ */
+.sidebar-toggle {
+  /* Hidden checkbox but still functional */
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 200;
+  cursor: pointer;
+  padding: 0.625rem;
+  background-color: var(--bg-surface);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.hamburger-line {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: var(--text-primary);
+  position: relative;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.hamburger-line::before,
+.hamburger-line::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
+  transition: transform var(--transition-speed) ease;
+}
+
+.hamburger-line::before {
+  top: -7px;
+}
+
+.hamburger-line::after {
+  top: 7px;
+}
+
+/* Transform hamburger to X when checked */
+.sidebar-toggle:checked ~ .hamburger .hamburger-line {
+  background-color: transparent;
+}
+
+.sidebar-toggle:checked ~ .hamburger .hamburger-line::before {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.sidebar-toggle:checked ~ .hamburger .hamburger-line::after {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Overlay when sidebar is open on mobile */
+.sidebar-overlay {
+  display: none;
+}
+
+/* ============================================
+   Mobile Responsive - 768px breakpoint
+   ============================================ */
+@media (max-width: 768px) {
+  .app-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas: "main";
+  }
+
+  .hamburger {
+    display: block;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: var(--sidebar-width);
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform var(--transition-speed) ease,
+                visibility var(--transition-speed) ease;
+    visibility: hidden;
+  }
+
+  /* Show sidebar when checkbox is checked */
+  .sidebar-toggle:checked ~ .sidebar {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  /* Overlay to close sidebar */
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-speed) ease,
+                visibility var(--transition-speed) ease;
+  }
+
+  .sidebar-toggle:checked ~ .sidebar-overlay {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Adjust main content padding for hamburger button */
+  .main-content {
+    padding-top: 4rem;
+  }
+}
+
+/* ============================================
+   Focus States for Accessibility
+   ============================================ */
+.hamburger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.nav-link:focus-visible,
+.blog-item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* ============================================
+   Toolbar Styling
+   ============================================ */
+.toolbar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.btn-action {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color var(--transition-speed) ease;
+}
+
+.btn-action:hover {
+  background-color: var(--bg-elevated);
+}
+
+.btn-action.htmx-request {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ============================================
+   Action Button on Article Cards
+   ============================================ */
+.action-btn {
+  flex-shrink: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: background-color var(--transition-speed) ease,
+              opacity var(--transition-speed) ease;
+}
+
+.action-btn:hover {
+  background-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+.action-btn.htmx-request {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ============================================
+   HTMX Animation States
+   ============================================ */
+/* Fade out animation for removed cards */
+.article-card.htmx-swapping {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+/* Loading indicator */
+.htmx-indicator {
+  display: none;
+}
+
+.htmx-request .htmx-indicator,
+.htmx-request.htmx-indicator {
+  display: inline;
+}
+
+.htmx-request .sync-text {
+  display: none;
+}
+
+/* ============================================
+   Empty State Styling
+   ============================================ */
+.empty-state-container {
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-state-container .btn-action {
+  margin-top: 1rem;
+}
+
+/* ============================================
+   Main Header with Theme Toggle
+   ============================================ */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.main-header h1 {
+  margin-bottom: 0;
+}
+
+/* ============================================
+   Theme Toggle Component
+   ============================================ */
+.theme-toggle {
+  display: inline-flex;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.theme-toggle input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.theme-toggle label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: var(--text-secondary);
+}
+
+.theme-toggle label:hover {
+  background-color: var(--bg-elevated);
+}
+
+.theme-toggle input[type="radio"]:checked + label {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.theme-toggle input[type="radio"]:focus-visible + label {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.theme-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   Stretched Link Pattern - Full Card Clickable
+   ============================================ */
+.stretched-link::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  content: "";
+}
+
+/* Action button must sit above stretched link */
+.action-btn {
+  position: relative;
+  z-index: 2;
+}
+
+/* Allow text selection on title */
+.article-title {
+  user-select: text;
+}
+
+/* ============================================
+   Article Thumbnail Styling
+   ============================================ */
+.article-thumbnail {
+  flex-shrink: 0;
+  width: 120px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  background-color: var(--bg-elevated);
+}
+
+.article-thumbnail-fallback {
+  /* Fallback favicon shown when thumbnail fails */
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card with thumbnail needs different alignment */
+.article-card:has(.article-thumbnail) {
+  align-items: flex-start;
+}
+
+/* ============================================
+   Filter Bar - Search and Date Filters
+   ============================================ */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.search-container {
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-container input[type="search"] {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.search-container input[type="search"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.search-container input[type="search"]::placeholder {
+  color: var(--text-secondary);
+}
+
+.date-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.btn-filter {
+  padding: 0.375rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
+}
+
+.btn-filter:hover {
+  background-color: var(--bg-elevated);
+  border-color: var(--accent);
+}
+
+.date-filters input[type="date"] {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+}
+
+.date-filters input[type="date"]:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.date-separator {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+}
+
+.results-info {
+  padding: 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* Mobile responsive filter bar */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-container {
+    width: 100%;
+  }
+
+  .date-filters {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* ============================================
+   View Toggle Component
+   ============================================ */
+.view-toggle {
+  display: inline-flex;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.view-toggle input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.view-toggle label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  color: var(--text-secondary);
+}
+
+.view-toggle label:hover {
+  background-color: var(--bg-elevated);
+}
+
+.view-toggle input[type="radio"]:checked + label {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.view-toggle input[type="radio"]:focus-visible + label {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.view-toggle svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   Header Toggles Container
+   ============================================ */
+.header-toggles {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ============================================
+   Grid Layout for Article Cards
+   ============================================ */
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* Progressive enhancement for future native masonry */
+@supports (grid-template-rows: masonry) {
+  .articles-grid {
+    grid-template-rows: masonry;
+  }
+}
+
+/* Grid view: vertical card layout */
+.articles-grid .article-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 0; /* Grid handles spacing via gap */
+}
+
+/* Grid view: full-width thumbnail */
+.articles-grid .article-thumbnail {
+  width: 100%;
+  height: auto;
+  min-height: 0; /* Override any implicit height */
+  aspect-ratio: 16 / 9;
+  border-radius: 6px 6px 0 0;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Grid view: content area grows to fill */
+.articles-grid .article-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+}
+
+/* Grid view: multi-line title with clamp */
+.articles-grid .article-title {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+/* Grid view: favicon as placeholder when no thumbnail */
+.articles-grid .article-favicon {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px 6px 0 0;
+  object-fit: none; /* Don't stretch the small favicon */
+  background-color: var(--bg-elevated);
+}
+
+/* Grid view: thumbnail fallback (when thumbnail fails to load) */
+.articles-grid .article-thumbnail-fallback {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px 6px 0 0;
+  display: flex !important;
+  object-fit: none;
+  background-color: var(--bg-elevated);
+}
+
+/* Grid view: action button at bottom */
+.articles-grid .action-btn {
+  align-self: flex-start;
+  margin-top: auto;
+}
+
+/* ============================================
+   Utility Classes
+   ============================================ */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

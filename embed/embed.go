@@ -3,8 +3,8 @@ package embed
 
 import "embed"
 
-//go:embed static/*
+//go:embed ../static/*
 var StaticFS embed.FS
 
-//go:embed templates/*.gohtml templates/pages/*.gohtml templates/partials/*.gohtml
+//go:embed ../templates/*.gohtml ../templates/pages/*.gohtml ../templates/partials/*.gohtml
 var TemplateFS embed.FS
