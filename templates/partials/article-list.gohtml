@@ -21,6 +21,53 @@
     </label>
   </div>
 </header>
+<div class="filter-bar">
+    <div class="search-container">
+        <input type="search"
+               name="search"
+               id="search-input"
+               placeholder="Search articles..."
+               value="{{.SearchQuery}}"
+               hx-get="/articles"
+               hx-trigger="keyup changed delay:300ms, search"
+               hx-target="#main-content"
+               hx-include="#filter-hidden, #blog-hidden, #date_from, #date_to"
+               hx-push-url="true">
+    </div>
+    <div class="date-filters">
+        <button type="button" class="btn-filter" onclick="setDateRange('week')">Last Week</button>
+        <button type="button" class="btn-filter" onclick="setDateRange('month')">Last Month</button>
+        <button type="button" class="btn-filter" onclick="clearDateRange()">All Time</button>
+        <input type="date"
+               name="date_from"
+               id="date_from"
+               value="{{.DateFrom}}"
+               hx-get="/articles"
+               hx-trigger="change"
+               hx-target="#main-content"
+               hx-include="#filter-hidden, #blog-hidden, #search-input, #date_to"
+               hx-push-url="true">
+        <span class="date-separator">to</span>
+        <input type="date"
+               name="date_to"
+               id="date_to"
+               value="{{.DateTo}}"
+               hx-get="/articles"
+               hx-trigger="change"
+               hx-target="#main-content"
+               hx-include="#filter-hidden, #blog-hidden, #search-input, #date_from"
+               hx-push-url="true">
+    </div>
+    <input type="hidden" name="filter" id="filter-hidden" value="{{.CurrentFilter}}">
+    {{if .CurrentBlogID}}<input type="hidden" name="blog" id="blog-hidden" value="{{.CurrentBlogID}}">{{end}}
+</div>
+<div class="results-info">
+    {{if .Articles}}
+        Showing {{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}
+    {{else}}
+        No articles found
+    {{end}}
+</div>
 {{if .Articles}}
 <div class="toolbar">
     <button class="btn-action"
@@ -112,4 +159,28 @@
     </button>
 </div>
 {{end}}
+<script>
+function setDateRange(range) {
+    var to = new Date();
+    var from = new Date();
+
+    if (range === 'week') {
+        from.setDate(to.getDate() - 7);
+    } else if (range === 'month') {
+        from.setMonth(to.getMonth() - 1);
+    }
+
+    document.getElementById('date_from').value = from.toISOString().split('T')[0];
+    document.getElementById('date_to').value = to.toISOString().split('T')[0];
+
+    // Trigger HTMX update via change event
+    document.getElementById('date_from').dispatchEvent(new Event('change', {bubbles: true}));
+}
+
+function clearDateRange() {
+    document.getElementById('date_from').value = '';
+    document.getElementById('date_to').value = '';
+    document.getElementById('date_from').dispatchEvent(new Event('change', {bubbles: true}));
+}
+</script>
 {{end}}
