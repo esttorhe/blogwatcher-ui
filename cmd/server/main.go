@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"errors"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/esttorhe/blogwatcher-ui/embed"
 	"github.com/esttorhe/blogwatcher-ui/internal/server"
 	"github.com/esttorhe/blogwatcher-ui/internal/storage"
 )
@@ -24,8 +26,20 @@ func run(ctx context.Context) error {
 	}
 	defer db.Close()
 
-	// Create server
-	handler, err := server.NewServer(db)
+	// Extract static files from embedded FS (defined in embed package at module root)
+	staticFiles, err := fs.Sub(embed.StaticFS, "static")
+	if err != nil {
+		return err
+	}
+
+	// Extract templates from embedded FS (defined in embed package at module root)
+	templateFiles, err := fs.Sub(embed.TemplateFS, "templates")
+	if err != nil {
+		return err
+	}
+
+	// Create server with embedded filesystems
+	handler, err := server.NewServerWithFS(db, templateFiles, staticFiles)
 	if err != nil {
 		return err
 	}

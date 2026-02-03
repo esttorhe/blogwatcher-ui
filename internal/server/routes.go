@@ -3,23 +3,13 @@
 package server
 
 import (
-	"embed"
-	"fmt"
-	"io/fs"
 	"net/http"
 )
 
-//go:embed static/*
-var staticFS embed.FS
-
 // registerRoutes sets up all HTTP routes for the server
 func (s *Server) registerRoutes() {
-	// Static files from embedded filesystem
-	staticFiles, err := fs.Sub(staticFS, "static")
-	if err != nil {
-		panic(fmt.Sprintf("failed to create static filesystem: %v", err))
-	}
-	s.mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFiles))))
+	// Static files from embedded filesystem (already extracted in main.go)
+	s.mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.FS(s.staticFS))))
 
 	// Pages
 	s.mux.HandleFunc("GET /", s.handleIndex)
