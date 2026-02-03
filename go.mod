@@ -5,6 +5,7 @@ go 1.25.6
 require (
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/mmcdole/gofeed v1.3.0
+	github.com/otiai10/opengraph/v2 v2.2.0
 	modernc.org/sqlite v1.44.3
 )
 
