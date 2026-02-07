@@ -705,3 +705,42 @@ func interfaceSlice(values []string) []interface{} {
 	}
 	return result
 }
+
+// ArticleForThumbnailSync holds minimal article data needed for thumbnail sync.
+type ArticleForThumbnailSync struct {
+	ID      int64
+	URL     string
+	FeedURL string
+}
+
+// GetArticlesMissingThumbnails returns articles that have empty thumbnail_url.
+// Includes feed_url from the blog for RSS re-parsing.
+func (db *Database) GetArticlesMissingThumbnails() ([]ArticleForThumbnailSync, error) {
+	rows, err := db.conn.Query(`
+		SELECT a.id, a.url, b.feed_url
+		FROM articles a
+		INNER JOIN blogs b ON a.blog_id = b.id
+		WHERE (a.thumbnail_url IS NULL OR a.thumbnail_url = '')
+		AND b.feed_url IS NOT NULL AND b.feed_url != ''
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var articles []ArticleForThumbnailSync
+	for rows.Next() {
+		var a ArticleForThumbnailSync
+		if err := rows.Scan(&a.ID, &a.URL, &a.FeedURL); err != nil {
+			return nil, err
+		}
+		articles = append(articles, a)
+	}
+	return articles, rows.Err()
+}
+
+// UpdateArticleThumbnail updates the thumbnail_url for a single article.
+func (db *Database) UpdateArticleThumbnail(id int64, thumbnailURL string) error {
+	_, err := db.conn.Exec(`UPDATE articles SET thumbnail_url = ? WHERE id = ?`, nullIfEmpty(thumbnailURL), id)
+	return err
+}

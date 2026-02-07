@@ -112,6 +112,15 @@
         <span class="sync-text">Sync</span>
         <span class="htmx-indicator">Syncing...</span>
     </button>
+    <button class="btn-action sync-thumbnails-btn"
+            hx-post="/sync-thumbnails?filter={{.CurrentFilter}}{{if .CurrentBlogID}}&amp;blog={{.CurrentBlogID}}{{end}}"
+            hx-target="#main-content"
+            hx-swap="innerHTML"
+            hx-indicator=".sync-thumbnails-btn"
+            title="Re-fetch thumbnails for articles missing images">
+        <span class="sync-text">Sync Thumbnails</span>
+        <span class="htmx-indicator">Syncing...</span>
+    </button>
 </div>
 {{end}}
 </div>

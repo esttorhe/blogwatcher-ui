@@ -13,14 +13,24 @@ import (
 )
 
 // ExtractFromRSS attempts to extract thumbnail URL from gofeed.Item.
-// Checks Item.Image first, then Enclosures for image MIME types.
+// Priority order: media:content, media:thumbnail, Item.Image, Enclosures.
 // Returns empty string if no thumbnail found.
 func ExtractFromRSS(item *gofeed.Item) string {
 	if item == nil {
 		return ""
 	}
 
-	// Try Item.Image first (channel-level image reference)
+	// Try media:content first (Media RSS namespace)
+	if url := extractFromMediaContent(item); url != "" {
+		return url
+	}
+
+	// Try media:thumbnail second
+	if url := extractFromMediaThumbnail(item); url != "" {
+		return url
+	}
+
+	// Try Item.Image (channel-level image reference)
 	if item.Image != nil && item.Image.URL != "" {
 		return item.Image.URL
 	}
@@ -29,6 +39,56 @@ func ExtractFromRSS(item *gofeed.Item) string {
 	for _, enc := range item.Enclosures {
 		if isImageMIMEType(enc.Type) && enc.URL != "" {
 			return enc.URL
+		}
+	}
+
+	return ""
+}
+
+// extractFromMediaContent extracts URL from media:content extension.
+func extractFromMediaContent(item *gofeed.Item) string {
+	if item.Extensions == nil {
+		return ""
+	}
+
+	media, ok := item.Extensions["media"]
+	if !ok {
+		return ""
+	}
+
+	contents, ok := media["content"]
+	if !ok || len(contents) == 0 {
+		return ""
+	}
+
+	for _, content := range contents {
+		if url, ok := content.Attrs["url"]; ok && url != "" {
+			return url
+		}
+	}
+
+	return ""
+}
+
+// extractFromMediaThumbnail extracts URL from media:thumbnail extension.
+func extractFromMediaThumbnail(item *gofeed.Item) string {
+	if item.Extensions == nil {
+		return ""
+	}
+
+	media, ok := item.Extensions["media"]
+	if !ok {
+		return ""
+	}
+
+	thumbnails, ok := media["thumbnail"]
+	if !ok || len(thumbnails) == 0 {
+		return ""
+	}
+
+	for _, thumb := range thumbnails {
+		if url, ok := thumb.Attrs["url"]; ok && url != "" {
+			return url
 		}
 	}
 

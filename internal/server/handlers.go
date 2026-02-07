@@ -298,6 +298,40 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
 
+// handleSyncThumbnails re-fetches thumbnails for articles missing them
+func (s *Server) handleSyncThumbnails(w http.ResponseWriter, r *http.Request) {
+	result, err := scanner.SyncThumbnails(s.db)
+	if err != nil {
+		log.Printf("Thumbnail sync failed: %v", err)
+		http.Error(w, "Thumbnail sync failed", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Thumbnail sync complete: %d total, %d updated, %d errors", result.Total, result.Updated, result.Errors)
+
+	// Build search options from query parameters (preserves all filters)
+	opts, filter, currentBlogID := parseSearchOptions(r)
+
+	// Return refreshed article list with current filters
+	articles, articleCount, err := s.db.SearchArticles(opts)
+	if err != nil {
+		log.Printf("Error fetching articles: %v", err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"Articles":      articles,
+		"ArticleCount":  articleCount,
+		"CurrentFilter": filter,
+		"CurrentBlogID": currentBlogID,
+		"SearchQuery":   opts.SearchQuery,
+		"DateFrom":      r.URL.Query().Get("date_from"),
+		"DateTo":        r.URL.Query().Get("date_to"),
+	}
+	s.renderTemplate(w, "article-list.gohtml", data)
+}
+
 // parseSearchOptions extracts all search and filter parameters from the request.
 // Returns SearchOptions, the filter string (for template), and currentBlogID.
 func parseSearchOptions(r *http.Request) (model.SearchOptions, string, int64) {

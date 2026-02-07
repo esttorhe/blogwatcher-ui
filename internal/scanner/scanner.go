@@ -211,3 +211,65 @@ func convertScrapedArticles(blogID int64, articles []scraper.ScrapedArticle) []m
 	}
 	return result
 }
+
+// ThumbnailSyncResult holds the result of a thumbnail sync operation.
+type ThumbnailSyncResult struct {
+	Total   int
+	Updated int
+	Errors  int
+}
+
+// SyncThumbnails re-fetches thumbnails for articles that have empty thumbnail_url.
+// For each article, it re-parses the RSS feed to find the matching item and extract thumbnail.
+// Falls back to Open Graph if RSS doesn't provide a thumbnail.
+func SyncThumbnails(db *storage.Database) (ThumbnailSyncResult, error) {
+	articles, err := db.GetArticlesMissingThumbnails()
+	if err != nil {
+		return ThumbnailSyncResult{}, err
+	}
+
+	result := ThumbnailSyncResult{Total: len(articles)}
+
+	// Group articles by feed URL to avoid re-fetching the same feed multiple times
+	feedArticles := make(map[string][]storage.ArticleForThumbnailSync)
+	for _, a := range articles {
+		feedArticles[a.FeedURL] = append(feedArticles[a.FeedURL], a)
+	}
+
+	// Process each feed
+	for feedURL, articleList := range feedArticles {
+		feedItems, err := rss.ParseFeed(feedURL, 30*time.Second)
+		if err != nil {
+			result.Errors += len(articleList)
+			continue
+		}
+
+		// Build URL to thumbnail map from feed
+		feedThumbnails := make(map[string]string)
+		for _, item := range feedItems {
+			if item.ThumbnailURL != "" {
+				feedThumbnails[item.URL] = item.ThumbnailURL
+			}
+		}
+
+		// Update each article
+		for _, article := range articleList {
+			thumbnailURL := feedThumbnails[article.URL]
+
+			// Fallback to Open Graph if RSS didn't provide thumbnail
+			if thumbnailURL == "" {
+				thumbnailURL = thumbnail.ExtractFromOpenGraph(article.URL, 10*time.Second)
+			}
+
+			if thumbnailURL != "" {
+				if err := db.UpdateArticleThumbnail(article.ID, thumbnailURL); err != nil {
+					result.Errors++
+				} else {
+					result.Updated++
+				}
+			}
+		}
+	}
+
+	return result, nil
+}
