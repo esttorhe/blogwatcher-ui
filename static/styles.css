@@ -909,6 +909,32 @@ p {
 }
 
 /* ============================================
+   Sidebar Footer - Version Display
+   ============================================ */
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.version-link {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: color var(--transition-speed) ease, background-color var(--transition-speed) ease;
+}
+
+.version-link:hover {
+  color: var(--accent);
+  background-color: var(--bg-elevated);
+  text-decoration: none;
+}
+
+/* ============================================
    Utility Classes
    ============================================ */
 .visually-hidden {

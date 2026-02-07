@@ -16,6 +16,7 @@ import (
 	"github.com/esttorhe/blogwatcher-ui/assets"
 	"github.com/esttorhe/blogwatcher-ui/internal/server"
 	"github.com/esttorhe/blogwatcher-ui/internal/storage"
+	"github.com/esttorhe/blogwatcher-ui/internal/version"
 )
 
 func run(ctx context.Context) error {
@@ -39,7 +40,7 @@ func run(ctx context.Context) error {
 	}
 
 	// Create server with embedded filesystems
-	handler, err := server.NewServerWithFS(db, templateFiles, staticFiles)
+	handler, err := server.NewServerWithFS(db, templateFiles, staticFiles, version.Version)
 	if err != nil {
 		return err
 	}

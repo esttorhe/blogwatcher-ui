@@ -53,6 +53,7 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		"SearchQuery":   opts.SearchQuery,
 		"DateFrom":      r.URL.Query().Get("date_from"),
 		"DateTo":        r.URL.Query().Get("date_to"),
+		"Version":       s.version,
 	}
 	s.renderTemplate(w, "index.gohtml", data)
 }
@@ -89,6 +90,7 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Return full page for direct navigation
 		data["Title"] = "BlogWatcher"
+		data["Version"] = s.version
 		blogs, err := s.db.ListBlogs()
 		if err != nil {
 			log.Printf("Error fetching blogs: %v", err)
@@ -120,6 +122,7 @@ func (s *Server) handleBlogList(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// Return full page for direct navigation
 		data["Title"] = "BlogWatcher"
+		data["Version"] = s.version
 		articles, err := s.db.ListArticles(false, nil)
 		if err != nil {
 			log.Printf("Error fetching articles: %v", err)

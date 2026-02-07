@@ -17,6 +17,7 @@ type Server struct {
 	templates *template.Template
 	mux       *http.ServeMux
 	staticFS  fs.FS
+	version   string
 }
 
 // NewServer creates a new HTTP server with dependency injection
@@ -28,7 +29,7 @@ func NewServer(db *storage.Database) (http.Handler, error) {
 
 // NewServerWithFS creates a new HTTP server with embedded filesystems
 // Parses all templates at startup and registers routes
-func NewServerWithFS(db *storage.Database, templateFS fs.FS, staticFS fs.FS) (http.Handler, error) {
+func NewServerWithFS(db *storage.Database, templateFS fs.FS, staticFS fs.FS, version string) (http.Handler, error) {
 	// Register template functions BEFORE parsing templates
 	funcMap := template.FuncMap{
 		"timeAgo":    timeAgo,
@@ -66,6 +67,7 @@ func NewServerWithFS(db *storage.Database, templateFS fs.FS, staticFS fs.FS) (ht
 		templates: tmpl,
 		mux:       http.NewServeMux(),
 		staticFS:  staticFS,
+		version:   version,
 	}
 
 	// Register all routes

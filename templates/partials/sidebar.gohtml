@@ -45,5 +45,17 @@
         <div class="nav-section-title">Subscriptions</div>
         {{template "blog-list.gohtml" .}}
     </div>
+
+    {{/* Version footer */}}
+    {{if .Version}}
+    <div class="sidebar-footer">
+        <a href="https://github.com/esttorhe/blogwatcher-ui/releases/tag/{{.Version}}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="version-link">
+            {{.Version}}
+        </a>
+    </div>
+    {{end}}
 </aside>
 {{end}}
