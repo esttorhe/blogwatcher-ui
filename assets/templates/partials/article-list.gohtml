@@ -1,6 +1,7 @@
 {{define "article-list.gohtml"}}
 {{/* ABOUTME: Renders article cards in the main content area with rich metadata.
      ABOUTME: Each card shows favicon, title (clickable), blog name, relative time, and action button. */}}
+<div class="main-content-header">
 <header class="main-header">
   <h1>{{if eq .CurrentFilter "read"}}Archived{{else}}Inbox{{end}}</h1>
   <div class="header-toggles">
@@ -87,9 +88,9 @@
     <input type="hidden" name="filter" id="filter-hidden" value="{{.CurrentFilter}}">
     {{if .CurrentBlogID}}<input type="hidden" name="blog" id="blog-hidden" value="{{.CurrentBlogID}}">{{end}}
 </div>
-<div class="results-info">
+<div class="results-info" id="results-info">
     {{if .Articles}}
-        Showing {{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}
+        Showing {{.DisplayedCount}} of {{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}
     {{else}}
         No articles found
     {{end}}
@@ -113,7 +114,10 @@
     </button>
 </div>
 {{end}}
+</div>
+<div class="main-content-body">
 <div id="articles-container">
+{{if .Articles}}
 {{range .Articles}}
 <article class="article-card" id="article-{{.ID}}">
     {{if .ThumbnailURL}}
@@ -173,6 +177,19 @@
     </button>
     {{end}}
 </article>
+{{end}}
+{{if .HasMore}}
+<div id="load-more-trigger"
+     hx-get="/articles?filter={{.CurrentFilter}}{{if .CurrentBlogID}}&amp;blog={{.CurrentBlogID}}{{end}}{{if .SearchQuery}}&amp;search={{.SearchQuery}}{{end}}{{if .DateFrom}}&amp;date_from={{.DateFrom}}{{end}}{{if .DateTo}}&amp;date_to={{.DateTo}}{{end}}&amp;offset={{.NextOffset}}"
+     hx-trigger="intersect once threshold:0.1"
+     hx-swap="outerHTML"
+     hx-indicator="#loading-indicator">
+    <div id="loading-indicator" class="loading-indicator">
+        <span class="loading-spinner"></span>
+        Loading more articles...
+    </div>
+</div>
+{{end}}
 {{else}}
 <div class="empty-state-container">
     <p class="empty-state">No articles to display.</p>
@@ -186,6 +203,7 @@
     </button>
 </div>
 {{end}}
+</div>
 </div>
 <script>
 function setDateRange(range) {

@@ -43,17 +43,29 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		articleCount = 0
 	}
 
+	// Calculate if there are more articles
+	pageSize := opts.Limit
+	if pageSize <= 0 {
+		pageSize = model.DefaultPageSize
+	}
+	hasMore := len(articles) == pageSize && opts.Offset+len(articles) < articleCount
+	nextOffset := opts.Offset + len(articles)
+	displayedCount := opts.Offset + len(articles)
+
 	data := map[string]interface{}{
-		"Title":         "BlogWatcher",
-		"Blogs":         blogs,
-		"Articles":      articles,
-		"ArticleCount":  articleCount,
-		"CurrentFilter": filter,
-		"CurrentBlogID": currentBlogID, // 0 means no blog filter active
-		"SearchQuery":   opts.SearchQuery,
-		"DateFrom":      r.URL.Query().Get("date_from"),
-		"DateTo":        r.URL.Query().Get("date_to"),
-		"Version":       s.version,
+		"Title":          "BlogWatcher",
+		"Blogs":          blogs,
+		"Articles":       articles,
+		"ArticleCount":   articleCount,
+		"DisplayedCount": displayedCount,
+		"CurrentFilter":  filter,
+		"CurrentBlogID":  currentBlogID, // 0 means no blog filter active
+		"SearchQuery":    opts.SearchQuery,
+		"DateFrom":       r.URL.Query().Get("date_from"),
+		"DateTo":         r.URL.Query().Get("date_to"),
+		"Version":        s.version,
+		"HasMore":        hasMore,
+		"NextOffset":     nextOffset,
 	}
 	s.renderTemplate(w, "index.gohtml", data)
 }
@@ -73,32 +85,51 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Calculate if there are more articles
+	pageSize := opts.Limit
+	if pageSize <= 0 {
+		pageSize = model.DefaultPageSize
+	}
+	hasMore := len(articles) == pageSize && opts.Offset+len(articles) < articleCount
+	nextOffset := opts.Offset + len(articles)
+	displayedCount := opts.Offset + len(articles)
+
 	data := map[string]interface{}{
-		"Articles":      articles,
-		"ArticleCount":  articleCount,
-		"CurrentFilter": filter,
-		"CurrentBlogID": currentBlogID, // 0 means no blog filter active
-		"SearchQuery":   opts.SearchQuery,
-		"DateFrom":      r.URL.Query().Get("date_from"),
-		"DateTo":        r.URL.Query().Get("date_to"),
+		"Articles":       articles,
+		"ArticleCount":   articleCount,
+		"DisplayedCount": displayedCount,
+		"CurrentFilter":  filter,
+		"CurrentBlogID":  currentBlogID, // 0 means no blog filter active
+		"SearchQuery":    opts.SearchQuery,
+		"DateFrom":       r.URL.Query().Get("date_from"),
+		"DateTo":         r.URL.Query().Get("date_to"),
+		"HasMore":        hasMore,
+		"NextOffset":     nextOffset,
+		"IsLoadMore":     opts.Offset > 0,
 	}
 
 	// Check if this is an HTMX request
 	if r.Header.Get("HX-Request") == "true" {
+		// If this is a "load more" request (offset > 0), return just the articles
+		if opts.Offset > 0 {
+			s.renderTemplate(w, "article-items.gohtml", data)
+			return
+		}
 		// Return partial fragment for HTMX
 		s.renderTemplate(w, "article-list.gohtml", data)
-	} else {
-		// Return full page for direct navigation
-		data["Title"] = "BlogWatcher"
-		data["Version"] = s.version
-		blogs, err := s.db.ListBlogs()
-		if err != nil {
-			log.Printf("Error fetching blogs: %v", err)
-		} else {
-			data["Blogs"] = blogs
-		}
-		s.renderTemplate(w, "index.gohtml", data)
+		return
 	}
+
+	// Return full page for direct navigation
+	data["Title"] = "BlogWatcher"
+	data["Version"] = s.version
+	blogs, err := s.db.ListBlogs()
+	if err != nil {
+		log.Printf("Error fetching blogs: %v", err)
+	} else {
+		data["Blogs"] = blogs
+	}
+	s.renderTemplate(w, "index.gohtml", data)
 }
 
 // handleBlogList serves the blog list
@@ -308,6 +339,18 @@ func parseSearchOptions(r *http.Request) (model.SearchOptions, string, int64) {
 	if dateTo := r.URL.Query().Get("date_to"); dateTo != "" {
 		if t, err := time.Parse("2006-01-02", dateTo); err == nil {
 			opts.DateTo = &t
+		}
+	}
+
+	// Parse pagination
+	if offsetParam := r.URL.Query().Get("offset"); offsetParam != "" {
+		if offset, err := strconv.Atoi(offsetParam); err == nil && offset >= 0 {
+			opts.Offset = offset
+		}
+	}
+	if limitParam := r.URL.Query().Get("limit"); limitParam != "" {
+		if limit, err := strconv.Atoi(limitParam); err == nil && limit > 0 {
+			opts.Limit = limit
 		}
 	}
 

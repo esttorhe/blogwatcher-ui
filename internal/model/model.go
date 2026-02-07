@@ -47,4 +47,9 @@ type SearchOptions struct {
 	BlogID      *int64     // nil = all blogs
 	DateFrom    *time.Time // nil = no lower bound
 	DateTo      *time.Time // nil = no upper bound
+	Limit       int        // 0 = use default (20)
+	Offset      int        // 0 = start from beginning
 }
+
+// DefaultPageSize is the default number of articles per page.
+const DefaultPageSize = 20

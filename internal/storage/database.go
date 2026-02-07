@@ -335,6 +335,16 @@ func (db *Database) SearchArticles(opts model.SearchOptions) ([]model.ArticleWit
 
 	query.WriteString(" ORDER BY COALESCE(a.published_date, a.discovered_date) DESC")
 
+	// Add pagination
+	limit := opts.Limit
+	if limit <= 0 {
+		limit = model.DefaultPageSize
+	}
+	query.WriteString(fmt.Sprintf(" LIMIT %d", limit))
+	if opts.Offset > 0 {
+		query.WriteString(fmt.Sprintf(" OFFSET %d", opts.Offset))
+	}
+
 	rows, err := db.conn.Query(query.String(), args...)
 	if err != nil {
 		return nil, 0, err

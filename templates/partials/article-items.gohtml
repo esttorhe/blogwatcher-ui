@@ -1,0 +1,79 @@
+{{define "article-items.gohtml"}}
+{{/* ABOUTME: Renders article cards for infinite scroll loading.
+     ABOUTME: Returns just the article cards and load-more trigger without header/toolbar. */}}
+<div id="results-info" hx-swap-oob="true" class="results-info">
+    Showing {{.DisplayedCount}} of {{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}
+</div>
+{{range .Articles}}
+<article class="article-card" id="article-{{.ID}}">
+    {{if .ThumbnailURL}}
+    <img class="article-thumbnail"
+         src="{{.ThumbnailURL}}"
+         alt=""
+         width="120"
+         height="80"
+         loading="lazy"
+         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'; this.onerror=null;">
+    <img class="article-favicon article-thumbnail-fallback"
+         src="{{faviconURL .BlogURL}}"
+         alt=""
+         width="32"
+         height="32"
+         loading="lazy"
+         style="display: none;"
+         onerror="this.style.visibility='hidden'">
+    {{else}}
+    <img class="article-favicon"
+         src="{{faviconURL .BlogURL}}"
+         alt=""
+         width="32"
+         height="32"
+         loading="lazy"
+         onerror="this.style.visibility='hidden'">
+    {{end}}
+    <div class="article-content">
+        <a href="{{.URL}}"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="article-title stretched-link">
+            {{.Title}}
+        </a>
+        <div class="article-meta">
+            <span class="article-source">{{.BlogName}}</span>
+            {{if .PublishedDate}}
+            <span class="article-time">{{timeAgo .PublishedDate}}</span>
+            {{end}}
+        </div>
+    </div>
+    {{if .IsRead}}
+    <button class="action-btn"
+            hx-post="/articles/{{.ID}}/unread"
+            hx-target="#article-{{.ID}}"
+            hx-swap="outerHTML swap:300ms"
+            title="Mark as unread">
+        Unread
+    </button>
+    {{else}}
+    <button class="action-btn"
+            hx-post="/articles/{{.ID}}/read"
+            hx-target="#article-{{.ID}}"
+            hx-swap="outerHTML swap:300ms"
+            title="Mark as read">
+        Read
+    </button>
+    {{end}}
+</article>
+{{end}}
+{{if .HasMore}}
+<div id="load-more-trigger"
+     hx-get="/articles?filter={{.CurrentFilter}}{{if .CurrentBlogID}}&amp;blog={{.CurrentBlogID}}{{end}}{{if .SearchQuery}}&amp;search={{.SearchQuery}}{{end}}{{if .DateFrom}}&amp;date_from={{.DateFrom}}{{end}}{{if .DateTo}}&amp;date_to={{.DateTo}}{{end}}&amp;offset={{.NextOffset}}"
+     hx-trigger="intersect once threshold:0.1"
+     hx-swap="outerHTML"
+     hx-indicator="#loading-indicator">
+    <div id="loading-indicator" class="loading-indicator">
+        <span class="loading-spinner"></span>
+        Loading more articles...
+    </div>
+</div>
+{{end}}
+{{end}}
