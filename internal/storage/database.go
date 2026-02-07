@@ -194,7 +194,7 @@ func (db *Database) ListArticles(unreadOnly bool, blogID *int64) ([]model.Articl
 		query += " AND blog_id = ?"
 		args = append(args, *blogID)
 	}
-	query += " ORDER BY discovered_date DESC"
+	query += " ORDER BY COALESCE(published_date, discovered_date) DESC"
 
 	rows, err := db.conn.Query(query, args...)
 	if err != nil {
@@ -226,7 +226,7 @@ func (db *Database) ListArticlesByReadStatus(isRead bool, blogID *int64) ([]mode
 		query += " AND blog_id = ?"
 		args = append(args, *blogID)
 	}
-	query += " ORDER BY discovered_date DESC"
+	query += " ORDER BY COALESCE(published_date, discovered_date) DESC"
 
 	rows, err := db.conn.Query(query, args...)
 	if err != nil {
@@ -261,7 +261,7 @@ func (db *Database) ListArticlesWithBlog(isRead bool, blogID *int64) ([]model.Ar
 		query += " AND a.blog_id = ?"
 		args = append(args, *blogID)
 	}
-	query += " ORDER BY a.discovered_date DESC"
+	query += " ORDER BY COALESCE(a.published_date, a.discovered_date) DESC"
 
 	rows, err := db.conn.Query(query, args...)
 	if err != nil {
@@ -333,7 +333,7 @@ func (db *Database) SearchArticles(opts model.SearchOptions) ([]model.ArticleWit
 		query.WriteString(strings.Join(conditions, " AND "))
 	}
 
-	query.WriteString(" ORDER BY a.discovered_date DESC")
+	query.WriteString(" ORDER BY COALESCE(a.published_date, a.discovered_date) DESC")
 
 	rows, err := db.conn.Query(query.String(), args...)
 	if err != nil {
