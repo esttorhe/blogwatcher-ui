@@ -184,6 +184,69 @@ func (db *Database) ListBlogs() ([]model.Blog, error) {
 	return blogs, rows.Err()
 }
 
+// BlogWithCount extends Blog with article count for settings display.
+type BlogWithCount struct {
+	model.Blog
+	ArticleCount int
+}
+
+// ListBlogsWithCounts returns all blogs with their article counts.
+// Uses LEFT JOIN to include blogs with zero articles.
+func (db *Database) ListBlogsWithCounts() ([]BlogWithCount, error) {
+	query := `SELECT
+		b.id,
+		b.name,
+		b.url,
+		b.feed_url,
+		b.scrape_selector,
+		b.last_scanned,
+		COUNT(a.id) as article_count
+	FROM blogs b
+	LEFT JOIN articles a ON b.id = a.blog_id
+	GROUP BY b.id, b.name, b.url, b.feed_url, b.scrape_selector, b.last_scanned
+	ORDER BY b.name`
+
+	rows, err := db.conn.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var blogs []BlogWithCount
+	for rows.Next() {
+		var (
+			id             int64
+			name           string
+			url            string
+			feedURL        sql.NullString
+			scrapeSelector sql.NullString
+			lastScanned    sql.NullString
+			articleCount   int
+		)
+		if err := rows.Scan(&id, &name, &url, &feedURL, &scrapeSelector, &lastScanned, &articleCount); err != nil {
+			return nil, err
+		}
+
+		blog := BlogWithCount{
+			Blog: model.Blog{
+				ID:             id,
+				Name:           name,
+				URL:            url,
+				FeedURL:        feedURL.String,
+				ScrapeSelector: scrapeSelector.String,
+			},
+			ArticleCount: articleCount,
+		}
+		if lastScanned.Valid {
+			if parsed, err := parseTime(lastScanned.String); err == nil {
+				blog.LastScanned = &parsed
+			}
+		}
+		blogs = append(blogs, blog)
+	}
+	return blogs, rows.Err()
+}
+
 func (db *Database) ListArticles(unreadOnly bool, blogID *int64) ([]model.Article, error) {
 	query := `SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read FROM articles WHERE 1=1`
 	var args []interface{}
