@@ -8,17 +8,17 @@ A web-based reader UI for the existing blogwatcher CLI tool. It provides an Omni
 
 Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-## Current Milestone: v1.1 UI Polish & Search
+## Current Milestone: v1.2 Blog Management
 
-**Goal:** Improve visual presentation with masonry layout and thumbnails, add search and filtering capabilities.
+**Goal:** Manage blogs entirely from the web UI — add, edit, remove — without touching the CLI.
 
 **Target features:**
-- Masonry layout (grid alternative to current list view)
-- Clickable cards (entire card opens article, not just title)
-- Thumbnail support (RSS → Open Graph → favicon fallback)
-- Title search
-- Date filtering (last week, month, custom range)
-- Combined filters (blog + status + search together)
+- Add new blogs by URL (auto-discover RSS/Atom feed via CLI)
+- Auto-sync new blog after adding (using UI's sync with thumbnails)
+- Edit blog settings (name, URL, feed URL)
+- Remove blogs with confirmation (choice to keep or delete articles)
+- Settings page for blog management
+- RSS/Atom feeds only (no scrape support this milestone)
 
 ## Requirements
 
@@ -42,16 +42,33 @@ Shipped in v1.0:
 - ✓ **MGMT-03**: "Mark all read" button for bulk action — v1.0
 - ✓ **MGMT-04**: Manual sync button to scan blogs for new articles — v1.0
 
+Shipped in v1.1:
+
+- ✓ **POLISH-01**: Entire article card clickable (opens URL in new tab) — v1.1
+- ✓ **POLISH-02**: Masonry grid layout as alternative to list view — v1.1
+- ✓ **POLISH-03**: View toggle to switch between list and grid layouts — v1.1
+- ✓ **POLISH-04**: View preference persists across sessions — v1.1
+- ✓ **THUMB-01**: Extract thumbnail URL from RSS media/enclosures during sync — v1.1
+- ✓ **THUMB-02**: Extract thumbnail from Open Graph meta tags as fallback — v1.1
+- ✓ **THUMB-03**: Fall back to favicon when no thumbnail available — v1.1
+- ✓ **THUMB-04**: Display thumbnail in article card (both list and grid views) — v1.1
+- ✓ **SRCH-01**: Search articles by title text — v1.1
+- ✓ **SRCH-02**: Search input with 300ms debounce (HTMX active search) — v1.1
+- ✓ **SRCH-03**: Date filter: Last Week shortcut — v1.1
+- ✓ **SRCH-04**: Date filter: Last Month shortcut — v1.1
+- ✓ **SRCH-05**: Date filter: Custom date range picker — v1.1
+- ✓ **SRCH-06**: Combined filters (blog + status + search + date together) — v1.1
+- ✓ **SRCH-07**: Display results count showing how many articles match — v1.1
+
 ### Active
 
-v1.1 scope:
+v1.2 scope:
 
-- [ ] Masonry grid layout as alternative to list view
-- [ ] Entire article card clickable (not just title)
-- [ ] Article thumbnails with fallback chain (RSS → OG → favicon)
-- [ ] Search articles by title
-- [ ] Date filtering (last week, month, custom)
-- [ ] Combined filters (blog + status + search + date)
+- [ ] Add new blogs by URL with auto feed discovery
+- [ ] Auto-sync new blog after adding
+- [ ] Edit blog settings (name, URL, feed URL)
+- [ ] Remove blogs with confirmation dialog
+- [ ] Settings page for blog management
 
 ### Out of Scope
 
@@ -61,7 +78,8 @@ v1.1 scope:
 - Auto-sync/background refresh — manual only
 - Full-text search — would require fetching/storing article content
 - Read time estimates — not in current database
-- Blog management (add/remove) — use CLI for that
+- OPML import/export — deferred to future milestone
+- Scrape-based blogs — RSS/Atom only for v1.2
 
 ## Context
 
@@ -95,5 +113,7 @@ v1.1 scope:
 | Manual sync only | Keeps it simple, user controls when to refresh | ✓ Good |
 | Three-way theme toggle | Light/Dark/System with CSS :has() and localStorage | ✓ Good |
 
+| Shell exec for CLI integration | Leverage existing blogwatcher CLI for feed discovery, keep logic centralized | — Pending |
+
 ---
-*Last updated: 2026-02-03 after v1.1 milestone start*
+*Last updated: 2026-02-08 after v1.2 milestone start*
