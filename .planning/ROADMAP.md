@@ -257,7 +257,10 @@ Plans:
 
 **Depends on:** Phase 8 (Masonry Layout)
 
-**Plans:** —
+**Plans:** 1 plan
+
+Plans:
+- [ ] 09-01-PLAN.md — Database layer (ListBlogsWithCounts), settings handler/route/templates, gear icon in sidebar
 
 ---
 
@@ -428,4 +431,5 @@ Plans:
 *Phase 8 complete: 2026-02-03*
 *v1.1 COMPLETE: 2026-02-03*
 *v1.2 roadmap added: 2026-02-08*
+*Phase 9 planned: 2026-02-08*
 *Last updated: 2026-02-08*
