@@ -1,0 +1,15 @@
+{{define "settings.gohtml"}}
+{{template "base" .}}
+{{end}}
+
+{{define "title"}}Settings - BlogWatcher{{end}}
+
+{{define "content"}}
+<div class="app-layout">
+    {{template "sidebar.gohtml" .}}
+
+    <main id="main-content" class="main-content">
+        {{template "settings-page.gohtml" .}}
+    </main>
+</div>
+{{end}}

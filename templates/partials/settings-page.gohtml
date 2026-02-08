@@ -1,0 +1,30 @@
+{{define "settings-page.gohtml"}}
+<div class="main-content-header">
+    <header class="main-header">
+        <h1>Settings</h1>
+    </header>
+</div>
+<div class="main-content-body">
+    <section class="settings-section">
+        <h2>Tracked Blogs</h2>
+        {{if .Blogs}}
+        <div class="blog-settings-list">
+            {{range .Blogs}}
+            <div class="blog-settings-card">
+                <div class="blog-settings-info">
+                    <h3 class="blog-settings-name">{{.Name}}</h3>
+                    <a href="{{.URL}}" target="_blank" rel="noopener noreferrer"
+                       class="blog-settings-url">{{.URL}}</a>
+                    <div class="blog-settings-meta">
+                        <span class="article-count">{{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}</span>
+                    </div>
+                </div>
+            </div>
+            {{end}}
+        </div>
+        {{else}}
+        <p class="empty-state">No blogs tracked yet.</p>
+        {{end}}
+    </section>
+</div>
+{{end}}

@@ -332,6 +332,34 @@ func (s *Server) handleSyncThumbnails(w http.ResponseWriter, r *http.Request) {
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
 
+// handleSettings serves the settings page showing all blogs with article counts
+// Returns partial fragment for HTMX requests, full page otherwise
+func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
+	blogs, err := s.db.ListBlogsWithCounts()
+	if err != nil {
+		log.Printf("Error fetching blogs with counts: %v", err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	data := map[string]interface{}{
+		"Blogs":          blogs,
+		"IsSettingsPage": true,
+	}
+
+	// Check if this is an HTMX request
+	if r.Header.Get("HX-Request") == "true" {
+		// Return partial fragment for HTMX
+		s.renderTemplate(w, "settings-page.gohtml", data)
+		return
+	}
+
+	// Return full page for direct navigation
+	data["Title"] = "Settings - BlogWatcher"
+	data["Version"] = s.version
+	s.renderTemplate(w, "settings.gohtml", data)
+}
+
 // parseSearchOptions extracts all search and filter parameters from the request.
 // Returns SearchOptions, the filter string (for template), and currentBlogID.
 func parseSearchOptions(r *http.Request) (model.SearchOptions, string, int64) {
