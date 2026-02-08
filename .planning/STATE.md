@@ -1,9 +1,9 @@
 # Project State: BlogWatcher UI
 
-**Last updated:** 2026-02-08
+**Last updated:** 2026-02-09
 **Current milestone:** v1.2 Blog Management
-**Current phase:** Phase 9 - Settings Page Foundation
-**Overall progress:** 0% (v1.2 started)
+**Current phase:** Phase 9 - Settings Page Foundation (COMPLETE)
+**Overall progress:** 33% (1/3 phases complete)
 
 ## Project Reference
 
@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Read and manage blog articles through a clean, responsive web interface without touching the CLI.
 
-**Current focus:** v1.2 milestone in progress. Roadmap created with 3 phases (9-11) covering blog management features.
+**Current focus:** v1.2 milestone in progress. Phase 9 complete, ready for Phase 10.
 
 ## Milestone Status
 
@@ -19,22 +19,22 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 |-----------|--------|--------------|--------|
 | v1.0 | Complete | 15/15 | 5/5 |
 | v1.1 | Complete | 15/15 | 3/3 |
-| v1.2 | In Progress | 13/13 | 0/3 |
+| v1.2 | In Progress | 3/13 | 1/3 |
 
 ## Current Position
 
 **Milestone:** v1.2 (Blog Management) - In Progress
-**Phase:** Phase 9 - Settings Page Foundation
-**Plan:** —
-**Status:** Ready to plan Phase 9
-**Last activity:** 2026-02-08 — Roadmap created with phases 9-11
+**Phase:** Phase 9 - Settings Page Foundation (COMPLETE)
+**Plan:** 09-01 complete
+**Status:** Ready to plan Phase 10
+**Last activity:** 2026-02-09 — Phase 9 complete (settings page with blog list)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 15 (10 from v1.0 + 5 from v1.1)
+- Total plans completed: 16 (10 from v1.0 + 5 from v1.1 + 1 from v1.2)
 - Average duration: ~3-5 min per plan
 - Total execution time: (tracked during execution)
 
@@ -50,7 +50,7 @@ Progress: [░░░░░░░░░░] 0%
 | 6 - Enhanced Card Interaction | 2 | Complete |
 | 7 - Search & Date Filtering | 2 | Complete |
 | 8 - Masonry Layout | 1 | Complete |
-| 9 - Settings Page Foundation | — | Pending |
+| 9 - Settings Page Foundation | 1 | Complete |
 | 10 - Add Blog Flow | — | Pending |
 | 11 - Edit and Remove Blogs | — | Pending |
 
@@ -73,6 +73,7 @@ Recent decisions affecting current work:
 - v1.2: Settings page for blog management UI
 - v1.2: Confirmation dialog for blog removal (choice to keep or delete articles)
 - v1.2 roadmap: 3 phases (9-11) derived from 13 requirements with natural boundaries
+- Phase 9: Self-contained page templates to avoid Go template block conflicts
 
 Full decision log in PROJECT.md Key Decisions table.
 
@@ -100,6 +101,10 @@ None.
 - [DONE] `articles` table: thumbnail_url column (nullable TEXT)
 - [DONE] FTS5 virtual table `articles_fts` for title search
 - [DONE] Sync triggers: articles_ai, articles_au, articles_ad
+
+**New in v1.2:**
+- [DONE] ListBlogsWithCounts() method with LEFT JOIN + GROUP BY
+- [DONE] BlogWithCount struct embedding model.Blog with ArticleCount
 
 **Tech stack:** Go server, Go templates, HTMX 2.0.4, SQLite (modernc.org/sqlite), CSS custom properties, gofeed, goquery
 
@@ -131,13 +136,15 @@ None.
 | 2026-02-03 | v1.1 COMPLETE | All 15 requirements delivered |
 | 2026-02-08 | v1.2 started | Blog Management milestone |
 | 2026-02-08 | v1.2 roadmap complete | Phases 9-11 created, 13 requirements mapped (100% coverage) |
+| 2026-02-09 | Plan 09-01 complete | Settings page with blog list and article counts |
+| 2026-02-09 | Phase 9 COMPLETE | All 3 settings requirements verified (SETT-01-03) |
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Stopped at: v1.2 roadmap created, ready to plan Phase 9
+Last session: 2026-02-09
+Stopped at: Phase 9 complete, ready for Phase 10
 Resume file: .planning/ROADMAP.md
-Next action: `/gsd:plan-phase 9`
+Next action: `/gsd:plan-phase 10`
 
 ---
 
@@ -145,3 +152,4 @@ Next action: `/gsd:plan-phase 9`
 *v1.1 roadmap added: 2026-02-03*
 *v1.2 milestone started: 2026-02-08*
 *v1.2 roadmap added: 2026-02-08*
+*Phase 9 complete: 2026-02-09*
