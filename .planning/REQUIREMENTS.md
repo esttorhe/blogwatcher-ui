@@ -172,28 +172,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SETT-01 | TBD | Pending |
-| SETT-02 | TBD | Pending |
-| SETT-03 | TBD | Pending |
-| ADD-01 | TBD | Pending |
-| ADD-02 | TBD | Pending |
-| ADD-03 | TBD | Pending |
-| ADD-04 | TBD | Pending |
-| ADD-05 | TBD | Pending |
-| ADD-06 | TBD | Pending |
-| EDIT-01 | TBD | Pending |
-| REM-01 | TBD | Pending |
-| REM-02 | TBD | Pending |
-| REM-03 | TBD | Pending |
+| SETT-01 | Phase 9 | Pending |
+| SETT-02 | Phase 9 | Pending |
+| SETT-03 | Phase 9 | Pending |
+| ADD-01 | Phase 10 | Pending |
+| ADD-02 | Phase 10 | Pending |
+| ADD-03 | Phase 10 | Pending |
+| ADD-04 | Phase 10 | Pending |
+| ADD-05 | Phase 10 | Pending |
+| ADD-06 | Phase 10 | Pending |
+| EDIT-01 | Phase 11 | Pending |
+| REM-01 | Phase 11 | Pending |
+| REM-02 | Phase 11 | Pending |
+| REM-03 | Phase 11 | Pending |
 
 **Coverage:**
 - v1.0 requirements: 15 mapped (100%)
 - v1.1 requirements: 15 mapped (100%)
-- v1.2 requirements: 13 (pending roadmap)
+- v1.2 requirements: 13 mapped (100%)
 - Total: 43 requirements
 
 ---
 *Requirements defined: 2026-02-02*
 *v1.1 complete: 2026-02-03*
 *v1.2 requirements added: 2026-02-08*
+*v1.2 traceability mapped: 2026-02-08*
 *Last updated: 2026-02-08*

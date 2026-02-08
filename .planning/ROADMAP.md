@@ -2,12 +2,13 @@
 
 **Created:** 2026-02-02
 **Depth:** standard
-**Total Phases:** 8
+**Total Phases:** 11
 
 ## Milestones
 
 - **v1.0 MVP** - Phases 1-5 (shipped 2026-02-03)
 - **v1.1 UI Polish & Search** - Phases 6-8 (shipped 2026-02-03)
+- **v1.2 Blog Management** - Phases 9-11 (in progress)
 
 ## Phases
 
@@ -141,10 +142,10 @@ Plans:
 
 ---
 
-## v1.1 UI Polish & Search (COMPLETE)
+<details>
+<summary>v1.1 UI Polish & Search (Phases 6-8) - SHIPPED 2026-02-03</summary>
 
 **Milestone Goal:** Improve visual presentation with masonry layout and thumbnails, add search and filtering capabilities.
-**Shipped:** 2026-02-03
 
 ### Phase 6: Enhanced Card Interaction
 
@@ -229,6 +230,89 @@ Plans:
 Plans:
 - [x] 08-01-PLAN.md — CSS Grid layout, view toggle component, localStorage persistence
 
+</details>
+
+---
+
+## v1.2 Blog Management (IN PROGRESS)
+
+**Milestone Goal:** Manage blogs entirely from the web UI — add, edit, remove — without touching the CLI.
+**Started:** 2026-02-08
+
+### Phase 9: Settings Page Foundation
+
+**Goal:** User can access settings page and view all tracked blogs with their metadata.
+
+**Requirements:**
+- SETT-01: User can access settings page from sidebar gear icon
+- SETT-02: Settings page displays list of all tracked blogs
+- SETT-03: Each blog entry shows name, URL, and article count
+
+**Success Criteria:**
+1. User sees gear icon in sidebar navigation
+2. User can click gear icon and settings page loads via HTMX
+3. Settings page displays complete list of all blogs from database
+4. Each blog entry shows display name, homepage URL, and count of articles
+5. Blog list updates when blogs are added/removed (via HTMX swap)
+
+**Depends on:** Phase 8 (Masonry Layout)
+
+**Plans:** —
+
+---
+
+### Phase 10: Add Blog Flow
+
+**Goal:** User can add new blogs by URL with auto-discovery and automatic first sync.
+
+**Requirements:**
+- ADD-01: User can enter blog URL in add form
+- ADD-02: System auto-discovers RSS/Atom feed via blogwatcher CLI
+- ADD-03: User sees success/error feedback after add attempt
+- ADD-04: System displays discovered feed URL to user
+- ADD-05: System auto-syncs newly added blog to fetch articles
+- ADD-06: User can access quick add via floating action button (FAB)
+
+**Success Criteria:**
+1. User sees "Add Blog" form on settings page with URL input field
+2. User can enter a blog URL and submit the form
+3. System executes `blogwatcher add <url>` command via os/exec to discover RSS/Atom feed
+4. User sees success message showing discovered feed URL after successful add
+5. User sees error message when feed discovery fails (invalid URL, no feed found)
+6. System automatically triggers sync for newly added blog (fetches articles with thumbnails)
+7. User sees floating action button (FAB) on main article list page
+8. User can click FAB to open quick add dialog without navigating to settings
+
+**Depends on:** Phase 9 (Settings Page Foundation)
+
+**Plans:** —
+
+---
+
+### Phase 11: Edit and Remove Blogs
+
+**Goal:** User can modify blog names and remove blogs with confirmation dialog.
+
+**Requirements:**
+- EDIT-01: User can edit blog display name
+- REM-01: User sees confirmation dialog before deletion
+- REM-02: User can choose to delete blog only or blog + articles
+- REM-03: Confirmation dialog shows article count that would be deleted
+
+**Success Criteria:**
+1. User sees "Edit" action next to each blog in settings list
+2. User can click edit and modify blog display name inline or in modal
+3. Changed blog name persists to database and updates in sidebar subscriptions list
+4. User sees "Remove" action next to each blog in settings list
+5. User clicking remove triggers confirmation dialog (does not delete immediately)
+6. Confirmation dialog displays count of articles that belong to the blog
+7. User can choose "Delete blog only" (keeps articles orphaned) or "Delete blog + articles"
+8. Selected deletion action executes and blog list updates via HTMX
+
+**Depends on:** Phase 9 (Settings Page Foundation)
+
+**Plans:** —
+
 ---
 
 ## Coverage Validation
@@ -277,6 +361,26 @@ Plans:
 
 **v1.1 Coverage:** 15/15 requirements mapped (100%)
 
+### v1.2 Requirements
+
+| Requirement | Phase | Covered |
+|-------------|-------|---------|
+| SETT-01 | 9 | Yes |
+| SETT-02 | 9 | Yes |
+| SETT-03 | 9 | Yes |
+| ADD-01 | 10 | Yes |
+| ADD-02 | 10 | Yes |
+| ADD-03 | 10 | Yes |
+| ADD-04 | 10 | Yes |
+| ADD-05 | 10 | Yes |
+| ADD-06 | 10 | Yes |
+| EDIT-01 | 11 | Yes |
+| REM-01 | 11 | Yes |
+| REM-02 | 11 | Yes |
+| REM-03 | 11 | Yes |
+
+**v1.2 Coverage:** 13/13 requirements mapped (100%)
+
 ---
 
 ## Phase Progress
@@ -299,9 +403,18 @@ Plans:
 | 7 - Search & Date Filtering | Complete | 100% |
 | 8 - Masonry Layout | Complete | 100% |
 
+### v1.2 (In Progress)
+
+| Phase | Status | Progress |
+|-------|--------|----------|
+| 9 - Settings Page Foundation | Pending | 0% |
+| 10 - Add Blog Flow | Pending | 0% |
+| 11 - Edit and Remove Blogs | Pending | 0% |
+
 **v1.0 Progress:** 5/5 phases complete (100%)
 **v1.1 Progress:** 3/3 phases complete (100%)
-**Overall Progress:** 8/8 phases complete (100%)
+**v1.2 Progress:** 0/3 phases complete (0%)
+**Overall Progress:** 8/11 phases complete (73%)
 
 ---
 
@@ -314,4 +427,5 @@ Plans:
 *Phase 8 planned: 2026-02-03*
 *Phase 8 complete: 2026-02-03*
 *v1.1 COMPLETE: 2026-02-03*
-*Last updated: 2026-02-03*
+*v1.2 roadmap added: 2026-02-08*
+*Last updated: 2026-02-08*
