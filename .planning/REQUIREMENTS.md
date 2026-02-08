@@ -34,37 +34,66 @@ Shipped in v1.0 milestone:
 - [x] **MGMT-03**: "Mark all read" button for bulk action
 - [x] **MGMT-04**: Manual sync button to scan blogs for new articles
 
-## v1.1 Requirements
+## v1.1 Requirements (Complete)
 
-Requirements for v1.1 milestone (UI Polish & Search).
+Shipped in v1.1 milestone:
 
 ### UI Polish
 
-- [ ] **POLISH-01**: Entire article card is clickable (opens URL in new tab)
-- [ ] **POLISH-02**: Masonry grid layout as alternative to list view
-- [ ] **POLISH-03**: View toggle to switch between list and grid layouts
-- [ ] **POLISH-04**: View preference persists across sessions
+- [x] **POLISH-01**: Entire article card is clickable (opens URL in new tab)
+- [x] **POLISH-02**: Masonry grid layout as alternative to list view
+- [x] **POLISH-03**: View toggle to switch between list and grid layouts
+- [x] **POLISH-04**: View preference persists across sessions
 
 ### Thumbnails
 
-- [ ] **THUMB-01**: Extract thumbnail URL from RSS media/enclosures during sync
-- [ ] **THUMB-02**: Extract thumbnail from Open Graph meta tags as fallback
-- [ ] **THUMB-03**: Fall back to favicon when no thumbnail available
-- [ ] **THUMB-04**: Display thumbnail in article card (both list and grid views)
+- [x] **THUMB-01**: Extract thumbnail URL from RSS media/enclosures during sync
+- [x] **THUMB-02**: Extract thumbnail from Open Graph meta tags as fallback
+- [x] **THUMB-03**: Fall back to favicon when no thumbnail available
+- [x] **THUMB-04**: Display thumbnail in article card (both list and grid views)
 
 ### Search & Filtering
 
-- [ ] **SRCH-01**: Search articles by title text
-- [ ] **SRCH-02**: Search input with 300ms debounce (HTMX active search)
-- [ ] **SRCH-03**: Date filter: Last Week shortcut
-- [ ] **SRCH-04**: Date filter: Last Month shortcut
-- [ ] **SRCH-05**: Date filter: Custom date range picker
-- [ ] **SRCH-06**: Combined filters (blog + status + search + date together)
-- [ ] **SRCH-07**: Display results count showing how many articles match
+- [x] **SRCH-01**: Search articles by title text
+- [x] **SRCH-02**: Search input with 300ms debounce (HTMX active search)
+- [x] **SRCH-03**: Date filter: Last Week shortcut
+- [x] **SRCH-04**: Date filter: Last Month shortcut
+- [x] **SRCH-05**: Date filter: Custom date range picker
+- [x] **SRCH-06**: Combined filters (blog + status + search + date together)
+- [x] **SRCH-07**: Display results count showing how many articles match
+
+## v1.2 Requirements
+
+Requirements for v1.2 milestone (Blog Management).
+
+### Settings UI
+
+- [ ] **SETT-01**: User can access settings page from sidebar gear icon
+- [ ] **SETT-02**: Settings page displays list of all tracked blogs
+- [ ] **SETT-03**: Each blog entry shows name, URL, and article count
+
+### Add Blog
+
+- [ ] **ADD-01**: User can enter blog URL in add form
+- [ ] **ADD-02**: System auto-discovers RSS/Atom feed via blogwatcher CLI
+- [ ] **ADD-03**: User sees success/error feedback after add attempt
+- [ ] **ADD-04**: System displays discovered feed URL to user
+- [ ] **ADD-05**: System auto-syncs newly added blog to fetch articles
+- [ ] **ADD-06**: User can access quick add via floating action button (FAB)
+
+### Edit Blog
+
+- [ ] **EDIT-01**: User can edit blog display name
+
+### Remove Blog
+
+- [ ] **REM-01**: User sees confirmation dialog before deletion
+- [ ] **REM-02**: User can choose to delete blog only or blog + articles
+- [ ] **REM-03**: Confirmation dialog shows article count that would be deleted
 
 ## Future Requirements
 
-Deferred to v1.2 or later. Tracked but not in current roadmap.
+Deferred to v1.3 or later. Tracked but not in current roadmap.
 
 ### Search Enhancements
 
@@ -72,11 +101,12 @@ Deferred to v1.2 or later. Tracked but not in current roadmap.
 - **SRCH-F02**: Saved searches with quick access
 - **SRCH-F03**: Search suggestions/autocomplete
 
-### Blog Management
+### Blog Management Enhancements
 
-- **BLOG-01**: Add new blog from UI
-- **BLOG-02**: Remove blog from UI
-- **BLOG-03**: Edit blog settings from UI
+- **BLOG-F01**: Edit blog homepage URL
+- **BLOG-F02**: Edit feed URL
+- **BLOG-F03**: OPML import
+- **BLOG-F04**: OPML export
 
 ## Out of Scope
 
@@ -91,6 +121,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | Full-text search | Would require fetching/storing article content |
 | Read time estimates | Not in current database schema |
 | Keyboard shortcuts | Nice to have but not essential |
+| OPML import/export | Deferred to future milestone |
+| Scrape-based blogs | RSS/Atom only for v1.2 |
 
 ## Traceability
 
@@ -116,7 +148,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MGMT-04 | Phase 4 | Complete |
 | UI-04 | Phase 5 | Complete |
 
-### v1.1 Requirements (In Progress)
+### v1.1 Requirements (Complete)
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -132,17 +164,36 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SRCH-05 | Phase 7 | Complete |
 | SRCH-06 | Phase 7 | Complete |
 | SRCH-07 | Phase 7 | Complete |
-| POLISH-02 | Phase 8 | Pending |
-| POLISH-03 | Phase 8 | Pending |
-| POLISH-04 | Phase 8 | Pending |
+| POLISH-02 | Phase 8 | Complete |
+| POLISH-03 | Phase 8 | Complete |
+| POLISH-04 | Phase 8 | Complete |
+
+### v1.2 Requirements (Pending)
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| SETT-01 | TBD | Pending |
+| SETT-02 | TBD | Pending |
+| SETT-03 | TBD | Pending |
+| ADD-01 | TBD | Pending |
+| ADD-02 | TBD | Pending |
+| ADD-03 | TBD | Pending |
+| ADD-04 | TBD | Pending |
+| ADD-05 | TBD | Pending |
+| ADD-06 | TBD | Pending |
+| EDIT-01 | TBD | Pending |
+| REM-01 | TBD | Pending |
+| REM-02 | TBD | Pending |
+| REM-03 | TBD | Pending |
 
 **Coverage:**
 - v1.0 requirements: 15 mapped (100%)
 - v1.1 requirements: 15 mapped (100%)
-- Total: 30/30 requirements mapped
-- Unmapped: 0
+- v1.2 requirements: 13 (pending roadmap)
+- Total: 43 requirements
 
 ---
 *Requirements defined: 2026-02-02*
-*v1.1 roadmap added: 2026-02-03*
-*Last updated: 2026-02-03*
+*v1.1 complete: 2026-02-03*
+*v1.2 requirements added: 2026-02-08*
+*Last updated: 2026-02-08*
