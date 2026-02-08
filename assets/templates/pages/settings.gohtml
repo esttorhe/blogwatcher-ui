@@ -1,4 +1,4 @@
-{{define "index.gohtml"}}
+{{define "settings.gohtml"}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,14 +16,6 @@
       }
     })();
     </script>
-    <script>
-    (function() {
-      var view = localStorage.getItem('view') || 'list';
-      if (view === 'grid') {
-        document.documentElement.dataset.view = 'grid';
-      }
-    })();
-    </script>
     <title>{{.Title}}</title>
     <link rel="stylesheet" href="/static/styles.css">
     <script src="/static/htmx.min.js"></script>
@@ -33,7 +25,7 @@
         {{template "sidebar.gohtml" .}}
 
         <main id="main-content" class="main-content">
-            {{template "article-list.gohtml" .}}
+            {{template "settings-page.gohtml" .}}
         </main>
     </div>
     {{template "scripts" .}}

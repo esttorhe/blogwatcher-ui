@@ -335,7 +335,7 @@ func (s *Server) handleSyncThumbnails(w http.ResponseWriter, r *http.Request) {
 // handleSettings serves the settings page showing all blogs with article counts
 // Returns partial fragment for HTMX requests, full page otherwise
 func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
-	blogs, err := s.db.ListBlogsWithCounts()
+	blogsWithCounts, err := s.db.ListBlogsWithCounts()
 	if err != nil {
 		log.Printf("Error fetching blogs with counts: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)
@@ -343,7 +343,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Blogs":          blogs,
+		"SettingsBlogs":  blogsWithCounts,
 		"IsSettingsPage": true,
 	}
 
@@ -354,7 +354,13 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return full page for direct navigation
+	// Return full page for direct navigation - need regular Blogs for sidebar
+	blogs, err := s.db.ListBlogs()
+	if err != nil {
+		log.Printf("Error fetching blogs for sidebar: %v", err)
+	} else {
+		data["Blogs"] = blogs
+	}
 	data["Title"] = "Settings - BlogWatcher"
 	data["Version"] = s.version
 	s.renderTemplate(w, "settings.gohtml", data)

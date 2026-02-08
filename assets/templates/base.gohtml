@@ -1,35 +1,4 @@
-{{define "base"}}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
-    <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)">
-    <script>
-    (function() {
-      var theme = localStorage.getItem('theme') || 'system';
-      var isDark = theme === 'dark' ||
-        (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      }
-    })();
-    </script>
-    <script>
-    (function() {
-      var view = localStorage.getItem('view') || 'list';
-      if (view === 'grid') {
-        document.documentElement.dataset.view = 'grid';
-      }
-    })();
-    </script>
-    <title>{{template "title" .}}</title>
-    <link rel="stylesheet" href="/static/styles.css">
-    <script src="/static/htmx.min.js"></script>
-</head>
-<body>
-    {{template "content" .}}
+{{define "scripts"}}
     <script>
     (function() {
       var radios = document.querySelectorAll('input[name="theme"]');
@@ -109,6 +78,4 @@
       });
     })();
     </script>
-</body>
-</html>
 {{end}}
