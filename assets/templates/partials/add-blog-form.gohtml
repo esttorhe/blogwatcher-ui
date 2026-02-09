@@ -1,0 +1,61 @@
+{{define "add-blog-form.gohtml"}}
+<div id="add-blog-form-container" class="add-blog-section"
+     {{if .Success}}hx-trigger="load" hx-get="/blogs" hx-target="#blog-list" hx-swap="innerHTML"{{end}}>
+    {{if .Success}}
+    <div class="success-message">
+        <p><strong>Successfully added '{{.BlogName}}'</strong>{{if .FeedURL}}</p>
+        <p class="feed-url-info">Feed: {{.FeedURL}}</p>{{end}}
+        <p class="sync-info">Articles are being fetched in the background. You can navigate away safely.</p>
+    </div>
+    <div class="success-actions">
+        <button hx-get="/settings"
+                hx-target="#main-content"
+                hx-swap="innerHTML"
+                class="btn-action">Back to Settings</button>
+        <a href="/"
+           hx-get="/articles"
+           hx-target="#main-content"
+           hx-push-url="true"
+           class="btn-action btn-primary">View Articles</a>
+    </div>
+    {{else}}
+    <h2>Add New Blog</h2>
+    {{if .Error}}
+    <div class="error-message">
+        <p>{{.Error}}</p>
+    </div>
+    {{end}}
+    <form hx-post="/blogs/add"
+          hx-target="#add-blog-form-container"
+          hx-swap="innerHTML"
+          hx-indicator=".add-blog-spinner">
+        <div class="form-group">
+            <label for="blog-name">Blog Name</label>
+            <input type="text"
+                   id="blog-name"
+                   name="name"
+                   value="{{.Name}}"
+                   placeholder="My Favorite Blog"
+                   required
+                   autofocus>
+        </div>
+        <div class="form-group">
+            <label for="blog-url">Blog URL</label>
+            <input type="url"
+                   id="blog-url"
+                   name="url"
+                   value="{{.URL}}"
+                   placeholder="https://example.com"
+                   required>
+            <small>RSS/Atom feed will be auto-discovered</small>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn-action">
+                <span class="btn-text">Add Blog</span>
+                <span class="add-blog-spinner htmx-indicator">Adding...</span>
+            </button>
+        </div>
+    </form>
+    {{end}}
+</div>
+{{end}}

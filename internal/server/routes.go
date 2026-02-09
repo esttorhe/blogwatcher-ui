@@ -25,4 +25,7 @@ func (s *Server) registerRoutes() {
 	// Sync
 	s.mux.HandleFunc("POST /sync", s.handleSync)
 	s.mux.HandleFunc("POST /sync-thumbnails", s.handleSyncThumbnails)
+
+	// Blog management
+	s.mux.HandleFunc("POST /blogs/add", s.handleAddBlog)
 }

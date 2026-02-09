@@ -62,7 +62,9 @@
     {{/* Subscriptions / Blog list */}}
     <div class="subscriptions-section">
         <div class="nav-section-title">Subscriptions</div>
-        {{template "blog-list.gohtml" .}}
+        <div id="blog-list">
+            {{template "blog-list.gohtml" .}}
+        </div>
     </div>
 
     {{/* Version footer */}}

@@ -5,6 +5,8 @@
     </header>
 </div>
 <div class="main-content-body">
+    {{template "add-blog-form.gohtml" .}}
+
     <section class="settings-section">
         <h2>Tracked Blogs</h2>
         {{if .SettingsBlogs}}
