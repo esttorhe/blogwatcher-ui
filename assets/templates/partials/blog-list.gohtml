@@ -6,7 +6,8 @@
    hx-get="/articles?blog={{.ID}}"
    hx-target="#main-content"
    hx-push-url="true"
-   hx-on::after-swap="document.getElementById('sidebar-toggle').checked = false"
+   hx-on:click="document.querySelectorAll('.sidebar-nav .nav-link, .blog-item').forEach(el => el.classList.remove('active')); this.classList.add('active');"
+   hx-on:htmx:after-swap="document.getElementById('sidebar-toggle').checked = false"
    class="blog-item{{if eq $.CurrentBlogID .ID}} active{{end}}">
     {{.Name}}
 </a>
