@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-02-09
 **Current milestone:** v1.2 Blog Management
-**Current phase:** Phase 10 - Add Blog Flow (COMPLETE)
-**Overall progress:** 67% (2/3 phases complete)
+**Current phase:** Phase 11 - Edit and Remove Blogs (COMPLETE)
+**Overall progress:** 100% (3/3 phases complete)
 
 ## Project Reference
 
@@ -19,22 +19,22 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 |-----------|--------|--------------|--------|
 | v1.0 | Complete | 15/15 | 5/5 |
 | v1.1 | Complete | 15/15 | 3/3 |
-| v1.2 | In Progress | 9/13 | 2/3 |
+| v1.2 | Complete | 13/13 | 3/3 |
 
 ## Current Position
 
-**Milestone:** v1.2 (Blog Management) - In Progress
-**Phase:** Phase 10 - Add Blog Flow (COMPLETE)
-**Plan:** 10-02 complete (human verified)
-**Status:** Ready to plan Phase 11
-**Last activity:** 2026-02-09 — Phase 10 complete (add blog via form, FAB, CLI integration, auto-sync)
+**Milestone:** v1.2 (Blog Management) - Complete
+**Phase:** Phase 11 - Edit and Remove Blogs (COMPLETE)
+**Plan:** 11-03 complete (human verified)
+**Status:** v1.2 milestone complete
+**Last activity:** 2026-02-09 — Phase 11 complete (inline edit, delete with confirmation)
 
-Progress: [██████░░░░] 67%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 18 (10 from v1.0 + 5 from v1.1 + 3 from v1.2)
+- Total plans completed: 21 (10 from v1.0 + 5 from v1.1 + 6 from v1.2)
 - Average duration: ~3-5 min per plan
 - Total execution time: (tracked during execution)
 
@@ -52,7 +52,7 @@ Progress: [██████░░░░] 67%
 | 8 - Masonry Layout | 1 | Complete |
 | 9 - Settings Page Foundation | 1 | Complete |
 | 10 - Add Blog Flow | 2 | Complete |
-| 11 - Edit and Remove Blogs | — | Pending |
+| 11 - Edit and Remove Blogs | 3 | Complete |
 
 *Updated after each plan completion*
 
@@ -71,7 +71,7 @@ Recent decisions affecting current work:
 - v1.2: Shell exec for CLI integration (leverage blogwatcher CLI for feed discovery)
 - v1.2: Auto-sync new blog after adding using UI's sync (with thumbnail extraction)
 - v1.2: Settings page for blog management UI
-- v1.2: Confirmation dialog for blog removal (choice to keep or delete articles)
+- v1.2: Confirmation dialog for blog removal (simplified to single cascade delete mode)
 - v1.2 roadmap: 3 phases (9-11) derived from 13 requirements with natural boundaries
 - Phase 9: Self-contained page templates to avoid Go template block conflicts
 
@@ -102,9 +102,14 @@ None.
 - [DONE] FTS5 virtual table `articles_fts` for title search
 - [DONE] Sync triggers: articles_ai, articles_au, articles_ad
 
+**Schema changes (v1.2):**
+- [DONE] `articles.blog_id` made nullable (for future orphan article support)
+
 **New in v1.2:**
 - [DONE] ListBlogsWithCounts() method with LEFT JOIN + GROUP BY
 - [DONE] BlogWithCount struct embedding model.Blog with ArticleCount
+- [DONE] GetBlogByID(), UpdateBlogName(), GetArticleCountForBlog() methods
+- [DONE] DeleteBlogWithArticles() method for cascade delete
 
 **Tech stack:** Go server, Go templates, HTMX 2.0.4, SQLite (modernc.org/sqlite), CSS custom properties, gofeed, goquery
 
@@ -141,13 +146,18 @@ None.
 | 2026-02-09 | Plan 10-01 complete | Add blog handler, form, FAB, CLI integration |
 | 2026-02-09 | Plan 10-02 complete | Human verification with fixes (FAB position, sync feedback, sidebar refresh) |
 | 2026-02-09 | Phase 10 COMPLETE | All 6 add blog requirements verified (ADD-01-06) |
+| 2026-02-09 | Plan 11-01 complete | Inline blog name editing with HTMX |
+| 2026-02-09 | Plan 11-02 complete | Schema migration for nullable blog_id |
+| 2026-02-09 | Plan 11-03 complete | Delete blog with confirmation dialog (simplified) |
+| 2026-02-09 | Phase 11 COMPLETE | All 4 edit/remove requirements verified (EDIT-01, REM-01-03) |
+| 2026-02-09 | v1.2 COMPLETE | All 13 requirements delivered |
 
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Phase 10 complete, ready for Phase 11
+Stopped at: v1.2 milestone complete
 Resume file: .planning/ROADMAP.md
-Next action: `/gsd:plan-phase 11`
+Next action: Ready for v1.3 milestone planning
 
 ---
 
@@ -157,3 +167,5 @@ Next action: `/gsd:plan-phase 11`
 *v1.2 roadmap added: 2026-02-08*
 *Phase 9 complete: 2026-02-09*
 *Phase 10 complete: 2026-02-09*
+*Phase 11 complete: 2026-02-09*
+*v1.2 COMPLETE: 2026-02-09*

@@ -1,0 +1,23 @@
+{{define "blog-edit-form.gohtml"}}
+<div class="blog-settings-card blog-edit-mode" id="blog-{{.Blog.ID}}">
+    <form class="blog-edit-form"
+          hx-put="/blogs/{{.Blog.ID}}"
+          hx-target="#blog-{{.Blog.ID}}"
+          hx-swap="outerHTML">
+        <div class="blog-edit-input">
+            <input type="text" name="name" value="{{.Blog.Name}}"
+                   maxlength="100" required autofocus
+                   placeholder="Blog name">
+        </div>
+        <div class="blog-edit-actions">
+            <button type="submit" class="btn-action btn-save">Save</button>
+            <button type="button" class="btn-action btn-cancel"
+                    hx-get="/blogs/{{.Blog.ID}}"
+                    hx-target="#blog-{{.Blog.ID}}"
+                    hx-swap="outerHTML">
+                Cancel
+            </button>
+        </div>
+    </form>
+</div>
+{{end}}

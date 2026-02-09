@@ -1,0 +1,45 @@
+{{define "blog-display-row.gohtml"}}
+<div class="blog-settings-card" id="blog-{{.Blog.ID}}">
+    <div class="blog-settings-info">
+        <h3 class="blog-settings-name">{{.Blog.Name}}</h3>
+        <a href="{{.Blog.URL}}" target="_blank" rel="noopener noreferrer"
+           class="blog-settings-url">{{.Blog.URL}}</a>
+        <div class="blog-settings-meta">
+            <span class="article-count">{{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}</span>
+        </div>
+    </div>
+    <div class="blog-action-buttons">
+        <button type="button" class="btn-action"
+                hx-get="/blogs/{{.Blog.ID}}/edit"
+                hx-target="#blog-{{.Blog.ID}}"
+                hx-swap="outerHTML">
+            Edit
+        </button>
+        <button type="button" class="btn-action btn-danger"
+                onclick="document.getElementById('delete-blog-{{.Blog.ID}}').showModal()">
+            Remove
+        </button>
+    </div>
+    <dialog id="delete-blog-{{.Blog.ID}}" class="delete-blog-dialog">
+        <h2>Delete Blog?</h2>
+        <p class="blog-name">{{.Blog.Name}}</p>
+        <p class="article-count-warning">
+            This will delete the blog and its <strong>{{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}</strong>.
+        </p>
+        <p class="warning-text">This action cannot be undone.</p>
+        <div class="dialog-buttons">
+            <button type="button" class="btn-action btn-danger"
+                    hx-delete="/blogs/{{.Blog.ID}}"
+                    hx-target="#blog-{{.Blog.ID}}"
+                    hx-swap="outerHTML"
+                    onclick="this.closest('dialog').close()">
+                Delete
+            </button>
+            <button type="button" class="btn-action btn-secondary"
+                    onclick="this.closest('dialog').close()">
+                Cancel
+            </button>
+        </div>
+    </dialog>
+</div>
+{{end}}

@@ -81,6 +81,14 @@ func (db *Database) ensureMigrations() error {
 		}
 	}
 
+	// Migrate articles.blog_id to nullable (for blog deletion without cascade)
+	// SQLite does not support ALTER COLUMN, so we must recreate the table
+	if db.columnIsNotNull("articles", "blog_id") {
+		if err := db.migrateBlogIDToNullable(); err != nil {
+			return fmt.Errorf("failed to migrate articles.blog_id to nullable: %w", err)
+		}
+	}
+
 	// Add FTS5 virtual table and sync triggers for title search
 	if !db.tableExists("articles_fts") {
 		// Create FTS5 virtual table with external content pattern
@@ -144,6 +152,93 @@ func (db *Database) columnExists(table, column string) bool {
 		}
 	}
 	return false
+}
+
+// columnIsNotNull checks if a column has the NOT NULL constraint.
+func (db *Database) columnIsNotNull(table, column string) bool {
+	rows, err := db.conn.Query("PRAGMA table_info(" + table + ")")
+	if err != nil {
+		return false
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var cid int
+		var name, ctype string
+		var notnull, pk int
+		var dfltValue any
+		if err := rows.Scan(&cid, &name, &ctype, &notnull, &dfltValue, &pk); err != nil {
+			continue
+		}
+		if name == column {
+			return notnull == 1
+		}
+	}
+	return false
+}
+
+// migrateBlogIDToNullable recreates articles table with nullable blog_id column.
+// SQLite does not support ALTER COLUMN, so we must recreate the table.
+func (db *Database) migrateBlogIDToNullable() error {
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			_ = tx.Rollback()
+		}
+	}()
+
+	// Create new table with nullable blog_id (matching existing schema order)
+	_, err = tx.Exec(`CREATE TABLE articles_new (
+		id INTEGER PRIMARY KEY,
+		blog_id INTEGER,
+		title TEXT NOT NULL,
+		url TEXT NOT NULL UNIQUE,
+		published_date TIMESTAMP,
+		discovered_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		is_read BOOLEAN DEFAULT FALSE,
+		thumbnail_url TEXT,
+		FOREIGN KEY (blog_id) REFERENCES blogs(id)
+	)`)
+	if err != nil {
+		return fmt.Errorf("create articles_new: %w", err)
+	}
+
+	// Copy data from old table using explicit column list
+	_, err = tx.Exec(`INSERT INTO articles_new
+		(id, blog_id, title, url, published_date, discovered_date, is_read, thumbnail_url)
+		SELECT id, blog_id, title, url, published_date, discovered_date, is_read, thumbnail_url
+		FROM articles`)
+	if err != nil {
+		return fmt.Errorf("copy data: %w", err)
+	}
+
+	// Drop FTS5 triggers (they reference the old table)
+	_, _ = tx.Exec(`DROP TRIGGER IF EXISTS articles_ai`)
+	_, _ = tx.Exec(`DROP TRIGGER IF EXISTS articles_au`)
+	_, _ = tx.Exec(`DROP TRIGGER IF EXISTS articles_ad`)
+
+	// Drop FTS5 table (will be recreated by ensureMigrations)
+	_, _ = tx.Exec(`DROP TABLE IF EXISTS articles_fts`)
+
+	// Drop old table and rename new table
+	_, err = tx.Exec(`DROP TABLE articles`)
+	if err != nil {
+		return fmt.Errorf("drop old table: %w", err)
+	}
+
+	_, err = tx.Exec(`ALTER TABLE articles_new RENAME TO articles`)
+	if err != nil {
+		return fmt.Errorf("rename table: %w", err)
+	}
+
+	if err = tx.Commit(); err != nil {
+		return fmt.Errorf("commit: %w", err)
+	}
+
+	return nil
 }
 
 // tableExists checks if a table exists using sqlite_master.
@@ -477,6 +572,93 @@ func (db *Database) MarkAllUnreadArticlesRead(blogID *int64) error {
 func (db *Database) GetBlogByName(name string) (*model.Blog, error) {
 	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE name = ?`, name)
 	return scanBlog(row)
+}
+
+// GetBlogByID returns a blog by its ID, or nil if not found.
+func (db *Database) GetBlogByID(id int64) (*model.Blog, error) {
+	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE id = ?`, id)
+	return scanBlog(row)
+}
+
+// UpdateBlogName updates the display name of a blog by ID.
+func (db *Database) UpdateBlogName(id int64, name string) error {
+	_, err := db.conn.Exec(`UPDATE blogs SET name = ? WHERE id = ?`, name, id)
+	return err
+}
+
+// GetArticleCountForBlog returns the number of articles for a specific blog.
+func (db *Database) GetArticleCountForBlog(blogID int64) (int, error) {
+	var count int
+	err := db.conn.QueryRow(`SELECT COUNT(*) FROM articles WHERE blog_id = ?`, blogID).Scan(&count)
+	return count, err
+}
+
+// DeleteBlogOnly deletes a blog but keeps its articles (sets blog_id to NULL).
+// Uses a transaction to ensure atomicity.
+func (db *Database) DeleteBlogOnly(id int64) error {
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return err
+	}
+
+	// Orphan articles by setting blog_id to NULL
+	if _, err := tx.Exec(`UPDATE articles SET blog_id = NULL WHERE blog_id = ?`, id); err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("orphan articles: %w", err)
+	}
+
+	// Delete the blog
+	result, err := tx.Exec(`DELETE FROM blogs WHERE id = ?`, id)
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("delete blog: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("check rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		_ = tx.Rollback()
+		return fmt.Errorf("blog not found")
+	}
+
+	return tx.Commit()
+}
+
+// DeleteBlogWithArticles deletes a blog and all its articles (cascade delete).
+// Uses a transaction to ensure atomicity.
+func (db *Database) DeleteBlogWithArticles(id int64) error {
+	tx, err := db.conn.Begin()
+	if err != nil {
+		return err
+	}
+
+	// Delete articles first (FTS5 trigger handles articles_fts cleanup)
+	if _, err := tx.Exec(`DELETE FROM articles WHERE blog_id = ?`, id); err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("delete articles: %w", err)
+	}
+
+	// Delete the blog
+	result, err := tx.Exec(`DELETE FROM blogs WHERE id = ?`, id)
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("delete blog: %w", err)
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		_ = tx.Rollback()
+		return fmt.Errorf("check rows affected: %w", err)
+	}
+	if rowsAffected == 0 {
+		_ = tx.Rollback()
+		return fmt.Errorf("blog not found")
+	}
+
+	return tx.Commit()
 }
 
 // UpdateBlog updates all fields of a blog by ID.

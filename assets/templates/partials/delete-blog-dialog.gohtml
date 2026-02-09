@@ -1,0 +1,30 @@
+{{define "delete-blog-dialog.gohtml"}}
+<dialog id="delete-blog-{{.Blog.ID}}" class="delete-blog-dialog">
+    <h2>Delete Blog?</h2>
+    <p class="blog-name">{{.Blog.Name}}</p>
+    <p class="article-count-warning">
+        This blog has <strong>{{.ArticleCount}} article{{if ne .ArticleCount 1}}s{{end}}</strong>
+    </p>
+    <p class="warning-text">Choose how to handle the articles:</p>
+    <div class="dialog-buttons">
+        <button type="button" class="btn-action btn-warning"
+                hx-delete="/blogs/{{.Blog.ID}}?mode=only"
+                hx-target="#blog-{{.Blog.ID}}"
+                hx-swap="outerHTML"
+                onclick="this.closest('dialog').close()">
+            Delete blog only
+        </button>
+        <button type="button" class="btn-action btn-danger"
+                hx-delete="/blogs/{{.Blog.ID}}?mode=with-articles"
+                hx-target="#blog-{{.Blog.ID}}"
+                hx-swap="outerHTML"
+                onclick="this.closest('dialog').close()">
+            Delete blog + articles
+        </button>
+        <button type="button" class="btn-action btn-secondary"
+                onclick="this.closest('dialog').close()">
+            Cancel
+        </button>
+    </div>
+</dialog>
+{{end}}

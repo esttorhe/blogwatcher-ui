@@ -1052,10 +1052,186 @@ p {
   gap: 0.25rem;
 }
 
+/* Blog settings card layout with action buttons */
+.blog-settings-card {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.blog-action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Blog edit form styles */
+.blog-edit-mode {
+  background-color: var(--bg-elevated);
+}
+
+.blog-edit-form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.blog-edit-input {
+  flex: 1;
+}
+
+.blog-edit-form input[type="text"] {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.blog-edit-form input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.blog-edit-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-save {
+  background-color: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.btn-save:hover {
+  background-color: var(--accent);
+  opacity: 0.9;
+}
+
+.btn-cancel {
+  background-color: var(--bg-surface);
+}
+
+/* Button variants for delete dialog */
+.btn-danger {
+  background-color: #dc2626;
+  color: white;
+  border-color: #dc2626;
+}
+
+.btn-danger:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.btn-warning {
+  background-color: #f59e0b;
+  color: white;
+  border-color: #f59e0b;
+}
+
+.btn-warning:hover {
+  background-color: #d97706;
+  border-color: #d97706;
+}
+
+.btn-secondary {
+  background-color: var(--bg-elevated);
+  color: var(--text-primary);
+  border-color: var(--border);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-surface);
+}
+
+/* Delete confirmation dialog styles */
+.delete-blog-dialog {
+  padding: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.delete-blog-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.delete-blog-dialog h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.delete-blog-dialog .blog-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.75rem 0;
+}
+
+.delete-blog-dialog .article-count-warning {
+  color: var(--text-secondary);
+  margin: 0 0 0.5rem 0;
+}
+
+.delete-blog-dialog .warning-text {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: 0 0 1.25rem 0;
+}
+
+.delete-blog-dialog .dialog-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.delete-blog-dialog .dialog-buttons .btn-action {
+  width: 100%;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
   .settings-section {
     padding: 1rem;
+  }
+
+  .blog-settings-card {
+    flex-direction: column;
+  }
+
+  .blog-action-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .blog-edit-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .blog-edit-actions {
+    justify-content: flex-end;
+  }
+
+  .delete-blog-dialog {
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
   }
 }
 

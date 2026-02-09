@@ -8,7 +8,7 @@
 
 - **v1.0 MVP** - Phases 1-5 (shipped 2026-02-03)
 - **v1.1 UI Polish & Search** - Phases 6-8 (shipped 2026-02-03)
-- **v1.2 Blog Management** - Phases 9-11 (in progress)
+- **v1.2 Blog Management** - Phases 9-11 (shipped 2026-02-09)
 
 ## Phases
 
@@ -234,10 +234,11 @@ Plans:
 
 ---
 
-## v1.2 Blog Management (IN PROGRESS)
+## v1.2 Blog Management (SHIPPED 2026-02-09)
 
 **Milestone Goal:** Manage blogs entirely from the web UI — add, edit, remove — without touching the CLI.
 **Started:** 2026-02-08
+**Completed:** 2026-02-09
 
 ### Phase 9: Settings Page Foundation
 
@@ -303,7 +304,7 @@ Plans:
 **Requirements:**
 - EDIT-01: User can edit blog display name
 - REM-01: User sees confirmation dialog before deletion
-- REM-02: User can choose to delete blog only or blog + articles
+- REM-02: User can choose to delete blog only or blog + articles (simplified to single cascade delete)
 - REM-03: Confirmation dialog shows article count that would be deleted
 
 **Success Criteria:**
@@ -321,9 +322,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 11-01-PLAN.md — Inline blog name editing with HTMX click-to-edit pattern
-- [ ] 11-02-PLAN.md — Schema migration to make articles.blog_id nullable
-- [ ] 11-03-PLAN.md — Delete blog with confirmation dialog and two deletion modes
+- [x] 11-01-PLAN.md — Inline blog name editing with HTMX click-to-edit pattern
+- [x] 11-02-PLAN.md — Schema migration to make articles.blog_id nullable
+- [x] 11-03-PLAN.md — Delete blog with confirmation dialog (simplified to cascade delete)
 
 ---
 
@@ -415,18 +416,18 @@ Plans:
 | 7 - Search & Date Filtering | Complete | 100% |
 | 8 - Masonry Layout | Complete | 100% |
 
-### v1.2 (In Progress)
+### v1.2 (Complete)
 
 | Phase | Status | Progress |
 |-------|--------|----------|
 | 9 - Settings Page Foundation | Complete | 100% |
 | 10 - Add Blog Flow | Complete | 100% |
-| 11 - Edit and Remove Blogs | Pending | 0% |
+| 11 - Edit and Remove Blogs | Complete | 100% |
 
 **v1.0 Progress:** 5/5 phases complete (100%)
 **v1.1 Progress:** 3/3 phases complete (100%)
-**v1.2 Progress:** 2/3 phases complete (67%)
-**Overall Progress:** 10/11 phases complete (91%)
+**v1.2 Progress:** 3/3 phases complete (100%)
+**Overall Progress:** 11/11 phases complete (100%)
 
 ---
 
@@ -445,4 +446,6 @@ Plans:
 *Phase 10 planned: 2026-02-09*
 *Phase 10 complete: 2026-02-09*
 *Phase 11 planned: 2026-02-09*
+*Phase 11 complete: 2026-02-09*
+*v1.2 COMPLETE: 2026-02-09*
 *Last updated: 2026-02-09*

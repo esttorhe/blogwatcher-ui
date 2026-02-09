@@ -527,3 +527,145 @@ func (s *Server) renderAddBlogSuccess(w http.ResponseWriter, name, feedURL strin
 	}
 	s.renderTemplate(w, "add-blog-form.gohtml", data)
 }
+
+// handleGetBlog returns the blog display row partial for HTMX swap (used by cancel button)
+func (s *Server) handleGetBlog(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid blog ID", http.StatusBadRequest)
+		return
+	}
+
+	blog, err := s.db.GetBlogByID(id)
+	if err != nil {
+		log.Printf("Error fetching blog %d: %v", id, err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	if blog == nil {
+		http.Error(w, "Blog not found", http.StatusNotFound)
+		return
+	}
+
+	articleCount, err := s.db.GetArticleCountForBlog(id)
+	if err != nil {
+		log.Printf("Error fetching article count for blog %d: %v", id, err)
+		articleCount = 0
+	}
+
+	data := map[string]interface{}{
+		"Blog":         blog,
+		"ArticleCount": articleCount,
+	}
+	s.renderTemplate(w, "blog-display-row.gohtml", data)
+}
+
+// handleEditBlog returns the blog edit form partial for HTMX swap
+func (s *Server) handleEditBlog(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid blog ID", http.StatusBadRequest)
+		return
+	}
+
+	blog, err := s.db.GetBlogByID(id)
+	if err != nil {
+		log.Printf("Error fetching blog %d: %v", id, err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	if blog == nil {
+		http.Error(w, "Blog not found", http.StatusNotFound)
+		return
+	}
+
+	data := map[string]interface{}{
+		"Blog": blog,
+	}
+	s.renderTemplate(w, "blog-edit-form.gohtml", data)
+}
+
+// handleUpdateBlogName updates the blog name and returns the display row partial
+func (s *Server) handleUpdateBlogName(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid blog ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	name := strings.TrimSpace(r.FormValue("name"))
+	if name == "" || len(name) > 100 {
+		http.Error(w, "Blog name must be 1-100 characters", http.StatusBadRequest)
+		return
+	}
+
+	if err := s.db.UpdateBlogName(id, name); err != nil {
+		log.Printf("Error updating blog %d name: %v", id, err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	blog, err := s.db.GetBlogByID(id)
+	if err != nil {
+		log.Printf("Error fetching updated blog %d: %v", id, err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+	if blog == nil {
+		http.Error(w, "Blog not found", http.StatusNotFound)
+		return
+	}
+
+	articleCount, err := s.db.GetArticleCountForBlog(id)
+	if err != nil {
+		log.Printf("Error fetching article count for blog %d: %v", id, err)
+		articleCount = 0
+	}
+
+	// Trigger sidebar refresh via HTMX event
+	w.Header().Set("HX-Trigger", "blogListUpdated")
+
+	data := map[string]interface{}{
+		"Blog":         blog,
+		"ArticleCount": articleCount,
+	}
+	s.renderTemplate(w, "blog-display-row.gohtml", data)
+}
+
+// handleDeleteBlog deletes a blog and all its articles
+func (s *Server) handleDeleteBlog(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid blog ID", http.StatusBadRequest)
+		return
+	}
+
+	// Delete blog and all its articles
+	err = s.db.DeleteBlogWithArticles(id)
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			http.Error(w, "Blog not found", http.StatusNotFound)
+			return
+		}
+		log.Printf("Error deleting blog %d: %v", id, err)
+		http.Error(w, "Database error", http.StatusInternalServerError)
+		return
+	}
+
+	log.Printf("Deleted blog %d with articles", id)
+
+	// Trigger sidebar refresh via HTMX event
+	w.Header().Set("HX-Trigger", "blogListUpdated")
+
+	// Return empty response - HTMX will remove the blog card via outerHTML swap
+	w.WriteHeader(http.StatusOK)
+}
