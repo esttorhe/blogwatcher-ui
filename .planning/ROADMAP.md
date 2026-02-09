@@ -260,7 +260,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 09-01-PLAN.md — Database layer (ListBlogsWithCounts), settings handler/route/templates, gear icon in sidebar
+- [x] 09-01-PLAN.md — Database layer (ListBlogsWithCounts), settings handler/route/templates, gear icon in sidebar
 
 ---
 
@@ -288,7 +288,11 @@ Plans:
 
 **Depends on:** Phase 9 (Settings Page Foundation)
 
-**Plans:** —
+**Plans:** 2 plans
+
+Plans:
+- [ ] 10-01-PLAN.md — Add blog handler with CLI integration, auto-sync, form template, and FAB component
+- [ ] 10-02-PLAN.md — Verify complete add blog flow (form, CLI, error handling, auto-sync, FAB)
 
 ---
 
@@ -410,14 +414,14 @@ Plans:
 
 | Phase | Status | Progress |
 |-------|--------|----------|
-| 9 - Settings Page Foundation | Pending | 0% |
+| 9 - Settings Page Foundation | Complete | 100% |
 | 10 - Add Blog Flow | Pending | 0% |
 | 11 - Edit and Remove Blogs | Pending | 0% |
 
 **v1.0 Progress:** 5/5 phases complete (100%)
 **v1.1 Progress:** 3/3 phases complete (100%)
-**v1.2 Progress:** 0/3 phases complete (0%)
-**Overall Progress:** 8/11 phases complete (73%)
+**v1.2 Progress:** 1/3 phases complete (33%)
+**Overall Progress:** 9/11 phases complete (82%)
 
 ---
 
@@ -432,4 +436,6 @@ Plans:
 *v1.1 COMPLETE: 2026-02-03*
 *v1.2 roadmap added: 2026-02-08*
 *Phase 9 planned: 2026-02-08*
-*Last updated: 2026-02-08*
+*Phase 9 complete: 2026-02-09*
+*Phase 10 planned: 2026-02-09*
+*Last updated: 2026-02-09*
