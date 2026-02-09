@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/esttorhe/blogwatcher-ui/internal/model"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
 )
 
 func TestOpenDatabaseCreatesDirectoryAndSchema(t *testing.T) {

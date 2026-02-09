@@ -13,7 +13,7 @@ import (
 
 	_ "modernc.org/sqlite"
 
-	"github.com/esttorhe/blogwatcher-ui/internal/model"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
 )
 
 const sqliteTimeLayout = time.RFC3339Nano

@@ -11,8 +11,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/esttorhe/blogwatcher-ui/assets"
-	"github.com/esttorhe/blogwatcher-ui/internal/storage"
+	"github.com/esttorhe/blogwatcher-ui/v2/assets"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/storage"
 )
 
 func TestHandleAddBlogSuccess(t *testing.T) {

@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/esttorhe/blogwatcher-ui/internal/model"
-	"github.com/esttorhe/blogwatcher-ui/internal/scanner"
-	"github.com/esttorhe/blogwatcher-ui/internal/service"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/scanner"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/service"
 )
 
 // renderTemplate executes a named template with the given data

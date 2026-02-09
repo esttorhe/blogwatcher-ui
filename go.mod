@@ -1,4 +1,4 @@
-module github.com/esttorhe/blogwatcher-ui
+module github.com/esttorhe/blogwatcher-ui/v2
 
 go 1.25.6
 

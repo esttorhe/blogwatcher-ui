@@ -20,5 +20,5 @@ var Version = func() string {
 	return "dev"
 }()
 
-// version can be set via ldflags: -X github.com/esttorhe/blogwatcher-ui/internal/version.version=v1.0.0
+// version can be set via ldflags: -X github.com/esttorhe/blogwatcher-ui/v2/internal/version.version=v1.0.0
 var version = "dev"

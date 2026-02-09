@@ -26,15 +26,11 @@ A modern, self-contained web application for tracking blog articles and managing
 ### Install with go install
 
 ```bash
-# Install the latest version (recommended)
-go install github.com/esttorhe/blogwatcher-ui/cmd/server@v1.0.1
+# Install v2.x (recommended - self-contained, no CLI required)
+go install github.com/esttorhe/blogwatcher-ui/v2/cmd/server@latest
 
-# Or install from latest tag
-go install github.com/esttorhe/blogwatcher-ui/cmd/server@latest
-
-# If you get module cache issues, clear it first:
-go clean -modcache
-go install github.com/esttorhe/blogwatcher-ui/cmd/server@v1.0.1
+# Or install a specific version
+go install github.com/esttorhe/blogwatcher-ui/v2/cmd/server@v2.0.0
 
 # Run the installed binary
 server
@@ -46,6 +42,8 @@ export GOPRIVATE=github.com/esttorhe/blogwatcher-ui
 export GONOPROXY=github.com/esttorhe/blogwatcher-ui
 export GONOSUMDB=github.com/esttorhe/blogwatcher-ui
 ```
+
+> **Upgrading from v1.x?** The module path changed to include `/v2`. Use the new import path above. Your existing database will work without any migration.
 
 The binary will be installed to `$GOPATH/bin` (or `$GOBIN` if set). Make sure this directory is in your `PATH`.
 

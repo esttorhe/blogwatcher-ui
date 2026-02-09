@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/esttorhe/blogwatcher-ui/internal/thumbnail"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/thumbnail"
 	"github.com/mmcdole/gofeed"
 )
 

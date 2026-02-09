@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/esttorhe/blogwatcher-ui/internal/model"
-	"github.com/esttorhe/blogwatcher-ui/internal/rss"
-	"github.com/esttorhe/blogwatcher-ui/internal/scraper"
-	"github.com/esttorhe/blogwatcher-ui/internal/storage"
-	"github.com/esttorhe/blogwatcher-ui/internal/thumbnail"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/rss"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/scraper"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/storage"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/thumbnail"
 )
 
 type ScanResult struct {

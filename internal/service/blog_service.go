@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/esttorhe/blogwatcher-ui/internal/model"
-	"github.com/esttorhe/blogwatcher-ui/internal/rss"
-	"github.com/esttorhe/blogwatcher-ui/internal/storage"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/rss"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/storage"
 )
 
 // BlogAlreadyExistsError indicates a blog with the same name or URL already exists.

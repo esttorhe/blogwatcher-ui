@@ -13,10 +13,10 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/esttorhe/blogwatcher-ui/assets"
-	"github.com/esttorhe/blogwatcher-ui/internal/server"
-	"github.com/esttorhe/blogwatcher-ui/internal/storage"
-	"github.com/esttorhe/blogwatcher-ui/internal/version"
+	"github.com/esttorhe/blogwatcher-ui/v2/assets"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/server"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/storage"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/version"
 )
 
 func run(ctx context.Context) error {

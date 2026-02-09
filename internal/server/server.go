@@ -8,8 +8,8 @@ import (
 	"io/fs"
 	"net/http"
 
-	"github.com/esttorhe/blogwatcher-ui/internal/service"
-	"github.com/esttorhe/blogwatcher-ui/internal/storage"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/service"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/storage"
 )
 
 // Server represents the HTTP server with all dependencies
