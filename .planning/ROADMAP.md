@@ -318,7 +318,12 @@ Plans:
 
 **Depends on:** Phase 9 (Settings Page Foundation)
 
-**Plans:** —
+**Plans:** 3 plans
+
+Plans:
+- [ ] 11-01-PLAN.md — Inline blog name editing with HTMX click-to-edit pattern
+- [ ] 11-02-PLAN.md — Schema migration to make articles.blog_id nullable
+- [ ] 11-03-PLAN.md — Delete blog with confirmation dialog and two deletion modes
 
 ---
 
@@ -439,4 +444,5 @@ Plans:
 *Phase 9 complete: 2026-02-09*
 *Phase 10 planned: 2026-02-09*
 *Phase 10 complete: 2026-02-09*
+*Phase 11 planned: 2026-02-09*
 *Last updated: 2026-02-09*
