@@ -40,9 +40,9 @@ func OpenDatabase(path string) (*Database, error) {
 		}
 	}
 
-	// Check if database file exists
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		return nil, fmt.Errorf("database not found at %s - run blogwatcher CLI to initialize", path)
+	// Create directory if it doesn't exist (instead of failing when DB is missing)
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return nil, fmt.Errorf("failed to create database directory: %w", err)
 	}
 
 	dsn := fmt.Sprintf("file:%s?_pragma=busy_timeout(5000)&_pragma=foreign_keys(1)", path)
@@ -56,10 +56,16 @@ func OpenDatabase(path string) (*Database, error) {
 
 	db := &Database{path: path, conn: conn}
 
-	// Verify connection works (don't create schema)
+	// Verify connection works
 	if err := conn.Ping(); err != nil {
 		_ = conn.Close()
 		return nil, err
+	}
+
+	// Initialize schema (idempotent - safe for existing databases)
+	if err := db.initSchema(); err != nil {
+		_ = conn.Close()
+		return nil, fmt.Errorf("schema initialization failed: %w", err)
 	}
 
 	// Run migrations for new columns (idempotent)
@@ -69,6 +75,35 @@ func OpenDatabase(path string) (*Database, error) {
 	}
 
 	return db, nil
+}
+
+// initSchema creates the base database schema if it doesn't exist.
+// This is idempotent - safe to call on existing databases.
+// Schema matches the blogwatcher CLI for full compatibility.
+func (db *Database) initSchema() error {
+	schema := `
+		CREATE TABLE IF NOT EXISTS blogs (
+			id INTEGER PRIMARY KEY,
+			name TEXT NOT NULL,
+			url TEXT NOT NULL UNIQUE,
+			feed_url TEXT,
+			scrape_selector TEXT,
+			last_scanned TIMESTAMP
+		);
+		CREATE TABLE IF NOT EXISTS articles (
+			id INTEGER PRIMARY KEY,
+			blog_id INTEGER,
+			title TEXT NOT NULL,
+			url TEXT NOT NULL UNIQUE,
+			published_date TIMESTAMP,
+			discovered_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+			is_read BOOLEAN DEFAULT FALSE,
+			thumbnail_url TEXT,
+			FOREIGN KEY (blog_id) REFERENCES blogs(id)
+		);
+	`
+	_, err := db.conn.Exec(schema)
+	return err
 }
 
 // ensureMigrations runs idempotent schema migrations for new columns and tables.
@@ -578,6 +613,34 @@ func (db *Database) GetBlogByName(name string) (*model.Blog, error) {
 func (db *Database) GetBlogByID(id int64) (*model.Blog, error) {
 	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE id = ?`, id)
 	return scanBlog(row)
+}
+
+// GetBlogByURL returns a blog by its URL, or nil if not found.
+func (db *Database) GetBlogByURL(url string) (*model.Blog, error) {
+	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE url = ?`, url)
+	return scanBlog(row)
+}
+
+// AddBlog inserts a new blog and returns it with the assigned ID.
+func (db *Database) AddBlog(blog model.Blog) (model.Blog, error) {
+	result, err := db.conn.Exec(
+		`INSERT INTO blogs (name, url, feed_url, scrape_selector, last_scanned)
+		VALUES (?, ?, ?, ?, ?)`,
+		blog.Name,
+		blog.URL,
+		nullIfEmpty(blog.FeedURL),
+		nullIfEmpty(blog.ScrapeSelector),
+		formatTimePtr(blog.LastScanned),
+	)
+	if err != nil {
+		return blog, err
+	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return blog, err
+	}
+	blog.ID = id
+	return blog, nil
 }
 
 // UpdateBlogName updates the display name of a blog by ID.

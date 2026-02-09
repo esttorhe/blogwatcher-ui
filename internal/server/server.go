@@ -8,16 +8,18 @@ import (
 	"io/fs"
 	"net/http"
 
+	"github.com/esttorhe/blogwatcher-ui/internal/service"
 	"github.com/esttorhe/blogwatcher-ui/internal/storage"
 )
 
 // Server represents the HTTP server with all dependencies
 type Server struct {
-	db        *storage.Database
-	templates *template.Template
-	mux       *http.ServeMux
-	staticFS  fs.FS
-	version   string
+	db          *storage.Database
+	blogService *service.BlogService
+	templates   *template.Template
+	mux         *http.ServeMux
+	staticFS    fs.FS
+	version     string
 }
 
 // NewServer creates a new HTTP server with dependency injection
@@ -63,11 +65,12 @@ func NewServerWithFS(db *storage.Database, templateFS fs.FS, staticFS fs.FS, ver
 
 	// Create server with dependencies
 	s := &Server{
-		db:        db,
-		templates: tmpl,
-		mux:       http.NewServeMux(),
-		staticFS:  staticFS,
-		version:   version,
+		db:          db,
+		blogService: service.NewBlogService(db),
+		templates:   tmpl,
+		mux:         http.NewServeMux(),
+		staticFS:    staticFS,
+		version:     version,
 	}
 
 	// Register all routes

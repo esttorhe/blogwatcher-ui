@@ -1,6 +1,6 @@
 # BlogWatcher UI
 
-A modern web UI for [BlogWatcher](https://github.com/Hyaxia/blogwatcher), a Go CLI tool for tracking blog articles and managing read/unread status. This web interface provides an intuitive way to browse, search, and manage articles from your tracked blogs.
+A modern, self-contained web application for tracking blog articles and managing read/unread status. Originally built as a UI for [BlogWatcher](https://github.com/Hyaxia/blogwatcher), it now includes all functionality needed to work independently - no external CLI required.
 
 ## Features
 
@@ -18,8 +18,8 @@ A modern web UI for [BlogWatcher](https://github.com/Hyaxia/blogwatcher), a Go C
 ## Prerequisites
 
 - Go 1.25.6 or later
-- BlogWatcher CLI tool installed and configured (see [BlogWatcher](https://github.com/Hyaxia/blogwatcher) for installation)
-- SQLite database at `~/.blogwatcher/blogwatcher.db` (created by BlogWatcher CLI)
+
+**Note:** The BlogWatcher CLI is no longer required. This application is fully self-contained and will create its own database at `~/.blogwatcher/blogwatcher.db` on first run. If you have an existing database from the BlogWatcher CLI, it will work seamlessly with it.
 
 ## Installation
 
@@ -85,18 +85,23 @@ go run ./cmd/server
 2. **Open in Browser**
    Navigate to `http://localhost:8080`
 
-3. **Sync Articles**
+3. **Add Blogs**
+   - Go to Settings to add new blogs to track
+   - Enter the blog name and URL
+   - Feed URLs are auto-discovered from the blog's HTML
+
+4. **Sync Articles**
    - Click the "Sync" button to scan all tracked blogs for new articles
    - The article list will automatically refresh with new content
 
-4. **Browse Articles**
+5. **Browse Articles**
    - View unread articles by default
    - Filter by read/unread status using the filter buttons
    - Filter by specific blog using the sidebar
    - Search articles using the search bar
    - Filter by date range using the date pickers
 
-5. **Manage Articles**
+6. **Manage Articles**
    - Click an article card to mark it as read
    - Use "Mark All Read" to mark all unread articles as read
    - Filter by blog to mark all read for a specific blog
@@ -114,9 +119,10 @@ blogwatcher-ui/
 │       └── main.go          # Server entry point
 ├── internal/
 │   ├── model/               # Data models
-│   ├── storage/              # Database layer
+│   ├── storage/             # Database layer (schema init, CRUD)
+│   ├── service/             # Business logic layer
 │   ├── server/              # HTTP server and handlers
-│   ├── scanner/              # Blog scanning logic
+│   ├── scanner/             # Blog scanning logic
 │   ├── scraper/             # HTML scraping
 │   ├── rss/                 # RSS/Atom feed parsing
 │   └── thumbnail/           # Thumbnail extraction
@@ -157,21 +163,23 @@ blogwatcher-ui/
 
 ## Database
 
-The UI uses the same SQLite database as the BlogWatcher CLI tool, located at:
+The application uses a SQLite database located at:
 ```
 ~/.blogwatcher/blogwatcher.db
 ```
 
+The database and directory are created automatically on first run. If you have an existing database from the BlogWatcher CLI, the UI will use it seamlessly - the schema is fully compatible.
+
 The database schema includes:
 - `blogs` - Tracked blogs (name, URL, feed URL, scrape selector)
 - `articles` - Discovered articles (title, URL, dates, read status, thumbnails)
+- `articles_fts` - Full-text search index for article titles
 
 ## Development
 
 ### Requirements
 
 - Go 1.25.6+
-- BlogWatcher CLI configured with at least one blog
 
 ### Running Tests
 

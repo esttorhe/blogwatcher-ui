@@ -3,17 +3,16 @@
 package server
 
 import (
-	"bytes"
-	"context"
+	"errors"
 	"log"
 	"net/http"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/esttorhe/blogwatcher-ui/internal/model"
 	"github.com/esttorhe/blogwatcher-ui/internal/scanner"
+	"github.com/esttorhe/blogwatcher-ui/internal/service"
 )
 
 // renderTemplate executes a named template with the given data
@@ -429,10 +428,9 @@ func parseSearchOptions(r *http.Request) (model.SearchOptions, string, int64) {
 	return opts, filter, currentBlogID
 }
 
-// handleAddBlog handles blog addition via CLI with auto-sync
-// Executes blogwatcher CLI to discover feed, then auto-syncs the new blog
+// handleAddBlog handles blog addition with auto feed discovery and sync.
+// Uses BlogService for validation and creation instead of external CLI.
 func (s *Server) handleAddBlog(w http.ResponseWriter, r *http.Request) {
-	// Parse form values
 	name := strings.TrimSpace(r.FormValue("name"))
 	url := strings.TrimSpace(r.FormValue("url"))
 
@@ -442,58 +440,32 @@ func (s *Server) handleAddBlog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create command with 30-second timeout
-	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
-	defer cancel()
-
-	// Find blogwatcher command (use exec.LookPath)
-	blogwatcherPath, err := exec.LookPath("blogwatcher")
-	if err != nil {
-		s.renderAddBlogError(w, "blogwatcher CLI not found in PATH", name, url)
-		return
+	// Use service layer for business logic
+	input := service.AddBlogInput{
+		Name: name,
+		URL:  url,
 	}
 
-	cmd := exec.CommandContext(ctx, blogwatcherPath, "add", name, url)
-
-	// Capture both stdout and stderr
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-
-	// Execute command
-	err = cmd.Run()
+	result, err := s.blogService.AddBlog(input)
 	if err != nil {
-		// Extract error message from stderr
-		// CLI format: "Error: Blog with name 'X' already exists"
-		errorMsg := strings.TrimPrefix(strings.TrimSpace(stderr.String()), "Error: ")
-		if errorMsg == "" {
-			errorMsg = "Failed to add blog: " + err.Error()
+		// Check for domain errors
+		var dupErr service.BlogAlreadyExistsError
+		if errors.As(err, &dupErr) {
+			s.renderAddBlogError(w, dupErr.Error(), name, url)
+			return
 		}
-		s.renderAddBlogError(w, errorMsg, name, url)
+		// Unexpected error
+		log.Printf("Error adding blog: %v", err)
+		s.renderAddBlogError(w, "Failed to add blog", name, url)
 		return
 	}
 
-	// Success - query database to get discovered feed URL
-	// CLI doesn't output feed URL, so we need to query the blog we just added
-	blog, err := s.db.GetBlogByName(name)
-	if err != nil {
-		log.Printf("Error fetching blog after add: %v", err)
-		s.renderAddBlogSuccess(w, name, "")
-		go s.autoSyncNewBlog(name) // Still auto-sync even if we can't get feed URL
-		return
-	}
-
-	feedURL := ""
-	if blog != nil {
-		feedURL = blog.FeedURL
-	}
+	log.Printf("Added blog '%s' with feed %s", result.Blog.Name, result.Blog.FeedURL)
 
 	// Auto-sync the new blog in background
-	log.Printf("Added blog '%s' with feed %s", name, feedURL)
-	go s.autoSyncNewBlog(name) // Don't block response on sync
+	go s.autoSyncNewBlog(result.Blog.Name)
 
-	// Return success message with discovered feed URL
-	s.renderAddBlogSuccess(w, name, feedURL)
+	s.renderAddBlogSuccess(w, result.Blog.Name, result.Blog.FeedURL)
 }
 
 // autoSyncNewBlog syncs a single blog by name in the background
