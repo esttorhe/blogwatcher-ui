@@ -495,6 +495,11 @@ p {
     visibility: visible;
   }
 
+  /* Clear sidebar header from the fixed hamburger button */
+  .sidebar-header {
+    padding-left: 3rem;
+  }
+
   /* Place header inline with the hamburger button instead of below it */
   .main-content {
     padding-top: 0;
