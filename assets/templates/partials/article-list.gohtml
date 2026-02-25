@@ -3,7 +3,7 @@
      ABOUTME: Each card shows favicon, title (clickable), blog name, relative time, and action button. */}}
 <div class="main-content-header">
 <header class="main-header">
-  <h1>{{if eq .CurrentFilter "read"}}Archived{{else}}Inbox{{end}}</h1>
+  <h1>{{if .CurrentBlogName}}{{.CurrentBlogName}}{{else if eq .CurrentFilter "read"}}Archived{{else}}Inbox{{end}}</h1>
   <div class="header-toggles">
     <div class="view-toggle" role="radiogroup" aria-label="View mode">
       <input type="radio" name="view" id="view-list" value="list">

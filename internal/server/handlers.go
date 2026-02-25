@@ -56,19 +56,20 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	displayedCount := opts.Offset + len(articles)
 
 	data := map[string]interface{}{
-		"Title":          "BlogWatcher",
-		"Blogs":          blogs,
-		"Articles":       articles,
-		"ArticleCount":   articleCount,
-		"DisplayedCount": displayedCount,
-		"CurrentFilter":  filter,
-		"CurrentBlogID":  currentBlogID, // 0 means no blog filter active
-		"SearchQuery":    opts.SearchQuery,
-		"DateFrom":       r.URL.Query().Get("date_from"),
-		"DateTo":         r.URL.Query().Get("date_to"),
-		"Version":        s.version,
-		"HasMore":        hasMore,
-		"NextOffset":     nextOffset,
+		"Title":           "BlogWatcher",
+		"Blogs":           blogs,
+		"Articles":        articles,
+		"ArticleCount":    articleCount,
+		"DisplayedCount":  displayedCount,
+		"CurrentFilter":   filter,
+		"CurrentBlogID":   currentBlogID, // 0 means no blog filter active
+		"CurrentBlogName": s.blogNameForID(currentBlogID),
+		"SearchQuery":     opts.SearchQuery,
+		"DateFrom":        r.URL.Query().Get("date_from"),
+		"DateTo":          r.URL.Query().Get("date_to"),
+		"Version":         s.version,
+		"HasMore":         hasMore,
+		"NextOffset":      nextOffset,
 	}
 	s.renderTemplate(w, "index.gohtml", data)
 }
@@ -98,17 +99,18 @@ func (s *Server) handleArticleList(w http.ResponseWriter, r *http.Request) {
 	displayedCount := opts.Offset + len(articles)
 
 	data := map[string]interface{}{
-		"Articles":       articles,
-		"ArticleCount":   articleCount,
-		"DisplayedCount": displayedCount,
-		"CurrentFilter":  filter,
-		"CurrentBlogID":  currentBlogID, // 0 means no blog filter active
-		"SearchQuery":    opts.SearchQuery,
-		"DateFrom":       r.URL.Query().Get("date_from"),
-		"DateTo":         r.URL.Query().Get("date_to"),
-		"HasMore":        hasMore,
-		"NextOffset":     nextOffset,
-		"IsLoadMore":     opts.Offset > 0,
+		"Articles":        articles,
+		"ArticleCount":    articleCount,
+		"DisplayedCount":  displayedCount,
+		"CurrentFilter":   filter,
+		"CurrentBlogID":   currentBlogID, // 0 means no blog filter active
+		"CurrentBlogName": s.blogNameForID(currentBlogID),
+		"SearchQuery":     opts.SearchQuery,
+		"DateFrom":        r.URL.Query().Get("date_from"),
+		"DateTo":          r.URL.Query().Get("date_to"),
+		"HasMore":         hasMore,
+		"NextOffset":      nextOffset,
+		"IsLoadMore":      opts.Offset > 0,
 	}
 
 	// Check if this is an HTMX request
@@ -245,13 +247,14 @@ func (s *Server) handleMarkAllRead(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Articles":      articles,
-		"ArticleCount":  articleCount,
-		"CurrentFilter": filter,
-		"CurrentBlogID": currentBlogID,
-		"SearchQuery":   opts.SearchQuery,
-		"DateFrom":      r.URL.Query().Get("date_from"),
-		"DateTo":        r.URL.Query().Get("date_to"),
+		"Articles":        articles,
+		"ArticleCount":    articleCount,
+		"CurrentFilter":   filter,
+		"CurrentBlogID":   currentBlogID,
+		"CurrentBlogName": s.blogNameForID(currentBlogID),
+		"SearchQuery":     opts.SearchQuery,
+		"DateFrom":        r.URL.Query().Get("date_from"),
+		"DateTo":          r.URL.Query().Get("date_to"),
 	}
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
@@ -290,13 +293,14 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Articles":      articles,
-		"ArticleCount":  articleCount,
-		"CurrentFilter": filter,
-		"CurrentBlogID": currentBlogID,
-		"SearchQuery":   opts.SearchQuery,
-		"DateFrom":      r.URL.Query().Get("date_from"),
-		"DateTo":        r.URL.Query().Get("date_to"),
+		"Articles":        articles,
+		"ArticleCount":    articleCount,
+		"CurrentFilter":   filter,
+		"CurrentBlogID":   currentBlogID,
+		"CurrentBlogName": s.blogNameForID(currentBlogID),
+		"SearchQuery":     opts.SearchQuery,
+		"DateFrom":        r.URL.Query().Get("date_from"),
+		"DateTo":          r.URL.Query().Get("date_to"),
 	}
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
@@ -324,13 +328,14 @@ func (s *Server) handleSyncThumbnails(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{
-		"Articles":      articles,
-		"ArticleCount":  articleCount,
-		"CurrentFilter": filter,
-		"CurrentBlogID": currentBlogID,
-		"SearchQuery":   opts.SearchQuery,
-		"DateFrom":      r.URL.Query().Get("date_from"),
-		"DateTo":        r.URL.Query().Get("date_to"),
+		"Articles":        articles,
+		"ArticleCount":    articleCount,
+		"CurrentFilter":   filter,
+		"CurrentBlogID":   currentBlogID,
+		"CurrentBlogName": s.blogNameForID(currentBlogID),
+		"SearchQuery":     opts.SearchQuery,
+		"DateFrom":        r.URL.Query().Get("date_from"),
+		"DateTo":          r.URL.Query().Get("date_to"),
 	}
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
@@ -367,6 +372,18 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 	data["Title"] = "Settings - BlogWatcher"
 	data["Version"] = s.version
 	s.renderTemplate(w, "settings.gohtml", data)
+}
+
+// blogNameForID returns the blog name for the given ID, or empty string if not found.
+func (s *Server) blogNameForID(id int64) string {
+	if id <= 0 {
+		return ""
+	}
+	blog, err := s.db.GetBlogByID(id)
+	if err != nil || blog == nil {
+		return ""
+	}
+	return blog.Name
 }
 
 // parseSearchOptions extracts all search and filter parameters from the request.

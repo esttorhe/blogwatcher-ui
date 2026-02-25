@@ -184,6 +184,58 @@ func TestHandleAddBlogValidationBothEmpty(t *testing.T) {
 	}
 }
 
+func TestArticleListHeaderShowsBlogName(t *testing.T) {
+	srv := createTestServer(t)
+
+	// Add a blog first
+	form := url.Values{}
+	form.Set("name", "My Cool Blog")
+	form.Set("url", "https://coolblog.example.com")
+
+	req := httptest.NewRequest(http.MethodPost, "/blogs/add", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("add blog: status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	// Request articles filtered by blog=1 via HTMX
+	req = httptest.NewRequest(http.MethodGet, "/articles?blog=1", nil)
+	req.Header.Set("HX-Request", "true")
+	rec = httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("articles: status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	body := rec.Body.String()
+	if !strings.Contains(body, "My Cool Blog") {
+		t.Errorf("header should contain blog name 'My Cool Blog', got: %s", body)
+	}
+}
+
+func TestArticleListHeaderShowsInboxWithoutBlogFilter(t *testing.T) {
+	srv := createTestServer(t)
+
+	// Request articles without blog filter via HTMX
+	req := httptest.NewRequest(http.MethodGet, "/articles?filter=unread", nil)
+	req.Header.Set("HX-Request", "true")
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("articles: status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	body := rec.Body.String()
+	if !strings.Contains(body, "Inbox") {
+		t.Errorf("header should contain 'Inbox' when no blog filter, got: %s", body)
+	}
+}
+
 func createTestServer(t *testing.T) http.Handler {
 	t.Helper()
 
