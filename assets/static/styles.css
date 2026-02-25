@@ -404,6 +404,45 @@ p {
 }
 
 /* ============================================
+   Filter Toggle - Mobile Collapse Control
+   ============================================ */
+.filter-toggle {
+  /* Hidden checkbox for CSS-only mobile filter collapse */
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.filter-toggle-btn {
+  /* Hidden on desktop, visible on mobile */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background-color: var(--bg-surface);
+  color: var(--text-secondary);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-toggle-btn:hover {
+  background-color: var(--bg-elevated);
+}
+
+/* ============================================
+   Header Actions Container
+   ============================================ */
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* ============================================
    Mobile Responsive - 768px breakpoint
    ============================================ */
 @media (max-width: 768px) {
@@ -460,6 +499,7 @@ p {
   .main-content {
     padding-top: 4rem;
   }
+
 }
 
 /* ============================================
@@ -1426,4 +1466,75 @@ p {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* ============================================
+   Mobile Collapsible Header Filters
+   Placed at end of file to override desktop defaults.
+   ============================================ */
+@media (max-width: 768px) {
+  /* Show filter toggle button on mobile */
+  .filter-toggle-btn {
+    display: flex;
+  }
+
+  /* Hide header toggles (view/theme) on mobile to save space */
+  .header-toggles {
+    display: none;
+  }
+
+  /* Collapse filter bar, results info, and toolbar by default on mobile */
+  .filter-bar,
+  .results-info,
+  .toolbar {
+    display: none;
+  }
+
+  /* Reveal collapsed sections when filter toggle is checked */
+  .filter-toggle:checked ~ .main-content-header .filter-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-toggle:checked ~ .main-content-header .results-info {
+    display: block;
+  }
+
+  .filter-toggle:checked ~ .main-content-header .toolbar {
+    display: flex;
+  }
+
+  /* Active state for filter toggle button when filters are shown */
+  .filter-toggle:checked ~ .main-content-header .filter-toggle-btn {
+    background-color: var(--bg-elevated);
+    color: var(--text-primary);
+  }
+
+  /* Tighter mobile header spacing */
+  .main-content-header {
+    padding: 0.75rem 0.75rem 0;
+  }
+
+  .main-header {
+    margin-bottom: 0.5rem;
+  }
+
+  .main-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .main-content-body {
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  /* Compact toolbar on mobile */
+  .toolbar {
+    gap: 0.25rem;
+  }
+
+  .btn-action {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
 }
