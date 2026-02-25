@@ -13,7 +13,18 @@ A modern, self-contained web application for tracking blog articles and managing
 - **Thumbnail Support** - Visual previews of articles with Open Graph image extraction
 - **Search** - Full-text search across article titles, date posted, etc.
 
+### Desktop
+
 ![](./assets/inbox.png) ![](./assets/inbox2.jpeg)
+
+### Mobile
+
+<p align="center">
+  <img src="./assets/mobile-inbox.png" width="24%" />
+  <img src="./assets/mobile-filters.png" width="24%" />
+  <img src="./assets/mobile-menu.png" width="24%" />
+  <img src="./assets/mobile-settings.png" width="24%" />
+</p>
 
 ## Prerequisites
 
