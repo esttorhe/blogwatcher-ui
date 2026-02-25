@@ -50,7 +50,7 @@ mv blogwatcher-ui /usr/local/bin/
 
 ```bash
 # Uses GitHub release binaries — picks up new versions instantly
-mise use ubi:esttorhe/blogwatcher-ui
+mise use github:esttorhe/blogwatcher-ui
 ```
 
 ### Install with go install
