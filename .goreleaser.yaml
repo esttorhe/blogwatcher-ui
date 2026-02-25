@@ -1,0 +1,44 @@
+# ABOUTME: GoReleaser v2 configuration for building and releasing blogwatcher-ui binaries.
+# ABOUTME: Produces cross-platform archives with CGO disabled (uses modernc.org/sqlite).
+version: 2
+
+project_name: blogwatcher-ui
+
+builds:
+  - main: ./cmd/server
+    binary: blogwatcher-ui
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X github.com/esttorhe/blogwatcher-ui/v2/internal/version.version={{.Version}}
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+
+archives:
+  - formats:
+      - tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+
+checksum:
+  name_template: "blogwatcher-ui_checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"

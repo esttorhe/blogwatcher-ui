@@ -23,6 +23,25 @@ A modern, self-contained web application for tracking blog articles and managing
 
 ## Installation
 
+### Install from GitHub Releases (recommended)
+
+Download a pre-built binary for your platform from the [Releases page](https://github.com/esttorhe/blogwatcher-ui/releases):
+
+```bash
+# Example for Linux amd64
+curl -LO https://github.com/esttorhe/blogwatcher-ui/releases/latest/download/blogwatcher-ui_<version>_linux_amd64.tar.gz
+tar xzf blogwatcher-ui_<version>_linux_amd64.tar.gz
+chmod +x blogwatcher-ui
+mv blogwatcher-ui /usr/local/bin/
+```
+
+### Install with mise
+
+```bash
+# Uses GitHub release binaries — picks up new versions instantly
+mise use ubi:esttorhe/blogwatcher-ui
+```
+
 ### Install with go install
 
 ```bash
@@ -150,6 +169,7 @@ blogwatcher-ui/
 - `POST /articles/{id}/unread` - Mark article as unread
 - `POST /articles/mark-all-read` - Mark all unread articles as read
 - `POST /sync` - Trigger blog scan and refresh article list
+- `POST /api/sync` - Trigger blog scan (JSON API for cronjob use)
 
 ### Query Parameters
 
