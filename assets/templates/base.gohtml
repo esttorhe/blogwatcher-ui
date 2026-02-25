@@ -28,6 +28,23 @@
           updateTheme('system');
         }
       });
+
+      // Reapply theme after HTMX swaps content (theme radios get replaced)
+      document.body.addEventListener('htmx:afterSwap', function(evt) {
+        if (evt.detail.target.id === 'main-content') {
+          var current = localStorage.getItem('theme') || 'system';
+          updateTheme(current);
+          // Re-bind theme toggle radios in new content
+          var newRadios = document.querySelectorAll('input[name="theme"]');
+          var currentRadio = document.getElementById('theme-' + current);
+          if (currentRadio) currentRadio.checked = true;
+          newRadios.forEach(function(r) {
+            r.addEventListener('change', function(e) {
+              updateTheme(e.target.value);
+            });
+          });
+        }
+      });
     })();
     </script>
     <script>
