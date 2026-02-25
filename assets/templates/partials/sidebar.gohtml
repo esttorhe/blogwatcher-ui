@@ -26,8 +26,7 @@
            hx-get="/articles?filter=unread"
            hx-target="#main-content"
            hx-push-url="true"
-           hx-on:click="document.querySelectorAll('.sidebar-nav .nav-link, .blog-item').forEach(el => el.classList.remove('active')); this.classList.add('active');"
-           hx-on:htmx:after-swap="document.getElementById('sidebar-toggle').checked = false"
+           hx-on:click="document.querySelectorAll('.sidebar-nav .nav-link, .blog-item').forEach(el => el.classList.remove('active')); this.classList.add('active'); document.getElementById('sidebar-toggle').checked = false;"
            class="nav-link{{if eq .CurrentFilter "unread"}} active{{end}}">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
@@ -39,8 +38,7 @@
            hx-get="/articles?filter=read"
            hx-target="#main-content"
            hx-push-url="true"
-           hx-on:click="document.querySelectorAll('.sidebar-nav .nav-link, .blog-item').forEach(el => el.classList.remove('active')); this.classList.add('active');"
-           hx-on:htmx:after-swap="document.getElementById('sidebar-toggle').checked = false"
+           hx-on:click="document.querySelectorAll('.sidebar-nav .nav-link, .blog-item').forEach(el => el.classList.remove('active')); this.classList.add('active'); document.getElementById('sidebar-toggle').checked = false;"
            class="nav-link{{if eq .CurrentFilter "read"}} active{{end}}">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="20 6 9 17 4 12"></polyline>
@@ -51,8 +49,7 @@
            hx-get="/settings"
            hx-target="#main-content"
            hx-push-url="true"
-           hx-on:click="document.querySelectorAll('.sidebar-nav .nav-link, .blog-item').forEach(el => el.classList.remove('active')); this.classList.add('active');"
-           hx-on:htmx:after-swap="document.getElementById('sidebar-toggle').checked = false"
+           hx-on:click="document.querySelectorAll('.sidebar-nav .nav-link, .blog-item').forEach(el => el.classList.remove('active')); this.classList.add('active'); document.getElementById('sidebar-toggle').checked = false;"
            class="nav-link{{if .IsSettingsPage}} active{{end}}">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="3"></circle>
