@@ -3,6 +3,7 @@
 package server
 
 import (
+	"encoding/json"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
@@ -233,6 +234,62 @@ func TestArticleListHeaderShowsInboxWithoutBlogFilter(t *testing.T) {
 	body := rec.Body.String()
 	if !strings.Contains(body, "Inbox") {
 		t.Errorf("header should contain 'Inbox' when no blog filter, got: %s", body)
+	}
+}
+
+func TestHandleAPISync_Success(t *testing.T) {
+	srv := createTestServer(t)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/sync", nil)
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	// Verify Content-Type is JSON
+	ct := rec.Header().Get("Content-Type")
+	if ct != "application/json" {
+		t.Errorf("Content-Type = %q, want %q", ct, "application/json")
+	}
+
+	// Verify response is valid JSON with expected fields
+	var resp map[string]interface{}
+	if err := json.Unmarshal(rec.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("response is not valid JSON: %v", err)
+	}
+
+	// Check required top-level fields exist
+	for _, field := range []string{"blogs_scanned", "new_articles", "thumbnails"} {
+		if _, ok := resp[field]; !ok {
+			t.Errorf("response missing field %q", field)
+		}
+	}
+
+	// Check thumbnails sub-object has expected fields
+	thumbs, ok := resp["thumbnails"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("thumbnails should be an object, got %T", resp["thumbnails"])
+	}
+	for _, field := range []string{"total", "updated", "errors"} {
+		if _, ok := thumbs[field]; !ok {
+			t.Errorf("thumbnails missing field %q", field)
+		}
+	}
+}
+
+func TestHandleAPISync_GetDoesNotReturnJSON(t *testing.T) {
+	srv := createTestServer(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/sync", nil)
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	// GET /api/sync should not hit the API handler (falls through to index)
+	ct := rec.Header().Get("Content-Type")
+	if ct == "application/json" {
+		t.Errorf("GET /api/sync should not return JSON, got Content-Type = %q", ct)
 	}
 }
 

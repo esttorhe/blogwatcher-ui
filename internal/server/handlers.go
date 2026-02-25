@@ -3,6 +3,7 @@
 package server
 
 import (
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -281,6 +282,14 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Sync complete: %d blogs scanned, %d new articles total", len(results), totalNew)
 
+	// Also sync thumbnails for articles missing them
+	thumbResult, thumbErr := scanner.SyncThumbnails(s.db)
+	if thumbErr != nil {
+		log.Printf("Thumbnail sync failed: %v", thumbErr)
+	} else {
+		log.Printf("Thumbnail sync: %d total, %d updated, %d errors", thumbResult.Total, thumbResult.Updated, thumbResult.Errors)
+	}
+
 	// Build search options from query parameters (preserves all filters)
 	opts, filter, currentBlogID := parseSearchOptions(r)
 
@@ -305,39 +314,59 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
 
-// handleSyncThumbnails re-fetches thumbnails for articles missing them
-func (s *Server) handleSyncThumbnails(w http.ResponseWriter, r *http.Request) {
-	result, err := scanner.SyncThumbnails(s.db)
+// handleAPISync triggers a scan of all blogs and returns JSON stats for programmatic use.
+// Intended for cronjob or API consumers that need structured data instead of HTML.
+func (s *Server) handleAPISync(w http.ResponseWriter, r *http.Request) {
+	results, err := scanner.ScanAllBlogs(s.db, 1)
 	if err != nil {
-		log.Printf("Thumbnail sync failed: %v", err)
-		http.Error(w, "Thumbnail sync failed", http.StatusInternalServerError)
+		log.Printf("API sync failed: %v", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
-	log.Printf("Thumbnail sync complete: %d total, %d updated, %d errors", result.Total, result.Updated, result.Errors)
-
-	// Build search options from query parameters (preserves all filters)
-	opts, filter, currentBlogID := parseSearchOptions(r)
-
-	// Return refreshed article list with current filters
-	articles, articleCount, err := s.db.SearchArticles(opts)
-	if err != nil {
-		log.Printf("Error fetching articles: %v", err)
-		http.Error(w, "Database error", http.StatusInternalServerError)
-		return
+	// Aggregate scan results
+	totalNew := 0
+	var scanErrors []string
+	for _, result := range results {
+		if result.Error != "" {
+			scanErrors = append(scanErrors, result.BlogName+": "+result.Error)
+		} else {
+			totalNew += result.NewArticles
+		}
 	}
 
-	data := map[string]interface{}{
-		"Articles":        articles,
-		"ArticleCount":    articleCount,
-		"CurrentFilter":   filter,
-		"CurrentBlogID":   currentBlogID,
-		"CurrentBlogName": s.blogNameForID(currentBlogID),
-		"SearchQuery":     opts.SearchQuery,
-		"DateFrom":        r.URL.Query().Get("date_from"),
-		"DateTo":          r.URL.Query().Get("date_to"),
+	log.Printf("API sync complete: %d blogs scanned, %d new articles total", len(results), totalNew)
+
+	// Sync thumbnails (non-blocking — failures are included in response but don't cause 500)
+	thumbResult, thumbErr := scanner.SyncThumbnails(s.db)
+	if thumbErr != nil {
+		log.Printf("API thumbnail sync failed: %v", thumbErr)
+	} else {
+		log.Printf("API thumbnail sync: %d total, %d updated, %d errors", thumbResult.Total, thumbResult.Updated, thumbResult.Errors)
 	}
-	s.renderTemplate(w, "article-list.gohtml", data)
+
+	thumbResp := map[string]int{
+		"total":   thumbResult.Total,
+		"updated": thumbResult.Updated,
+		"errors":  thumbResult.Errors,
+	}
+
+	resp := map[string]interface{}{
+		"blogs_scanned": len(results),
+		"new_articles":  totalNew,
+		"thumbnails":    thumbResp,
+	}
+	if len(scanErrors) > 0 {
+		resp["errors"] = scanErrors
+	}
+	if thumbErr != nil {
+		resp["thumbnail_error"] = thumbErr.Error()
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
 }
 
 // handleSettings serves the settings page showing all blogs with article counts
