@@ -495,9 +495,13 @@ p {
     visibility: visible;
   }
 
-  /* Adjust main content padding for hamburger button */
+  /* Place header inline with the hamburger button instead of below it */
   .main-content {
-    padding-top: 4rem;
+    padding-top: 0;
+  }
+
+  .main-content-header {
+    padding-left: 4rem;
   }
 
 }
@@ -1511,9 +1515,9 @@ p {
     color: var(--text-primary);
   }
 
-  /* Tighter mobile header spacing */
+  /* Tighter mobile header spacing, preserve left padding for hamburger clearance */
   .main-content-header {
-    padding: 0.75rem 0.75rem 0;
+    padding: 0.75rem 0.75rem 0 4rem;
   }
 
   .main-header {
