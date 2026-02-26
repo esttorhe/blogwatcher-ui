@@ -23,11 +23,14 @@ type ScanResult struct {
 	Error       string
 }
 
+// ScanBlog scans a single blog for articles. It performs an incremental sync:
+// only articles whose URLs are not already in the database are processed, and
+// expensive operations like Open Graph thumbnail extraction only run for those
+// genuinely new articles.
 func ScanBlog(ctx context.Context, db *storage.Database, blog model.Blog) ScanResult {
 	var (
-		articles []model.Article
-		source   = "none"
-		errText  string
+		source  = "none"
+		errText string
 	)
 
 	feedURL := blog.FeedURL
@@ -39,17 +42,36 @@ func ScanBlog(ctx context.Context, db *storage.Database, blog model.Blog) ScanRe
 		}
 	}
 
+	// Phase 1: Collect lightweight article stubs (no OG fetching yet)
+	type articleStub struct {
+		BlogID        int64
+		Title         string
+		URL           string
+		ThumbnailURL  string // only populated if RSS already provided one
+		PublishedDate *time.Time
+	}
+
+	var stubs []articleStub
+
 	if feedURL != "" {
 		feedArticles, err := rss.ParseFeed(ctx, feedURL)
 		if err != nil {
 			errText = err.Error()
 		} else {
-			articles = convertFeedArticles(ctx, blog.ID, feedArticles)
+			for _, a := range feedArticles {
+				stubs = append(stubs, articleStub{
+					BlogID:        blog.ID,
+					Title:         a.Title,
+					URL:           a.URL,
+					ThumbnailURL:  a.ThumbnailURL, // from RSS only, no OG
+					PublishedDate: a.PublishedDate,
+				})
+			}
 			source = "rss"
 		}
 	}
 
-	if len(articles) == 0 && blog.ScrapeSelector != "" {
+	if len(stubs) == 0 && blog.ScrapeSelector != "" {
 		scrapedArticles, err := scraper.ScrapeBlog(ctx, blog.URL, blog.ScrapeSelector)
 		if err != nil {
 			if errText != "" {
@@ -58,22 +80,31 @@ func ScanBlog(ctx context.Context, db *storage.Database, blog model.Blog) ScanRe
 				errText = err.Error()
 			}
 		} else {
-			articles = convertScrapedArticles(ctx, blog.ID, scrapedArticles)
+			for _, a := range scrapedArticles {
+				stubs = append(stubs, articleStub{
+					BlogID:        blog.ID,
+					Title:         a.Title,
+					URL:           a.URL,
+					PublishedDate: a.PublishedDate,
+				})
+			}
 			source = "scraper"
 			errText = ""
 		}
 	}
 
+	// Phase 2: Deduplicate within the current batch
 	seenURLs := make(map[string]struct{})
-	uniqueArticles := make([]model.Article, 0, len(articles))
-	for _, article := range articles {
-		if _, exists := seenURLs[article.URL]; exists {
+	uniqueStubs := make([]articleStub, 0, len(stubs))
+	for _, stub := range stubs {
+		if _, exists := seenURLs[stub.URL]; exists {
 			continue
 		}
-		seenURLs[article.URL] = struct{}{}
-		uniqueArticles = append(uniqueArticles, article)
+		seenURLs[stub.URL] = struct{}{}
+		uniqueStubs = append(uniqueStubs, stub)
 	}
 
+	// Phase 3: Filter out articles that already exist in the database
 	urlList := make([]string, 0, len(seenURLs))
 	for url := range seenURLs {
 		urlList = append(urlList, url)
@@ -85,15 +116,33 @@ func ScanBlog(ctx context.Context, db *storage.Database, blog model.Blog) ScanRe
 	}
 
 	discoveredAt := time.Now()
-	newArticles := make([]model.Article, 0, len(uniqueArticles))
-	for _, article := range uniqueArticles {
-		if _, exists := existing[article.URL]; exists {
+	var newStubs []articleStub
+	for _, stub := range uniqueStubs {
+		if _, exists := existing[stub.URL]; exists {
 			continue
 		}
-		article.DiscoveredDate = &discoveredAt
-		newArticles = append(newArticles, article)
+		newStubs = append(newStubs, stub)
 	}
 
+	// Phase 4: Only for genuinely new articles, fetch OG thumbnails if needed
+	newArticles := make([]model.Article, 0, len(newStubs))
+	for _, stub := range newStubs {
+		thumbURL := stub.ThumbnailURL
+		if thumbURL == "" {
+			thumbURL = thumbnail.ExtractFromOpenGraph(ctx, stub.URL)
+		}
+		newArticles = append(newArticles, model.Article{
+			BlogID:        stub.BlogID,
+			Title:         stub.Title,
+			URL:           stub.URL,
+			ThumbnailURL:  thumbURL,
+			PublishedDate: stub.PublishedDate,
+			DiscoveredDate: &discoveredAt,
+			IsRead:        false,
+		})
+	}
+
+	// Phase 5: Persist new articles
 	newCount := 0
 	if len(newArticles) > 0 {
 		count, err := db.AddArticlesBulk(newArticles)
@@ -170,43 +219,6 @@ func ScanBlogByName(ctx context.Context, db *storage.Database, name string) (*Sc
 	}
 	result := ScanBlog(ctx, db, *blog)
 	return &result, nil
-}
-
-func convertFeedArticles(ctx context.Context, blogID int64, articles []rss.FeedArticle) []model.Article {
-	result := make([]model.Article, 0, len(articles))
-	for _, article := range articles {
-		thumbnailURL := article.ThumbnailURL
-		// Open Graph fallback if RSS didn't provide thumbnail
-		if thumbnailURL == "" {
-			thumbnailURL = thumbnail.ExtractFromOpenGraph(ctx, article.URL)
-		}
-		result = append(result, model.Article{
-			BlogID:        blogID,
-			Title:         article.Title,
-			URL:           article.URL,
-			ThumbnailURL:  thumbnailURL,
-			PublishedDate: article.PublishedDate,
-			IsRead:        false,
-		})
-	}
-	return result
-}
-
-func convertScrapedArticles(ctx context.Context, blogID int64, articles []scraper.ScrapedArticle) []model.Article {
-	result := make([]model.Article, 0, len(articles))
-	for _, article := range articles {
-		// Scraped articles don't have thumbnails, try Open Graph
-		thumbnailURL := thumbnail.ExtractFromOpenGraph(ctx, article.URL)
-		result = append(result, model.Article{
-			BlogID:        blogID,
-			Title:         article.Title,
-			URL:           article.URL,
-			ThumbnailURL:  thumbnailURL,
-			PublishedDate: article.PublishedDate,
-			IsRead:        false,
-		})
-	}
-	return result
 }
 
 // ThumbnailSyncResult holds the result of a thumbnail sync operation.
