@@ -6,7 +6,6 @@ import (
 	"context"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/mmcdole/gofeed"
 	"github.com/otiai10/opengraph/v2"
@@ -96,16 +95,13 @@ func extractFromMediaThumbnail(item *gofeed.Item) string {
 }
 
 // ExtractFromOpenGraph fetches og:image from article page.
-// Uses context with timeout to prevent hanging on slow sites.
+// Uses the provided context to respect cancellation and deadlines.
 // Returns empty string on any error (thumbnail is optional).
-func ExtractFromOpenGraph(articleURL string, timeout time.Duration) string {
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
+func ExtractFromOpenGraph(ctx context.Context, articleURL string) string {
 	intent := opengraph.Intent{
 		Context:    ctx,
 		Strict:     true, // Only parse <meta> tags
-		HTTPClient: &http.Client{Timeout: timeout},
+		HTTPClient: &http.Client{Transport: http.DefaultTransport},
 	}
 
 	ogp, err := opengraph.Fetch(articleURL, intent)

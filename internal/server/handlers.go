@@ -3,6 +3,8 @@
 package server
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"log"
@@ -16,13 +18,19 @@ import (
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/service"
 )
 
-// renderTemplate executes a named template with the given data
-// Logs errors and returns 500 status on failure
+// renderTemplate executes a named template with the given data.
+// Logs errors and returns 500 status on failure. If the template has already
+// started writing to the response, the 500 is skipped to avoid a superfluous
+// WriteHeader call.
 func (s *Server) renderTemplate(w http.ResponseWriter, name string, data interface{}) {
-	err := s.templates.ExecuteTemplate(w, name, data)
-	if err != nil {
+	buf := &bytes.Buffer{}
+	if err := s.templates.ExecuteTemplate(buf, name, data); err != nil {
 		log.Printf("Error rendering template %s: %v", name, err)
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if _, err := buf.WriteTo(w); err != nil {
+		log.Printf("Error writing template %s to response: %v", name, err)
 	}
 }
 
@@ -260,10 +268,13 @@ func (s *Server) handleMarkAllRead(w http.ResponseWriter, r *http.Request) {
 	s.renderTemplate(w, "article-list.gohtml", data)
 }
 
-// handleSync triggers a scan of all blogs and returns refreshed article list
+// handleSync triggers a scan of all blogs and returns refreshed article list.
+// Uses a 3-minute timeout to prevent hanging on slow external sites.
 func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
-	// Run scanner with single worker to avoid SQLite write conflicts
-	results, err := scanner.ScanAllBlogs(s.db, 1)
+	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Minute)
+	defer cancel()
+
+	results, err := scanner.ScanAllBlogs(ctx, s.db)
 	if err != nil {
 		log.Printf("Sync failed: %v", err)
 		http.Error(w, "Sync failed", http.StatusInternalServerError)
@@ -282,12 +293,10 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Sync complete: %d blogs scanned, %d new articles total", len(results), totalNew)
 
-	// Also sync thumbnails for articles missing them
-	thumbResult, thumbErr := scanner.SyncThumbnails(s.db)
-	if thumbErr != nil {
-		log.Printf("Thumbnail sync failed: %v", thumbErr)
-	} else {
-		log.Printf("Thumbnail sync: %d total, %d updated, %d errors", thumbResult.Total, thumbResult.Updated, thumbResult.Errors)
+	// Bail out early if the client disconnected during scanning
+	if ctx.Err() != nil {
+		log.Printf("Sync client disconnected before rendering response")
+		return
 	}
 
 	// Build search options from query parameters (preserves all filters)
@@ -316,8 +325,14 @@ func (s *Server) handleSync(w http.ResponseWriter, r *http.Request) {
 
 // handleAPISync triggers a scan of all blogs and returns JSON stats for programmatic use.
 // Intended for cronjob or API consumers that need structured data instead of HTML.
+// Uses a 3-minute timeout to prevent hanging on slow external sites.
+// Thumbnail extraction happens during scanning via Open Graph fallback, so a separate
+// SyncThumbnails pass is not needed here.
 func (s *Server) handleAPISync(w http.ResponseWriter, r *http.Request) {
-	results, err := scanner.ScanAllBlogs(s.db, 1)
+	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Minute)
+	defer cancel()
+
+	results, err := scanner.ScanAllBlogs(ctx, s.db)
 	if err != nil {
 		log.Printf("API sync failed: %v", err)
 		w.Header().Set("Content-Type", "application/json")
@@ -339,30 +354,12 @@ func (s *Server) handleAPISync(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("API sync complete: %d blogs scanned, %d new articles total", len(results), totalNew)
 
-	// Sync thumbnails (non-blocking — failures are included in response but don't cause 500)
-	thumbResult, thumbErr := scanner.SyncThumbnails(s.db)
-	if thumbErr != nil {
-		log.Printf("API thumbnail sync failed: %v", thumbErr)
-	} else {
-		log.Printf("API thumbnail sync: %d total, %d updated, %d errors", thumbResult.Total, thumbResult.Updated, thumbResult.Errors)
-	}
-
-	thumbResp := map[string]int{
-		"total":   thumbResult.Total,
-		"updated": thumbResult.Updated,
-		"errors":  thumbResult.Errors,
-	}
-
 	resp := map[string]interface{}{
 		"blogs_scanned": len(results),
 		"new_articles":  totalNew,
-		"thumbnails":    thumbResp,
 	}
 	if len(scanErrors) > 0 {
 		resp["errors"] = scanErrors
-	}
-	if thumbErr != nil {
-		resp["thumbnail_error"] = thumbErr.Error()
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -492,7 +489,7 @@ func (s *Server) handleAddBlog(w http.ResponseWriter, r *http.Request) {
 		URL:  url,
 	}
 
-	result, err := s.blogService.AddBlog(input)
+	result, err := s.blogService.AddBlog(r.Context(), input)
 	if err != nil {
 		// Check for domain errors
 		var dupErr service.BlogAlreadyExistsError
@@ -516,7 +513,10 @@ func (s *Server) handleAddBlog(w http.ResponseWriter, r *http.Request) {
 
 // autoSyncNewBlog syncs a single blog by name in the background
 func (s *Server) autoSyncNewBlog(blogName string) {
-	result, err := scanner.ScanBlogByName(s.db, blogName)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	result, err := scanner.ScanBlogByName(ctx, s.db, blogName)
 	if err != nil {
 		log.Printf("Auto-sync failed for %s: %v", blogName, err)
 		return

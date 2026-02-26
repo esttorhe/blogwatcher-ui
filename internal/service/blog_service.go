@@ -3,8 +3,8 @@
 package service
 
 import (
+	"context"
 	"fmt"
-	"time"
 
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/rss"
@@ -47,7 +47,7 @@ type AddBlogResult struct {
 
 // AddBlog validates input, checks for duplicates, discovers feed URL if needed,
 // and creates the blog. Returns BlogAlreadyExistsError for duplicates.
-func (s *BlogService) AddBlog(input AddBlogInput) (AddBlogResult, error) {
+func (s *BlogService) AddBlog(ctx context.Context, input AddBlogInput) (AddBlogResult, error) {
 	var result AddBlogResult
 
 	// Check for duplicate name
@@ -71,7 +71,7 @@ func (s *BlogService) AddBlog(input AddBlogInput) (AddBlogResult, error) {
 	// Discover feed URL if not provided
 	feedURL := input.FeedURL
 	if feedURL == "" {
-		discovered, _ := rss.DiscoverFeedURL(input.URL, 30*time.Second)
+		discovered, _ := rss.DiscoverFeedURL(ctx, input.URL)
 		if discovered != "" {
 			feedURL = discovered
 			result.DiscoveredFeed = discovered

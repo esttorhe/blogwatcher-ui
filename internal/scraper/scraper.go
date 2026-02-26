@@ -3,6 +3,7 @@
 package scraper
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -27,9 +28,13 @@ func (e ScrapeError) Error() string {
 	return e.Message
 }
 
-func ScrapeBlog(blogURL string, selector string, timeout time.Duration) ([]ScrapedArticle, error) {
-	client := &http.Client{Timeout: timeout}
-	response, err := client.Get(blogURL)
+func ScrapeBlog(ctx context.Context, blogURL string, selector string) ([]ScrapedArticle, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, blogURL, nil)
+	if err != nil {
+		return nil, ScrapeError{Message: fmt.Sprintf("failed to build request: %v", err)}
+	}
+	client := &http.Client{Transport: http.DefaultTransport}
+	response, err := client.Do(req)
 	if err != nil {
 		return nil, ScrapeError{Message: fmt.Sprintf("failed to fetch page: %v", err)}
 	}

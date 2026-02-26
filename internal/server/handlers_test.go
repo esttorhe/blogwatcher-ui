@@ -261,20 +261,9 @@ func TestHandleAPISync_Success(t *testing.T) {
 	}
 
 	// Check required top-level fields exist
-	for _, field := range []string{"blogs_scanned", "new_articles", "thumbnails"} {
+	for _, field := range []string{"blogs_scanned", "new_articles"} {
 		if _, ok := resp[field]; !ok {
 			t.Errorf("response missing field %q", field)
-		}
-	}
-
-	// Check thumbnails sub-object has expected fields
-	thumbs, ok := resp["thumbnails"].(map[string]interface{})
-	if !ok {
-		t.Fatalf("thumbnails should be an object, got %T", resp["thumbnails"])
-	}
-	for _, field := range []string{"total", "updated", "errors"} {
-		if _, ok := thumbs[field]; !ok {
-			t.Errorf("thumbnails missing field %q", field)
 		}
 	}
 }

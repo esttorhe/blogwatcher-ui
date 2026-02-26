@@ -3,6 +3,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"path/filepath"
 	"testing"
@@ -15,7 +16,7 @@ func TestAddBlogSuccess(t *testing.T) {
 	defer db.Close()
 	svc := NewBlogService(db)
 
-	result, err := svc.AddBlog(AddBlogInput{
+	result, err := svc.AddBlog(context.Background(), AddBlogInput{
 		Name: "Test Blog",
 		URL:  "https://example.com",
 	})
@@ -38,12 +39,12 @@ func TestAddBlogDuplicateName(t *testing.T) {
 	defer db.Close()
 	svc := NewBlogService(db)
 
-	_, err := svc.AddBlog(AddBlogInput{Name: "Test", URL: "https://one.example.com"})
+	_, err := svc.AddBlog(context.Background(), AddBlogInput{Name: "Test", URL: "https://one.example.com"})
 	if err != nil {
 		t.Fatalf("first add: %v", err)
 	}
 
-	_, err = svc.AddBlog(AddBlogInput{Name: "Test", URL: "https://two.example.com"})
+	_, err = svc.AddBlog(context.Background(), AddBlogInput{Name: "Test", URL: "https://two.example.com"})
 	if err == nil {
 		t.Fatal("expected duplicate name error")
 	}
@@ -65,12 +66,12 @@ func TestAddBlogDuplicateURL(t *testing.T) {
 	defer db.Close()
 	svc := NewBlogService(db)
 
-	_, err := svc.AddBlog(AddBlogInput{Name: "First", URL: "https://example.com"})
+	_, err := svc.AddBlog(context.Background(), AddBlogInput{Name: "First", URL: "https://example.com"})
 	if err != nil {
 		t.Fatalf("first add: %v", err)
 	}
 
-	_, err = svc.AddBlog(AddBlogInput{Name: "Second", URL: "https://example.com"})
+	_, err = svc.AddBlog(context.Background(), AddBlogInput{Name: "Second", URL: "https://example.com"})
 	if err == nil {
 		t.Fatal("expected duplicate URL error")
 	}
@@ -106,7 +107,7 @@ func TestAddBlogWithProvidedFeedURL(t *testing.T) {
 	defer db.Close()
 	svc := NewBlogService(db)
 
-	result, err := svc.AddBlog(AddBlogInput{
+	result, err := svc.AddBlog(context.Background(), AddBlogInput{
 		Name:    "Blog with Feed",
 		URL:     "https://example.com",
 		FeedURL: "https://example.com/custom-feed",
@@ -129,7 +130,7 @@ func TestAddBlogWithScrapeSelector(t *testing.T) {
 	defer db.Close()
 	svc := NewBlogService(db)
 
-	result, err := svc.AddBlog(AddBlogInput{
+	result, err := svc.AddBlog(context.Background(), AddBlogInput{
 		Name:           "Blog with Selector",
 		URL:            "https://example.com",
 		ScrapeSelector: "article.post",
@@ -155,7 +156,7 @@ func TestAddMultipleBlogsSuccess(t *testing.T) {
 	}
 
 	for _, input := range blogs {
-		_, err := svc.AddBlog(input)
+		_, err := svc.AddBlog(context.Background(), input)
 		if err != nil {
 			t.Fatalf("add blog %q: %v", input.Name, err)
 		}

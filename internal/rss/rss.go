@@ -3,6 +3,7 @@
 package rss
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -30,9 +31,13 @@ func (e FeedParseError) Error() string {
 	return e.Message
 }
 
-func ParseFeed(feedURL string, timeout time.Duration) ([]FeedArticle, error) {
-	client := &http.Client{Timeout: timeout}
-	response, err := client.Get(feedURL)
+func ParseFeed(ctx context.Context, feedURL string) ([]FeedArticle, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feedURL, nil)
+	if err != nil {
+		return nil, FeedParseError{Message: fmt.Sprintf("failed to build request: %v", err)}
+	}
+	client := &http.Client{Transport: http.DefaultTransport}
+	response, err := client.Do(req)
 	if err != nil {
 		return nil, FeedParseError{Message: fmt.Sprintf("failed to fetch feed: %v", err)}
 	}
@@ -66,9 +71,13 @@ func ParseFeed(feedURL string, timeout time.Duration) ([]FeedArticle, error) {
 	return articles, nil
 }
 
-func DiscoverFeedURL(blogURL string, timeout time.Duration) (string, error) {
-	client := &http.Client{Timeout: timeout}
-	response, err := client.Get(blogURL)
+func DiscoverFeedURL(ctx context.Context, blogURL string) (string, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, blogURL, nil)
+	if err != nil {
+		return "", nil
+	}
+	client := &http.Client{Transport: http.DefaultTransport}
+	response, err := client.Do(req)
 	if err != nil {
 		return "", nil
 	}
@@ -126,7 +135,7 @@ func DiscoverFeedURL(blogURL string, timeout time.Duration) (string, error) {
 		if resolved == "" {
 			continue
 		}
-		ok, err := isValidFeed(resolved, timeout)
+		ok, err := isValidFeed(ctx, resolved)
 		if err == nil && ok {
 			return resolved, nil
 		}
@@ -135,9 +144,13 @@ func DiscoverFeedURL(blogURL string, timeout time.Duration) (string, error) {
 	return "", nil
 }
 
-func isValidFeed(feedURL string, timeout time.Duration) (bool, error) {
-	client := &http.Client{Timeout: timeout}
-	response, err := client.Get(feedURL)
+func isValidFeed(ctx context.Context, feedURL string) (bool, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, feedURL, nil)
+	if err != nil {
+		return false, err
+	}
+	client := &http.Client{Transport: http.DefaultTransport}
+	response, err := client.Do(req)
 	if err != nil {
 		return false, err
 	}
