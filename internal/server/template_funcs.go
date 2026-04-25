@@ -5,6 +5,7 @@ package server
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -58,6 +59,14 @@ func timeAgo(t *time.Time) string {
 	default:
 		return fmt.Sprintf("%d years ago", years)
 	}
+}
+
+// smryURL strips the protocol from an article URL and prepends the smry.ai domain
+// so the article can be opened in smry.ai's reader/summarizer.
+func smryURL(articleURL string) string {
+	u := strings.TrimPrefix(articleURL, "https://")
+	u = strings.TrimPrefix(u, "http://")
+	return "https://smry.ai/" + u
 }
 
 // faviconURL builds a Google S2 favicon URL from a blog URL.

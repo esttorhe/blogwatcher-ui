@@ -36,6 +36,7 @@ func NewServerWithFS(db *storage.Database, templateFS fs.FS, staticFS fs.FS, ver
 	funcMap := template.FuncMap{
 		"timeAgo":    timeAgo,
 		"faviconURL": faviconURL,
+		"smryURL":    smryURL,
 	}
 
 	// Parse all templates once at startup from embedded filesystem
