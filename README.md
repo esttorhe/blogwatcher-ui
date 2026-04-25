@@ -15,7 +15,7 @@ A modern, self-contained web application for tracking blog articles and managing
 
 ### Desktop
 
-![](./assets/inbox.png) ![](./assets/inbox2.jpeg)
+![](./assets/inbox.png) ![](./assets/inbox2.png)
 
 ### Mobile
 
@@ -67,6 +67,7 @@ server
 ```
 
 **Note:** If you encounter checksum verification errors (404 from sum.golang.org), the repository may be private. Set these environment variables:
+
 ```bash
 export GOPRIVATE=github.com/esttorhe/blogwatcher-ui
 export GONOPROXY=github.com/esttorhe/blogwatcher-ui
@@ -106,6 +107,7 @@ go run ./cmd/server
 ## Usage
 
 1. **Start the Server**
+
    ```bash
    ./server
    ```
@@ -193,6 +195,7 @@ blogwatcher-ui/
 ## Database
 
 The application uses a SQLite database located at:
+
 ```
 ~/.blogwatcher/blogwatcher.db
 ```
@@ -200,6 +203,7 @@ The application uses a SQLite database located at:
 The database and directory are created automatically on first run. If you have an existing database from the BlogWatcher CLI, the UI will use it seamlessly - the schema is fully compatible.
 
 The database schema includes:
+
 - `blogs` - Tracked blogs (name, URL, feed URL, scrape selector)
 - `articles` - Discovered articles (title, URL, dates, read status, thumbnails)
 - `articles_fts` - Full-text search index for article titles
