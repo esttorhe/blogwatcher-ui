@@ -5,6 +5,8 @@ package server
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"html/template"
@@ -20,6 +22,16 @@ import (
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/scanner"
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/service"
 )
+
+// generateWebhookSecret creates a cryptographically random 32-byte hex string.
+func generateWebhookSecret() string {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		// Fallback should never happen; rand.Read is guaranteed non-nil on supported platforms.
+		panic("crypto/rand unavailable: " + err.Error())
+	}
+	return hex.EncodeToString(b)
+}
 
 // renderTemplate executes a named template with the given data.
 // Logs errors and returns 500 status on failure. If the template has already
@@ -379,9 +391,29 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Ensure webhook secret exists — generate one on first visit.
+	webhookSecret, err := s.db.GetSetting("webhook_secret")
+	if err != nil {
+		log.Printf("Error reading webhook_secret: %v", err)
+	}
+	if webhookSecret == "" {
+		webhookSecret = generateWebhookSecret()
+		if storeErr := s.db.SetSetting("webhook_secret", webhookSecret); storeErr != nil {
+			log.Printf("Error storing webhook_secret: %v", storeErr)
+		}
+	}
+
+	inboxEmail, err := s.db.GetSetting("newsletter_inbox_email")
+	if err != nil {
+		log.Printf("Error reading newsletter_inbox_email: %v", err)
+	}
+
 	data := map[string]interface{}{
 		"SettingsBlogs":  blogsWithCounts,
 		"IsSettingsPage": true,
+		"WebhookSecret":  webhookSecret,
+		"WebhookPath":    "/newsletter/webhook",
+		"InboxEmail":     inboxEmail,
 	}
 
 	// Check if this is an HTMX request
@@ -401,6 +433,21 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 	data["Title"] = "Settings - BlogWatcher"
 	data["Version"] = s.version
 	s.renderTemplate(w, "settings.gohtml", data)
+}
+
+// handleSetNewsletterInbox saves the newsletter inbox email address to settings.
+func (s *Server) handleSetNewsletterInbox(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+	email := strings.TrimSpace(r.FormValue("email"))
+	if err := s.db.SetSetting("newsletter_inbox_email", email); err != nil {
+		log.Printf("Error saving newsletter_inbox_email: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
 // blogNameForID returns the blog name for the given ID, or empty string if not found.

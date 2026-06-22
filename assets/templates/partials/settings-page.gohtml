@@ -61,5 +61,35 @@
         <p class="empty-state">No blogs tracked yet.</p>
         {{end}}
     </section>
+
+    <section class="settings-section">
+        <h2>Newsletter Inbox</h2>
+        <div class="newsletter-settings">
+            <div class="settings-field">
+                <label class="settings-label">Webhook URL</label>
+                <div class="settings-value-row">
+                    <code class="settings-code">{{.WebhookPath}}</code>
+                </div>
+            </div>
+            <div class="settings-field">
+                <label class="settings-label">Webhook Secret</label>
+                <div class="settings-value-row">
+                    <code class="settings-code">{{.WebhookSecret}}</code>
+                </div>
+            </div>
+            <div class="settings-field">
+                <label class="settings-label" for="newsletter-inbox-email">Inbox Email Address</label>
+                <form hx-post="/settings/newsletter-inbox" hx-swap="none" class="settings-inline-form">
+                    <input type="email" id="newsletter-inbox-email" name="email"
+                           value="{{.InboxEmail}}" placeholder="your-inbox@example.com"
+                           class="settings-input">
+                    <button type="submit" class="btn-action">Save</button>
+                </form>
+                {{if .InboxEmail}}
+                <p class="settings-hint">Forward newsletters to <strong>{{.InboxEmail}}</strong></p>
+                {{end}}
+            </div>
+        </div>
+    </section>
 </div>
 {{end}}
