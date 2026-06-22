@@ -36,4 +36,5 @@ func (s *Server) registerRoutes() {
 	// Newsletter
 	s.mux.HandleFunc("POST /newsletter/webhook", s.handleNewsletterWebhook)
 	s.mux.HandleFunc("GET /newsletter/article/{id}", s.handleNewsletterArticle)
+	s.mux.HandleFunc("POST /settings/newsletter-inbox", s.handleSetNewsletterInbox)
 }

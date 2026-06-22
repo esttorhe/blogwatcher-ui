@@ -284,6 +284,75 @@ func TestHandleAPISync_GetDoesNotReturnJSON(t *testing.T) {
 	}
 }
 
+func TestSettingsPageShowsNewsletterSection(t *testing.T) {
+	srv, db := createTestServerWithDB(t)
+	// Pre-seed a webhook secret so the page shows it.
+	if err := db.SetSetting("webhook_secret", "mysecret123"); err != nil {
+		t.Fatalf("set secret: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/settings", nil)
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", rec.Code)
+	}
+	body := rec.Body.String()
+	if !strings.Contains(body, "mysecret123") {
+		t.Error("settings page should display the webhook secret")
+	}
+	if !strings.Contains(body, "/newsletter/webhook") {
+		t.Error("settings page should display the webhook path")
+	}
+}
+
+func TestSettingsPageGeneratesSecretWhenAbsent(t *testing.T) {
+	srv, db := createTestServerWithDB(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/settings", nil)
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200", rec.Code)
+	}
+
+	// A secret should have been auto-generated and stored.
+	secret, err := db.GetSetting("webhook_secret")
+	if err != nil {
+		t.Fatalf("GetSetting: %v", err)
+	}
+	if secret == "" {
+		t.Error("expected webhook_secret to be generated on first settings visit")
+	}
+	if len(secret) < 16 {
+		t.Errorf("generated secret too short: %q", secret)
+	}
+}
+
+func TestSetNewsletterInbox(t *testing.T) {
+	srv, db := createTestServerWithDB(t)
+
+	form := url.Values{"email": {"inbox@mail.example.com"}}
+	req := httptest.NewRequest(http.MethodPost, "/settings/newsletter-inbox", strings.NewReader(form.Encode()))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK && rec.Code != http.StatusSeeOther {
+		t.Errorf("status = %d, want 200 or 303", rec.Code)
+	}
+
+	stored, err := db.GetSetting("newsletter_inbox_email")
+	if err != nil {
+		t.Fatalf("GetSetting: %v", err)
+	}
+	if stored != "inbox@mail.example.com" {
+		t.Errorf("stored inbox = %q, want %q", stored, "inbox@mail.example.com")
+	}
+}
+
 func createTestServer(t *testing.T) http.Handler {
 	t.Helper()
 	srv, _ := createTestServerWithDB(t)
