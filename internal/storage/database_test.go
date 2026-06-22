@@ -281,6 +281,185 @@ func TestSchemaIncludesArticlesTable(t *testing.T) {
 	}
 }
 
+func TestBlogTypeDefaultsToRSS(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	blog, err := db.AddBlog(model.Blog{Name: "RSS Blog", URL: "https://rss.example.com"})
+	if err != nil {
+		t.Fatalf("add blog: %v", err)
+	}
+
+	fetched, err := db.GetBlogByID(blog.ID)
+	if err != nil {
+		t.Fatalf("get blog: %v", err)
+	}
+	if fetched.Type != model.BlogTypeRSS {
+		t.Errorf("Type = %q, want %q", fetched.Type, model.BlogTypeRSS)
+	}
+}
+
+func TestBlogTypeNewsletter(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	blog, err := db.AddBlog(model.Blog{
+		Name: "Newsletter",
+		URL:  "mailto:news@example.com",
+		Type: model.BlogTypeNewsletter,
+	})
+	if err != nil {
+		t.Fatalf("add blog: %v", err)
+	}
+
+	fetched, err := db.GetBlogByID(blog.ID)
+	if err != nil {
+		t.Fatalf("get blog: %v", err)
+	}
+	if fetched.Type != model.BlogTypeNewsletter {
+		t.Errorf("Type = %q, want %q", fetched.Type, model.BlogTypeNewsletter)
+	}
+}
+
+func TestArticleContentStoredAndRetrieved(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	blog, err := db.AddBlog(model.Blog{Name: "NL", URL: "mailto:nl@example.com", Type: model.BlogTypeNewsletter})
+	if err != nil {
+		t.Fatalf("add blog: %v", err)
+	}
+
+	htmlBody := "<p>Hello from newsletter</p>"
+	articles := []model.Article{
+		{BlogID: blog.ID, Title: "Issue 1", URL: "mailto:nl@example.com/1", Content: htmlBody},
+	}
+	if _, err := db.AddArticlesBulk(articles); err != nil {
+		t.Fatalf("add articles: %v", err)
+	}
+
+	listed, err := db.ListArticles(false, &blog.ID)
+	if err != nil {
+		t.Fatalf("list articles: %v", err)
+	}
+	if len(listed) != 1 {
+		t.Fatalf("expected 1 article, got %d", len(listed))
+	}
+	if listed[0].Content != htmlBody {
+		t.Errorf("Content = %q, want %q", listed[0].Content, htmlBody)
+	}
+}
+
+func TestArticleContentEmptyForRSS(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	blog, err := db.AddBlog(model.Blog{Name: "RSS", URL: "https://rss.example.com"})
+	if err != nil {
+		t.Fatalf("add blog: %v", err)
+	}
+
+	if _, err := db.AddArticlesBulk([]model.Article{
+		{BlogID: blog.ID, Title: "Post 1", URL: "https://rss.example.com/1"},
+	}); err != nil {
+		t.Fatalf("add articles: %v", err)
+	}
+
+	listed, err := db.ListArticles(false, &blog.ID)
+	if err != nil {
+		t.Fatalf("list articles: %v", err)
+	}
+	if listed[0].Content != "" {
+		t.Errorf("Content = %q, want empty for RSS article", listed[0].Content)
+	}
+}
+
+func TestGetSettingMissingKeyReturnsEmpty(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	val, err := db.GetSetting("nonexistent")
+	if err != nil {
+		t.Fatalf("GetSetting: %v", err)
+	}
+	if val != "" {
+		t.Errorf("GetSetting = %q, want empty for missing key", val)
+	}
+}
+
+func TestSetAndGetSetting(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	if err := db.SetSetting("webhook_secret", "abc123"); err != nil {
+		t.Fatalf("SetSetting: %v", err)
+	}
+
+	val, err := db.GetSetting("webhook_secret")
+	if err != nil {
+		t.Fatalf("GetSetting: %v", err)
+	}
+	if val != "abc123" {
+		t.Errorf("GetSetting = %q, want %q", val, "abc123")
+	}
+}
+
+func TestSetSettingOverwrites(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	if err := db.SetSetting("key", "first"); err != nil {
+		t.Fatalf("first SetSetting: %v", err)
+	}
+	if err := db.SetSetting("key", "second"); err != nil {
+		t.Fatalf("second SetSetting: %v", err)
+	}
+
+	val, err := db.GetSetting("key")
+	if err != nil {
+		t.Fatalf("GetSetting: %v", err)
+	}
+	if val != "second" {
+		t.Errorf("GetSetting = %q, want %q", val, "second")
+	}
+}
+
+func TestGetOrCreateNewsletterBlogCreatesNew(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	blog, err := db.GetOrCreateNewsletterBlog("Acme News", "news@acme.com")
+	if err != nil {
+		t.Fatalf("GetOrCreateNewsletterBlog: %v", err)
+	}
+	if blog.ID == 0 {
+		t.Fatal("expected blog to have ID")
+	}
+	if blog.Type != model.BlogTypeNewsletter {
+		t.Errorf("Type = %q, want %q", blog.Type, model.BlogTypeNewsletter)
+	}
+	if blog.URL != "mailto:news@acme.com" {
+		t.Errorf("URL = %q, want %q", blog.URL, "mailto:news@acme.com")
+	}
+}
+
+func TestGetOrCreateNewsletterBlogIdempotent(t *testing.T) {
+	db := openTestDB(t)
+	defer db.Close()
+
+	first, err := db.GetOrCreateNewsletterBlog("Acme News", "news@acme.com")
+	if err != nil {
+		t.Fatalf("first call: %v", err)
+	}
+	second, err := db.GetOrCreateNewsletterBlog("Acme News", "news@acme.com")
+	if err != nil {
+		t.Fatalf("second call: %v", err)
+	}
+	if first.ID != second.ID {
+		t.Errorf("expected same ID on second call: first=%d second=%d", first.ID, second.ID)
+	}
+}
+
 func openTestDB(t *testing.T) *Database {
 	t.Helper()
 	path := filepath.Join(t.TempDir(), "blogwatcher.db")

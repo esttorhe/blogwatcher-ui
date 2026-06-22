@@ -124,6 +124,30 @@ func (db *Database) ensureMigrations() error {
 		}
 	}
 
+	// Add type column to blogs for newsletter support
+	if !db.columnExists("blogs", "type") {
+		if _, err := db.conn.Exec(`ALTER TABLE blogs ADD COLUMN type TEXT NOT NULL DEFAULT 'rss'`); err != nil {
+			return err
+		}
+	}
+
+	// Add content column to articles for storing newsletter email HTML bodies
+	if !db.columnExists("articles", "content") {
+		if _, err := db.conn.Exec(`ALTER TABLE articles ADD COLUMN content TEXT`); err != nil {
+			return err
+		}
+	}
+
+	// Add settings table for persisting app-level config (webhook secret, inbox address)
+	if !db.tableExists("settings") {
+		if _, err := db.conn.Exec(`CREATE TABLE IF NOT EXISTS settings (
+			key   TEXT PRIMARY KEY,
+			value TEXT NOT NULL
+		)`); err != nil {
+			return err
+		}
+	}
+
 	// Add FTS5 virtual table and sync triggers for title search
 	if !db.tableExists("articles_fts") {
 		// Create FTS5 virtual table with external content pattern
@@ -295,7 +319,7 @@ func (db *Database) Close() error {
 }
 
 func (db *Database) ListBlogs() ([]model.Blog, error) {
-	rows, err := db.conn.Query(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs ORDER BY name`)
+	rows, err := db.conn.Query(`SELECT id, name, url, feed_url, scrape_selector, last_scanned, type FROM blogs ORDER BY name`)
 	if err != nil {
 		return nil, err
 	}
@@ -330,10 +354,11 @@ func (db *Database) ListBlogsWithCounts() ([]BlogWithCount, error) {
 		b.feed_url,
 		b.scrape_selector,
 		b.last_scanned,
-		COUNT(a.id) as article_count
+		COUNT(a.id) as article_count,
+		b.type
 	FROM blogs b
 	LEFT JOIN articles a ON b.id = a.blog_id
-	GROUP BY b.id, b.name, b.url, b.feed_url, b.scrape_selector, b.last_scanned
+	GROUP BY b.id, b.name, b.url, b.feed_url, b.scrape_selector, b.last_scanned, b.type
 	ORDER BY b.name`
 
 	rows, err := db.conn.Query(query)
@@ -352,8 +377,9 @@ func (db *Database) ListBlogsWithCounts() ([]BlogWithCount, error) {
 			scrapeSelector sql.NullString
 			lastScanned    sql.NullString
 			articleCount   int
+			blogType       string
 		)
-		if err := rows.Scan(&id, &name, &url, &feedURL, &scrapeSelector, &lastScanned, &articleCount); err != nil {
+		if err := rows.Scan(&id, &name, &url, &feedURL, &scrapeSelector, &lastScanned, &articleCount, &blogType); err != nil {
 			return nil, err
 		}
 
@@ -364,6 +390,7 @@ func (db *Database) ListBlogsWithCounts() ([]BlogWithCount, error) {
 				URL:            url,
 				FeedURL:        feedURL.String,
 				ScrapeSelector: scrapeSelector.String,
+				Type:           blogType,
 			},
 			ArticleCount: articleCount,
 		}
@@ -378,7 +405,7 @@ func (db *Database) ListBlogsWithCounts() ([]BlogWithCount, error) {
 }
 
 func (db *Database) ListArticles(unreadOnly bool, blogID *int64) ([]model.Article, error) {
-	query := `SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read FROM articles WHERE 1=1`
+	query := `SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read, content FROM articles WHERE 1=1`
 	var args []interface{}
 	if unreadOnly {
 		query += " AND is_read = 0"
@@ -412,7 +439,7 @@ func (db *Database) ListArticles(unreadOnly bool, blogID *int64) ([]model.Articl
 // isRead=true returns read articles, isRead=false returns unread articles.
 // blogID filters to a specific blog if provided.
 func (db *Database) ListArticlesByReadStatus(isRead bool, blogID *int64) ([]model.Article, error) {
-	query := `SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read FROM articles WHERE is_read = ?`
+	query := `SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read, content FROM articles WHERE is_read = ?`
 	args := []interface{}{isRead}
 
 	if blogID != nil {
@@ -444,7 +471,7 @@ func (db *Database) ListArticlesByReadStatus(isRead bool, blogID *int64) ([]mode
 // Uses INNER JOIN to fetch blog info alongside article data.
 // isRead filters by read status, blogID optionally filters to a specific blog.
 func (db *Database) ListArticlesWithBlog(isRead bool, blogID *int64) ([]model.ArticleWithBlog, error) {
-	query := `SELECT a.id, a.blog_id, a.title, a.url, a.thumbnail_url, a.published_date, a.discovered_date, a.is_read, b.name, b.url
+	query := `SELECT a.id, a.blog_id, a.title, a.url, a.thumbnail_url, a.published_date, a.discovered_date, a.is_read, b.name, b.url, a.content
 		FROM articles a
 		INNER JOIN blogs b ON a.blog_id = b.id
 		WHERE a.is_read = ?`
@@ -481,7 +508,7 @@ func (db *Database) ListArticlesWithBlog(isRead bool, blogID *int64) ([]model.Ar
 func (db *Database) SearchArticles(opts model.SearchOptions) ([]model.ArticleWithBlog, int, error) {
 	// Build base query - conditionally add FTS5 JOIN only when searching
 	var query strings.Builder
-	query.WriteString(`SELECT a.id, a.blog_id, a.title, a.url, a.thumbnail_url, a.published_date, a.discovered_date, a.is_read, b.name, b.url, COUNT(*) OVER() as total_count
+	query.WriteString(`SELECT a.id, a.blog_id, a.title, a.url, a.thumbnail_url, a.published_date, a.discovered_date, a.is_read, b.name, b.url, a.content, COUNT(*) OVER() as total_count
 		FROM articles a`)
 
 	var conditions []string
@@ -605,32 +632,37 @@ func (db *Database) MarkAllUnreadArticlesRead(blogID *int64) error {
 
 // GetBlogByName returns a blog by its name, or nil if not found.
 func (db *Database) GetBlogByName(name string) (*model.Blog, error) {
-	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE name = ?`, name)
+	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned, type FROM blogs WHERE name = ?`, name)
 	return scanBlog(row)
 }
 
 // GetBlogByID returns a blog by its ID, or nil if not found.
 func (db *Database) GetBlogByID(id int64) (*model.Blog, error) {
-	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE id = ?`, id)
+	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned, type FROM blogs WHERE id = ?`, id)
 	return scanBlog(row)
 }
 
 // GetBlogByURL returns a blog by its URL, or nil if not found.
 func (db *Database) GetBlogByURL(url string) (*model.Blog, error) {
-	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned FROM blogs WHERE url = ?`, url)
+	row := db.conn.QueryRow(`SELECT id, name, url, feed_url, scrape_selector, last_scanned, type FROM blogs WHERE url = ?`, url)
 	return scanBlog(row)
 }
 
 // AddBlog inserts a new blog and returns it with the assigned ID.
 func (db *Database) AddBlog(blog model.Blog) (model.Blog, error) {
+	blogType := blog.Type
+	if blogType == "" {
+		blogType = model.BlogTypeRSS
+	}
 	result, err := db.conn.Exec(
-		`INSERT INTO blogs (name, url, feed_url, scrape_selector, last_scanned)
-		VALUES (?, ?, ?, ?, ?)`,
+		`INSERT INTO blogs (name, url, feed_url, scrape_selector, last_scanned, type)
+		VALUES (?, ?, ?, ?, ?, ?)`,
 		blog.Name,
 		blog.URL,
 		nullIfEmpty(blog.FeedURL),
 		nullIfEmpty(blog.ScrapeSelector),
 		formatTimePtr(blog.LastScanned),
+		blogType,
 	)
 	if err != nil {
 		return blog, err
@@ -726,13 +758,18 @@ func (db *Database) DeleteBlogWithArticles(id int64) error {
 
 // UpdateBlog updates all fields of a blog by ID.
 func (db *Database) UpdateBlog(blog model.Blog) error {
+	blogType := blog.Type
+	if blogType == "" {
+		blogType = model.BlogTypeRSS
+	}
 	_, err := db.conn.Exec(
-		`UPDATE blogs SET name = ?, url = ?, feed_url = ?, scrape_selector = ?, last_scanned = ? WHERE id = ?`,
+		`UPDATE blogs SET name = ?, url = ?, feed_url = ?, scrape_selector = ?, last_scanned = ?, type = ? WHERE id = ?`,
 		blog.Name,
 		blog.URL,
 		nullIfEmpty(blog.FeedURL),
 		nullIfEmpty(blog.ScrapeSelector),
 		formatTimePtr(blog.LastScanned),
+		blogType,
 		blog.ID,
 	)
 	return err
@@ -754,7 +791,7 @@ func (db *Database) AddArticlesBulk(articles []model.Article) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	stmt, err := tx.Prepare(`INSERT INTO articles (blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read) VALUES (?, ?, ?, ?, ?, ?, ?)`)
+	stmt, err := tx.Prepare(`INSERT INTO articles (blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read, content) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
 	if err != nil {
 		_ = tx.Rollback()
 		return 0, err
@@ -770,6 +807,7 @@ func (db *Database) AddArticlesBulk(articles []model.Article) (int, error) {
 			formatTimePtr(article.PublishedDate),
 			formatTimePtr(article.DiscoveredDate),
 			article.IsRead,
+			nullIfEmpty(article.Content),
 		)
 		if err != nil {
 			_ = tx.Rollback()
@@ -828,8 +866,9 @@ func scanBlog(scanner interface{ Scan(dest ...any) error }) (*model.Blog, error)
 		feedURL        sql.NullString
 		scrapeSelector sql.NullString
 		lastScanned    sql.NullString
+		blogType       string
 	)
-	if err := scanner.Scan(&id, &name, &url, &feedURL, &scrapeSelector, &lastScanned); err != nil {
+	if err := scanner.Scan(&id, &name, &url, &feedURL, &scrapeSelector, &lastScanned, &blogType); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -842,6 +881,7 @@ func scanBlog(scanner interface{ Scan(dest ...any) error }) (*model.Blog, error)
 		URL:            url,
 		FeedURL:        feedURL.String,
 		ScrapeSelector: scrapeSelector.String,
+		Type:           blogType,
 	}
 	if lastScanned.Valid {
 		if parsed, err := parseTime(lastScanned.String); err == nil {
@@ -861,8 +901,9 @@ func scanArticle(scanner interface{ Scan(dest ...any) error }) (*model.Article, 
 		publishedDate sql.NullString
 		discovered    sql.NullString
 		isRead        bool
+		content       sql.NullString
 	)
-	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead); err != nil {
+	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead, &content); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -876,6 +917,7 @@ func scanArticle(scanner interface{ Scan(dest ...any) error }) (*model.Article, 
 		URL:          url,
 		ThumbnailURL: thumbnailURL.String,
 		IsRead:       isRead,
+		Content:      content.String,
 	}
 	if publishedDate.Valid {
 		if parsed, err := parseTime(publishedDate.String); err == nil {
@@ -903,8 +945,9 @@ func scanArticleWithBlog(scanner interface{ Scan(dest ...any) error }) (*model.A
 		isRead        bool
 		blogName      string
 		blogURL       string
+		content       sql.NullString
 	)
-	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead, &blogName, &blogURL); err != nil {
+	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead, &blogName, &blogURL, &content); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, nil
 		}
@@ -920,6 +963,7 @@ func scanArticleWithBlog(scanner interface{ Scan(dest ...any) error }) (*model.A
 		IsRead:       isRead,
 		BlogName:     blogName,
 		BlogURL:      blogURL,
+		Content:      content.String,
 	}
 	if publishedDate.Valid {
 		if parsed, err := parseTime(publishedDate.String); err == nil {
@@ -947,9 +991,10 @@ func scanArticleWithBlogAndCount(scanner interface{ Scan(dest ...any) error }) (
 		isRead        bool
 		blogName      string
 		blogURL       string
+		content       sql.NullString
 		totalCount    int
 	)
-	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead, &blogName, &blogURL, &totalCount); err != nil {
+	if err := scanner.Scan(&id, &blogID, &title, &url, &thumbnailURL, &publishedDate, &discovered, &isRead, &blogName, &blogURL, &content, &totalCount); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, 0, nil
 		}
@@ -965,6 +1010,7 @@ func scanArticleWithBlogAndCount(scanner interface{ Scan(dest ...any) error }) (
 		IsRead:       isRead,
 		BlogName:     blogName,
 		BlogURL:      blogURL,
+		Content:      content.String,
 	}
 	if publishedDate.Valid {
 		if parsed, err := parseTime(publishedDate.String); err == nil {
@@ -978,6 +1024,44 @@ func scanArticleWithBlogAndCount(scanner interface{ Scan(dest ...any) error }) (
 	}
 
 	return article, totalCount, nil
+}
+
+// GetSetting retrieves a value from the settings table by key.
+// Returns ("", nil) when the key does not exist.
+func (db *Database) GetSetting(key string) (string, error) {
+	var value string
+	err := db.conn.QueryRow(`SELECT value FROM settings WHERE key = ?`, key).Scan(&value)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "", nil
+	}
+	return value, err
+}
+
+// SetSetting inserts or replaces a value in the settings table.
+func (db *Database) SetSetting(key, value string) error {
+	_, err := db.conn.Exec(`INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`, key, value)
+	return err
+}
+
+// GetOrCreateNewsletterBlog returns the newsletter Blog for senderEmail, creating it if absent.
+// The blog URL is stored as "mailto:senderEmail" so it can be looked up by sender.
+func (db *Database) GetOrCreateNewsletterBlog(name, senderEmail string) (model.Blog, error) {
+	mailtoURL := "mailto:" + senderEmail
+	existing, err := db.GetBlogByURL(mailtoURL)
+	if err != nil {
+		return model.Blog{}, fmt.Errorf("lookup newsletter blog: %w", err)
+	}
+	if existing != nil {
+		return *existing, nil
+	}
+
+	blog := model.Blog{
+		Name:    name,
+		URL:     mailtoURL,
+		FeedURL: "",
+		Type:    model.BlogTypeNewsletter,
+	}
+	return db.AddBlog(blog)
 }
 
 func parseTime(value string) (time.Time, error) {
