@@ -32,4 +32,8 @@ func (s *Server) registerRoutes() {
 	s.mux.HandleFunc("GET /blogs/{id}/edit", s.handleEditBlog)
 	s.mux.HandleFunc("PUT /blogs/{id}", s.handleUpdateBlogName)
 	s.mux.HandleFunc("DELETE /blogs/{id}", s.handleDeleteBlog)
+
+	// Newsletter
+	s.mux.HandleFunc("POST /newsletter/webhook", s.handleNewsletterWebhook)
+	s.mux.HandleFunc("GET /newsletter/article/{id}", s.handleNewsletterArticle)
 }

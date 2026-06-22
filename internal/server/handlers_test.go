@@ -9,10 +9,12 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
 	"github.com/esttorhe/blogwatcher-ui/v2/assets"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/storage"
 )
 
@@ -284,6 +286,12 @@ func TestHandleAPISync_GetDoesNotReturnJSON(t *testing.T) {
 
 func createTestServer(t *testing.T) http.Handler {
 	t.Helper()
+	srv, _ := createTestServerWithDB(t)
+	return srv
+}
+
+func createTestServerWithDB(t *testing.T) (http.Handler, *storage.Database) {
+	t.Helper()
 
 	// Create temp database
 	path := filepath.Join(t.TempDir(), "blogwatcher.db")
@@ -309,5 +317,95 @@ func createTestServer(t *testing.T) http.Handler {
 		t.Fatalf("create server: %v", err)
 	}
 
-	return srv
+	return srv, db
+}
+
+func TestHandleNewsletterWebhookMissingSecret(t *testing.T) {
+	srv, db := createTestServerWithDB(t)
+	if err := db.SetSetting("webhook_secret", "correctsecret"); err != nil {
+		t.Fatalf("set secret: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodPost, "/newsletter/webhook", strings.NewReader("raw email"))
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("status = %d, want 401", rec.Code)
+	}
+}
+
+func TestHandleNewsletterWebhookWrongSecret(t *testing.T) {
+	srv, db := createTestServerWithDB(t)
+	if err := db.SetSetting("webhook_secret", "correctsecret"); err != nil {
+		t.Fatalf("set secret: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodPost, "/newsletter/webhook", strings.NewReader("raw email"))
+	req.Header.Set("X-Webhook-Secret", "wrongsecret")
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("status = %d, want 401", rec.Code)
+	}
+}
+
+func TestHandleNewsletterWebhookValidEmail(t *testing.T) {
+	srv, db := createTestServerWithDB(t)
+	if err := db.SetSetting("webhook_secret", "topsecret"); err != nil {
+		t.Fatalf("set secret: %v", err)
+	}
+
+	rawEmail := strings.Join([]string{
+		"From: \"Test NL\" <nl@example.com>",
+		"To: inbox@mail.example.com",
+		"Subject: Test Issue",
+		"Date: Mon, 01 Jan 2024 10:00:00 +0000",
+		"Message-ID: <test-webhook@example.com>",
+		"MIME-Version: 1.0",
+		"Content-Type: text/html; charset=UTF-8",
+		"",
+		"<p>Hello</p>",
+	}, "\r\n")
+
+	req := httptest.NewRequest(http.MethodPost, "/newsletter/webhook", strings.NewReader(rawEmail))
+	req.Header.Set("X-Webhook-Secret", "topsecret")
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200; body: %s", rec.Code, rec.Body.String())
+	}
+}
+
+func TestHandleNewsletterArticle(t *testing.T) {
+	srv, db := createTestServerWithDB(t)
+
+	// Seed a newsletter article directly.
+	blog, err := db.GetOrCreateNewsletterBlog("Seed NL", "seed@example.com")
+	if err != nil {
+		t.Fatalf("create blog: %v", err)
+	}
+	_, err = db.AddArticlesBulk([]model.Article{
+		{BlogID: blog.ID, Title: "Seed Issue", URL: "message:<seed@example.com>", Content: "<p>Seed content</p>"},
+	})
+	if err != nil {
+		t.Fatalf("add article: %v", err)
+	}
+	article, err := db.GetArticleByURL("message:<seed@example.com>")
+	if err != nil || article == nil {
+		t.Fatalf("fetch article: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/newsletter/article/"+strconv.FormatInt(article.ID, 10), nil)
+	rec := httptest.NewRecorder()
+	srv.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("status = %d, want 200; body: %s", rec.Code, rec.Body.String())
+	}
+	if !strings.Contains(rec.Body.String(), "Seed Issue") {
+		t.Errorf("response should contain article title; got: %s", rec.Body.String())
+	}
 }

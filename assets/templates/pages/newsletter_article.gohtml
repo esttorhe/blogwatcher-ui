@@ -1,0 +1,48 @@
+{{define "newsletter_article"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#FAF8F5" media="(prefers-color-scheme: light)">
+    <script>
+    (function() {
+      var theme = localStorage.getItem('theme') || 'system';
+      var isDark = theme === 'dark' ||
+        (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+    </script>
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="/static/htmx.min.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        {{template "sidebar.gohtml" .}}
+        <main id="main-content" class="main-content">
+            <div class="newsletter-article-page p-6 max-w-3xl">
+                <div class="mb-4">
+                    <a href="/" class="text-blue-600 hover:underline text-sm">&larr; Back to inbox</a>
+                </div>
+                <article>
+                    <header class="mb-6 pb-4 border-b">
+                        <h1 class="text-2xl font-bold mb-1">{{.Article.Title}}</h1>
+                        {{if .BlogName}}
+                        <p class="text-sm text-gray-500">From: {{.BlogName}}</p>
+                        {{end}}
+                    </header>
+                    <div class="newsletter-body prose max-w-none">
+                        {{.HTMLContent}}
+                    </div>
+                </article>
+            </div>
+        </main>
+    </div>
+    {{template "scripts" .}}
+</body>
+</html>
+{{end}}
