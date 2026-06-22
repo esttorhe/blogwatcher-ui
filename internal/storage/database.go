@@ -648,6 +648,15 @@ func (db *Database) GetBlogByURL(url string) (*model.Blog, error) {
 	return scanBlog(row)
 }
 
+// GetArticleByURL returns an article by its URL, or nil if not found.
+func (db *Database) GetArticleByURL(url string) (*model.Article, error) {
+	row := db.conn.QueryRow(
+		`SELECT id, blog_id, title, url, thumbnail_url, published_date, discovered_date, is_read, content FROM articles WHERE url = ?`,
+		url,
+	)
+	return scanArticle(row)
+}
+
 // AddBlog inserts a new blog and returns it with the assigned ID.
 func (db *Database) AddBlog(blog model.Blog) (model.Blog, error) {
 	blogType := blog.Type

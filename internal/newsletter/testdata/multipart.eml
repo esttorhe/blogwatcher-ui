@@ -1,0 +1,19 @@
+From: "Acme Newsletter" <news@acme.com>
+To: inbox@mail.example.com
+Subject: Issue 43 - Multipart
+Date: Tue, 02 Jan 2024 10:00:00 +0000
+Message-ID: <issue43@acme.com>
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="boundary42"
+
+--boundary42
+Content-Type: text/plain; charset=UTF-8
+
+Plain text content for issue 43.
+
+--boundary42
+Content-Type: text/html; charset=UTF-8
+
+<html><body><p>HTML content for issue 43.</p></body></html>
+
+--boundary42--

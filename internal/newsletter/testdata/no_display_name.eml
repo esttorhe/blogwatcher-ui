@@ -1,0 +1,9 @@
+From: news@acme.com
+To: inbox@mail.example.com
+Subject: Plain sender email
+Date: Wed, 03 Jan 2024 10:00:00 +0000
+Message-ID: <issue44@acme.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset=UTF-8
+
+<html><body><p>No display name.</p></body></html>
