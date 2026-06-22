@@ -7,6 +7,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"html/template"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -14,6 +16,7 @@ import (
 	"time"
 
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/model"
+	"github.com/esttorhe/blogwatcher-ui/v2/internal/newsletter"
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/scanner"
 	"github.com/esttorhe/blogwatcher-ui/v2/internal/service"
 )
@@ -686,4 +689,75 @@ func (s *Server) handleDeleteBlog(w http.ResponseWriter, r *http.Request) {
 
 	// Return empty response - HTMX will remove the blog card via outerHTML swap
 	w.WriteHeader(http.StatusOK)
+}
+
+// handleNewsletterWebhook receives a raw RFC 822 email from the Cloudflare Worker.
+// Requests must include X-Webhook-Secret matching the stored webhook_secret setting.
+func (s *Server) handleNewsletterWebhook(w http.ResponseWriter, r *http.Request) {
+	secret, err := s.db.GetSetting("webhook_secret")
+	if err != nil {
+		log.Printf("newsletter webhook: failed to read secret: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if secret == "" || r.Header.Get("X-Webhook-Secret") != secret {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	raw, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("newsletter webhook: read body: %v", err)
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	h := newsletter.NewHandler(s.db)
+	if _, err := h.HandleInbound(r.Context(), raw); err != nil {
+		log.Printf("newsletter webhook: ingest: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+// handleNewsletterArticle renders a full-page view of a newsletter article's HTML body.
+func (s *Server) handleNewsletterArticle(w http.ResponseWriter, r *http.Request) {
+	idStr := r.PathValue("id")
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, "Bad Request", http.StatusBadRequest)
+		return
+	}
+
+	article, err := s.db.GetArticleByID(id)
+	if err != nil {
+		log.Printf("newsletter article: fetch: %v", err)
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if article == nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	blogName := ""
+	if blog, err := s.db.GetBlogByID(article.BlogID); err == nil && blog != nil {
+		blogName = blog.Name
+	}
+
+	// Mark as read when the full article is viewed.
+	if _, err := s.db.MarkArticleRead(id); err != nil {
+		log.Printf("newsletter article: mark read: %v", err)
+	}
+
+	data := map[string]interface{}{
+		"Title":       article.Title,
+		"Article":     article,
+		"BlogName":    blogName,
+		"HTMLContent": template.HTML(article.Content),
+		"Version":     s.version,
+	}
+	s.renderTemplate(w, "newsletter_article", data)
 }
