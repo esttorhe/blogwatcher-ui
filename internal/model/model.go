@@ -4,6 +4,12 @@ package model
 
 import "time"
 
+// BlogTypeRSS and BlogTypeNewsletter are the two source types for a Blog.
+const (
+	BlogTypeRSS        = "rss"
+	BlogTypeNewsletter = "newsletter"
+)
+
 type Blog struct {
 	ID             int64
 	Name           string
@@ -11,6 +17,7 @@ type Blog struct {
 	FeedURL        string
 	ScrapeSelector string
 	LastScanned    *time.Time
+	Type           string // BlogTypeRSS or BlogTypeNewsletter
 }
 
 type Article struct {
@@ -22,6 +29,7 @@ type Article struct {
 	PublishedDate  *time.Time
 	DiscoveredDate *time.Time
 	IsRead         bool
+	Content        string // HTML body for newsletter articles; empty for RSS/scraped
 }
 
 // ArticleWithBlog extends Article with blog metadata for display in article cards.
@@ -37,6 +45,7 @@ type ArticleWithBlog struct {
 	IsRead         bool
 	BlogName       string
 	BlogURL        string
+	Content        string // HTML body for newsletter articles; empty for RSS/scraped
 }
 
 // SearchOptions contains all filter parameters for article search.
