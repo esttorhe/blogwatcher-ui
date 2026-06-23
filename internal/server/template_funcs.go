@@ -61,6 +61,12 @@ func timeAgo(t *time.Time) string {
 	}
 }
 
+// isNewsletterURL reports whether a URL is an internal newsletter reference
+// (stored as "message:<Message-ID>" rather than a real HTTP URL).
+func isNewsletterURL(u string) bool {
+	return strings.HasPrefix(u, "message:")
+}
+
 // smryURL strips the protocol from an article URL and prepends the smry.ai domain
 // so the article can be opened in smry.ai's reader/summarizer.
 func smryURL(articleURL string) string {

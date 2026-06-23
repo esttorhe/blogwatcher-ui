@@ -1,52 +1,107 @@
 # Newsletter Ingestion Setup (Cloudflare)
 
-Receive newsletters as articles in blogwatcher using Cloudflare Email Routing, a Cloudflare Worker,
-and a Cloudflare Tunnel — all on the free tier.
+Receive newsletters as articles in blogwatcher using Cloudflare Email Routing and a Cloudflare Email Worker — both free tier.
 
 ## How it works
 
 ```
-Newsletter sender → Cloudflare Email Routing → Email Worker
-                                                     ↓ HTTP POST (raw RFC 822)
-                              blogwatcher ← Cloudflare Tunnel ← /newsletter/webhook
+Newsletter sender
+  → Cloudflare Email Routing (MX on subdomain)
+  → Email Worker (forwards raw email via HTTP POST)
+  → Cloudflare Tunnel (exposes ONLY /newsletter/webhook, nothing else)
+  → blogwatcher POST /newsletter/webhook
+  → stored as article in your feed
 ```
 
-Each new sender address auto-creates a blog entry; subsequent emails from the same sender
-appear as articles under that blog.
+The tunnel is locked down two ways:
+1. **Path restriction** — cloudflared itself returns 404 for every path except `/newsletter/webhook`. The blogwatcher UI is unreachable from the internet.
+2. **Webhook secret** — blogwatcher rejects any POST that doesn't include the correct `X-Webhook-Secret` header. The secret is a 32-byte random value generated at first run.
 
 ---
 
 ## Prerequisites
 
-- A Cloudflare account (free tier is sufficient)
-- A domain whose DNS is managed by Cloudflare
-  - If your root domain already uses Google Workspace or another mail provider,
-    use a **subdomain** for Email Routing (e.g. `mail.yourdomain.com`) so MX records
-    for the root are not touched
-- [Node.js](https://nodejs.org/) and `npx` for running `wrangler`
-- [`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/)
-  installed on the host machine running blogwatcher
+- Cloudflare account (free tier) with your domain's DNS managed by Cloudflare
+- [`cloudflared`](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/) installed on the machine running blogwatcher
+- [Node.js](https://nodejs.org/) with `npx` (for `wrangler`)
+- blogwatcher running locally
 
 ---
 
-## Step 1 — Enable Cloudflare Email Routing
+## Step 1 — Create the tunnel (do not start it yet)
 
-1. Log in to the [Cloudflare dashboard](https://dash.cloudflare.com) and select your domain
-   (or subdomain zone).
-2. Go to **Email → Email Routing** and click **Enable Email Routing**.
-3. Add a **catch-all rule**:
-   - **Action**: Send to a Worker
-   - **Destination**: the worker you will create in Step 2 (name it `blogwatcher-email`)
-4. Save. Cloudflare will add the necessary MX records automatically.
+```bash
+cloudflared tunnel create blogwatcher
+```
 
-> **Google Workspace note**: if your root domain already has Google Workspace MX records,
-> create a separate Cloudflare zone for a subdomain (e.g. `mail.yourdomain.com`) and
-> configure Email Routing there. Use `yourname@mail.yourdomain.com` as your newsletter
-> inbox address.
+Credentials are written to `~/.cloudflared/<tunnel-id>.json`. Note the tunnel ID.
+
+### `~/.cloudflared/config.yml`
+
+```yaml
+tunnel: blogwatcher
+credentials-file: /home/<user>/.cloudflared/<tunnel-id>.json
+
+ingress:
+  - hostname: newsletters.yourdomain.com
+    path: /newsletter/webhook    # <-- THIS LINE is what blocks the rest of the server
+    service: http://localhost:8080
+  - service: http_status:404
+```
+
+Replace `<user>`, `<tunnel-id>`, `newsletters.yourdomain.com`, and `8080` with your values.
+
+The `path:` field is critical — without it, cloudflared routes ALL traffic on that hostname to blogwatcher and your entire RSS server is public. With it, only `/newsletter/webhook` is routed; everything else returns 404 from cloudflared itself.
+
+After editing the file, restart cloudflared:
+
+```bash
+sudo systemctl restart cloudflared
+```
+
+Verify it worked — this should return 404, not your blogwatcher UI:
+
+```bash
+curl -I https://newsletters.yourdomain.com/
+```
+
+### Route DNS
+
+```bash
+cloudflared tunnel route dns blogwatcher newsletters.yourdomain.com
+```
+
+**Do not start the tunnel yet.** Set up the service token in Step 2 first.
 
 ---
 
-## Step 2 — Create the Email Worker
+## Step 2 — Start the tunnel
+
+```bash
+sudo cloudflared service install
+sudo systemctl enable --now cloudflared
+```
+
+Your webhook URL is: **`https://newsletters.yourdomain.com/newsletter/webhook`**
+
+Verify the path restriction works: `curl https://newsletters.yourdomain.com` should return 404. `curl https://newsletters.yourdomain.com/newsletter/webhook` should return 401 (no service token presented).
+
+---
+
+## Step 3 — Get your webhook secret from blogwatcher
+
+1. Open blogwatcher locally and go to **Settings**.
+2. Scroll to the **Newsletter Inbox** section.
+3. Copy the **Webhook Secret**.
+4. Set your **Inbox Email Address** (e.g. `newsletters@mail.yourdomain.com`) and click **Save**.
+
+---
+
+## Step 4 — Deploy the Email Worker
+
+The worker runs on **Cloudflare's edge infrastructure**, not on your machine. You run the commands below from any machine with Node.js (your laptop is fine) — `wrangler deploy` uploads the worker to Cloudflare. After deployment it lives entirely in Cloudflare and you can delete the local files.
+
+Now you have everything needed: the public URL (Step 2) and the webhook secret (Step 3).
 
 ### `worker.js`
 
@@ -54,7 +109,6 @@ appear as articles under that blog.
 export default {
   async email(message, env) {
     const raw = await new Response(message.raw).arrayBuffer();
-    const body = new Uint8Array(raw);
 
     const res = await fetch(env.WEBHOOK_URL, {
       method: "POST",
@@ -62,7 +116,7 @@ export default {
         "Content-Type": "message/rfc822",
         "X-Webhook-Secret": env.WEBHOOK_SECRET,
       },
-      body,
+      body: new Uint8Array(raw),
     });
 
     if (!res.ok) {
@@ -78,89 +132,51 @@ export default {
 name = "blogwatcher-email"
 main = "worker.js"
 compatibility_date = "2024-01-01"
-
-[vars]
-# Set WEBHOOK_URL and WEBHOOK_SECRET as secrets (see below)
 ```
 
-### Deploy
+### Set secrets and deploy
 
 ```bash
-# Store secrets — never commit these to version control
 npx wrangler secret put WEBHOOK_URL
-# When prompted, enter: https://bw.yourdomain.com/newsletter/webhook
+# Enter: https://newsletters.yourdomain.com/newsletter/webhook
 
 npx wrangler secret put WEBHOOK_SECRET
-# When prompted, paste the secret from blogwatcher Settings → Newsletter Inbox
+# Enter: the secret copied from blogwatcher Settings
 
 npx wrangler deploy
 ```
 
 ---
 
-## Step 3 — Set up Cloudflare Tunnel
+## Step 5 — Enable Email Routing on a subdomain
 
-### Create the tunnel
+> **If you have Google Workspace (or any other mail provider) on your root domain: do NOT click "Onboard Domain".** That button replaces your root domain's MX records and will break your existing email. Use a subdomain instead — the steps below add MX records only on the subdomain.
 
-```bash
-cloudflared tunnel create blogwatcher
-```
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Compute → Email Service → Email Routing**.
+2. Click your apex domain — do **not** click **Onboard Domain**.
+3. Open the **Settings** tab.
+4. Under **Subdomains**, enter `mail` (or whatever subdomain you want) and submit.
+5. Cloudflare adds MX records to `mail.yourdomain.com` only. Your root MX records are untouched.
 
-This writes a credentials file to `~/.cloudflared/<tunnel-id>.json`.
+Your inbox address will be anything `@mail.yourdomain.com`.
 
-### Tunnel configuration
-
-Create `~/.cloudflared/config.yml`:
-
-```yaml
-tunnel: blogwatcher
-credentials-file: /home/<user>/.cloudflared/<tunnel-id>.json
-
-ingress:
-  - hostname: bw.yourdomain.com
-    service: http://localhost:8080
-  - service: http_status:404
-```
-
-Replace `<user>`, `<tunnel-id>`, and `8080` with your actual values.
-
-### Route DNS
-
-```bash
-cloudflared tunnel route dns blogwatcher bw.yourdomain.com
-```
-
-### Run as a systemd service (Linux / Raspberry Pi)
-
-```bash
-sudo cloudflared service install
-sudo systemctl enable cloudflared
-sudo systemctl start cloudflared
-```
-
-Verify: `sudo systemctl status cloudflared`
+> If the Settings tab is inaccessible without first onboarding the root domain, use a completely separate domain that has no existing email. Do not onboard a domain with active Google Workspace MX records.
 
 ---
 
-## Step 4 — Configure blogwatcher
+## Step 6 — Create the Email Routing rule
 
-1. Open **Settings** in blogwatcher.
-2. Scroll to the **Newsletter Inbox** section.
-3. Copy the **Webhook URL** and **Webhook Secret** — use these as the values for
-   `WEBHOOK_URL` and `WEBHOOK_SECRET` when running `wrangler secret put` in Step 2.
-4. Enter your newsletter inbox address (e.g. `yourname@mail.yourdomain.com`) in the
-   **Inbox Email Address** field and click **Save**.
+1. In **Compute → Email Service → Email Routing**, select `mail.yourdomain.com`.
+2. Open the **Routing Rules** tab.
+3. Click **Create routing rule**.
+4. Set pattern to **Catch-all**, action to **Send to a Worker**, worker to `blogwatcher-email`.
+5. Click **Save**.
 
 ---
 
-## Step 5 — Subscribe to your first newsletter
+## Step 7 — Subscribe
 
-Use your inbox address when signing up to any newsletter service. When the first email
-arrives:
-
-- blogwatcher automatically creates a new blog entry for that sender.
-- The email body appears as a readable article in your feed, alongside your RSS subscriptions.
-- Subsequent emails from the same sender are added to the same blog.
+Use your inbox address (e.g. `newsletters@mail.yourdomain.com`) when signing up to any newsletter. The first email from a new sender auto-creates a blog entry for that sender; subsequent emails land there as articles alongside your RSS feed.
 
 ---
 
@@ -168,7 +184,8 @@ arrives:
 
 | Symptom | Likely cause | Fix |
 |---------|-------------|-----|
-| Worker throws on deploy | `WEBHOOK_URL` / `WEBHOOK_SECRET` not set | Run `wrangler secret put` for both |
-| Webhook returns 401 | Secret mismatch | Re-copy the secret from Settings and re-run `wrangler secret put WEBHOOK_SECRET` |
-| Tunnel not reachable | `cloudflared` not running | `sudo systemctl start cloudflared` |
-| Emails not arriving | Email Routing catch-all not saved | Re-check the catch-all rule in Cloudflare dashboard |
+| `curl newsletters.yourdomain.com` returns anything other than 404 | Tunnel ingress missing `path:` | Add `path: /newsletter/webhook` to the ingress rule in `config.yml` and restart cloudflared |
+| Webhook returns 401 | Secret mismatch | Re-copy from blogwatcher Settings and re-run `wrangler secret put WEBHOOK_SECRET`, then redeploy |
+| Webhook unreachable | Tunnel not running | `sudo systemctl start cloudflared` — verify with `curl https://newsletters.yourdomain.com/newsletter/webhook` |
+| Emails not arriving | Routing rule missing | Re-check catch-all rule in Email Routing → Routing Rules tab |
+| Root domain MX broken | "Onboard Domain" was clicked | Restore your Google Workspace MX records in Cloudflare DNS |

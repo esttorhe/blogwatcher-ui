@@ -12,6 +12,7 @@ A modern, self-contained web application for tracking blog articles and managing
 - **Automatic Sync** - Trigger scans to discover new articles from all blogs
 - **Thumbnail Support** - Visual previews of articles with Open Graph image extraction
 - **Search** - Full-text search across article titles, date posted, etc.
+- **Newsletter Inbox** - Subscribe to email newsletters and read them alongside RSS articles. Emails arrive via Cloudflare Email Routing → Email Worker → webhook. See [docs/newsletter-setup.md](docs/newsletter-setup.md) for setup.
 
 ### Desktop
 
@@ -183,6 +184,9 @@ blogwatcher-ui/
 - `POST /articles/mark-all-read` - Mark all unread articles as read
 - `POST /sync` - Trigger blog scan and refresh article list
 - `POST /api/sync` - Trigger blog scan (JSON API for cronjob use)
+- `POST /newsletter/webhook` - Receive raw RFC 822 email (requires `X-Webhook-Secret` header)
+- `GET /newsletter/article/{id}` - View a newsletter article by ID
+- `POST /settings/newsletter-inbox` - Save the newsletter inbox email address
 
 ### Query Parameters
 
