@@ -112,9 +112,12 @@ export default {
 
     const res = await fetch(env.WEBHOOK_URL, {
       method: "POST",
+      redirect: "error",  // fail visibly if Cloudflare Access redirects instead of authenticating
       headers: {
         "Content-Type": "message/rfc822",
         "X-Webhook-Secret": env.WEBHOOK_SECRET,
+        "CF-Access-Client-Id": env.CF_ACCESS_CLIENT_ID,
+        "CF-Access-Client-Secret": env.CF_ACCESS_CLIENT_SECRET,
       },
       body: new Uint8Array(raw),
     });
@@ -142,6 +145,12 @@ npx wrangler secret put WEBHOOK_URL
 
 npx wrangler secret put WEBHOOK_SECRET
 # Enter: the secret copied from blogwatcher Settings
+
+npx wrangler secret put CF_ACCESS_CLIENT_ID
+# Enter: Client ID from the blogwatcher-email-worker service token
+
+npx wrangler secret put CF_ACCESS_CLIENT_SECRET
+# Enter: Client Secret from the blogwatcher-email-worker service token
 
 npx wrangler deploy
 ```
