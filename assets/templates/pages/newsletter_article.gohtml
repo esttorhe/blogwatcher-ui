@@ -24,6 +24,7 @@
     <div class="app-layout">
         {{template "sidebar.gohtml" .}}
         <main id="main-content" class="main-content">
+            <div class="main-content-body">
             <div class="newsletter-article-page p-6 max-w-3xl">
                 <div class="mb-4">
                     <a href="/" class="text-blue-600 hover:underline text-sm">&larr; Back to inbox</a>
@@ -39,6 +40,7 @@
                         {{.HTMLContent}}
                     </div>
                 </article>
+            </div>
             </div>
         </main>
     </div>
